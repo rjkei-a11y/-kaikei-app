@@ -178,7 +178,6 @@
   <p>CASHIER ASSISTANT APP</p>
 </header>
 
-<!-- 入店種別 -->
 <div class="card">
   <div class="card-title">① 入店種別</div>
   <div class="type-grid">
@@ -200,7 +199,6 @@
   </div>
 </div>
 
-<!-- 予算 -->
 <div class="card">
   <div class="card-title">② お客様予算</div>
   <div class="input-row">
@@ -209,7 +207,6 @@
   </div>
 </div>
 
-<!-- 注文 -->
 <div class="card">
   <div class="card-title">③ 現在の注文（小計）</div>
   <div class="order-list">
@@ -241,7 +238,6 @@
   </div>
 </div>
 
-<!-- 合計 -->
 <div class="card total-card">
   <div class="card-title">④ 現在の合計</div>
   <div class="total-row">
@@ -270,14 +266,12 @@
 
 <p class="tax-note">合計 ＝ スタート料金 ＋ 注文小計 × 1.507</p>
 
-<!-- 残額 -->
 <div class="remain-card">
   <div class="remain-label">お客様の残り予算</div>
   <div class="remain-amount zero" id="remainAmount">—</div>
   <div class="remain-sub" id="remainSub">入店種別と予算を入力してください</div>
 </div>
 
-<!-- 追加注文可能額 -->
 <div class="addorder-card" id="addOrderCard">
   <div class="addorder-label">あと追加注文できる小計金額</div>
   <div class="addorder-amount" id="addOrderAmount">—</div>
@@ -302,6 +296,11 @@
     return '¥' + Math.round(n).toLocaleString('ja-JP');
   }
 
+  function roundPayment(total) {
+    const rem = total % 1000;
+    return rem >= 500 ? Math.ceil(total / 1000) * 1000 : Math.floor(total / 1000) * 1000;
+  }
+
   function calc() {
     const budget = parseInt(document.getElementById('budget').value) || 0;
 
@@ -319,29 +318,41 @@
       document.getElementById('dispTax').textContent = '—';
       document.getElementById('dispTotal').textContent = '—';
       document.getElementById('dispRounded').textContent = '—';
-      setRemain(null, null);
+      setRemain(null, null, null, null);
       return;
     }
 
     const orderWithTax = orderSum * TAX;
     const tax = orderWithTax - orderSum;
     const total = startPrice + orderWithTax;
+    const roundedTotal = roundPayment(total);
 
     document.getElementById('dispTax').textContent = '+' + fmt(tax);
     document.getElementById('dispTotal').textContent = fmt(total);
-
-    const rem = total % 1000;
-    const roundedTotal = rem >= 500 ? Math.ceil(total / 1000) * 1000 : Math.floor(total / 1000) * 1000;
     document.getElementById('dispRounded').textContent = fmt(roundedTotal);
 
-    if (!budget) { setRemain(null, null); return; }
+    if (!budget) { setRemain(null, null, null, null); return; }
 
     const remain = budget - roundedTotal;
-    const remainForAdd = budget - total;
-    setRemain(remain, remainForAdd);
+
+    // 追加注文可能額：追加小計Xを足したとき丸め後支払い額が予算以内になる最大X（500円単位）
+    let addable = 0;
+    if (roundedTotal <= budget) {
+      for (let x = 0; x <= 5000000; x += STEP) {
+        const newTotal = startPrice + (orderSum + x) * TAX;
+        const rounded = roundPayment(newTotal);
+        if (rounded <= budget) {
+          addable = x;
+        } else {
+          break;
+        }
+      }
+    }
+
+    setRemain(remain, roundedTotal, budget, addable);
   }
 
-  function setRemain(remain, remainForAdd) {
+  function setRemain(remain, roundedTotal, budget, addable) {
     const el = document.getElementById('remainAmount');
     const sub = document.getElementById('remainSub');
     const addCard = document.getElementById('addOrderCard');
@@ -362,8 +373,7 @@
     else if (remain < 0) { el.className = 'remain-amount negative'; sub.textContent = '⚠️ 予算超過しています'; }
     else { el.className = 'remain-amount zero'; sub.textContent = 'ちょうどです'; }
 
-    if (remainForAdd > 0) {
-      const addable = Math.floor((remainForAdd / TAX) / STEP) * STEP;
+    if (roundedTotal <= budget) {
       addCard.className = 'addorder-card';
       if (addable > 0) {
         addAmt.textContent = fmt(addable);

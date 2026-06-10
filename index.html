@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" style="background:#0a0a0f;min-height:100%;">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -24,6 +24,7 @@
 
   body {
     background: var(--bg);
+    background-color: #0a0a0f;
     color: var(--text);
     font-family: 'Noto Sans JP', sans-serif;
     min-height: 100vh;
@@ -79,7 +80,7 @@
   .input-row { display: flex; align-items: center; gap: 10px; }
   .input-row label { font-size: 0.78rem; color: var(--muted); white-space: nowrap; }
 
-  input[type="number"] {
+  input[type="number"], input[type="text"] {
     flex: 1;
     background: var(--surface2);
     border: 1.5px solid var(--border);
@@ -94,7 +95,7 @@
     -moz-appearance: textfield;
   }
   input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
-  input[type="number"]:focus { border-color: var(--accent); }
+  input[type="number"]:focus, input[type="text"]:focus { border-color: var(--accent); }
 
   .order-list { display: flex; flex-direction: column; gap: 10px; }
   .order-item { display: flex; align-items: center; gap: 8px; }
@@ -116,7 +117,7 @@
   }
 
   .total-card {
-    background: linear-gradient(135deg, rgba(232,184,109,0.12), rgba(201,123,62,0.08));
+    background: linear-gradient(135deg, rgba(232,184,109,0.12), rgba(201,123,62,0.08)), #0d0d14;
     border: 1.5px solid var(--accent);
   }
   .total-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
@@ -127,6 +128,14 @@
     font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.05em;
   }
   .divider { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
+
+  .tanto-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    background: rgba(224,90,90,0.08); border: 1px solid rgba(224,90,90,0.3);
+    border-radius: 8px; padding: 8px 12px; margin-top: 10px;
+  }
+  .tanto-label { font-size: 0.72rem; color: var(--danger); letter-spacing: 0.08em; }
+  .tanto-val { font-size: 1.1rem; font-weight: 700; color: var(--danger); }
 
   .remain-card {
     background: var(--surface);
@@ -171,7 +180,7 @@
   }
 </style>
 </head>
-<body>
+<body style="background:#0a0a0f;min-height:100vh;margin:0;">
 
 <header>
   <h1>会計計算ツール</h1>
@@ -203,7 +212,7 @@
   <div class="card-title">② お客様予算</div>
   <div class="input-row">
     <label>予算 ¥</label>
-    <input type="number" id="budget" placeholder="例: 50000" oninput="calc()">
+    <input type="text" id="budgetDisp" placeholder="例: 50,000" inputmode="numeric" oninput="onBudget(this)" style="flex:1;background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-size:1rem;font-family:'Noto Sans JP',sans-serif;padding:10px 12px;outline:none;width:100%;"><input type="hidden" id="budget">
   </div>
 </div>
 
@@ -212,27 +221,27 @@
   <div class="order-list">
     <div class="order-item">
       <span class="order-num">01</span>
-      <input type="number" class="order-input" id="o1" placeholder="¥0" oninput="calc()">
+      <input type="text" class="order-input" id="o1" placeholder="¥0" inputmode="numeric" oninput="onOrder(this,1)"><input type="hidden" id="ov1">
       <span class="taxxed-display" id="t1"></span>
     </div>
     <div class="order-item">
       <span class="order-num">02</span>
-      <input type="number" class="order-input" id="o2" placeholder="¥0" oninput="calc()">
+      <input type="text" class="order-input" id="o2" placeholder="¥0" inputmode="numeric" oninput="onOrder(this,2)"><input type="hidden" id="ov2">
       <span class="taxxed-display" id="t2"></span>
     </div>
     <div class="order-item">
       <span class="order-num">03</span>
-      <input type="number" class="order-input" id="o3" placeholder="¥0" oninput="calc()">
+      <input type="text" class="order-input" id="o3" placeholder="¥0" inputmode="numeric" oninput="onOrder(this,3)"><input type="hidden" id="ov3">
       <span class="taxxed-display" id="t3"></span>
     </div>
     <div class="order-item">
       <span class="order-num">04</span>
-      <input type="number" class="order-input" id="o4" placeholder="¥0" oninput="calc()">
+      <input type="text" class="order-input" id="o4" placeholder="¥0" inputmode="numeric" oninput="onOrder(this,4)"><input type="hidden" id="ov4">
       <span class="taxxed-display" id="t4"></span>
     </div>
     <div class="order-item">
       <span class="order-num">05</span>
-      <input type="number" class="order-input" id="o5" placeholder="¥0" oninput="calc()">
+      <input type="text" class="order-input" id="o5" placeholder="¥0" inputmode="numeric" oninput="onOrder(this,5)"><input type="hidden" id="ov5">
       <span class="taxxed-display" id="t5"></span>
     </div>
   </div>
@@ -262,6 +271,10 @@
     <span class="total-label" style="color:var(--accent);font-weight:700;letter-spacing:0.1em;">お支払い額（1,000円単位）</span>
     <span class="total-val" id="dispRounded" style="font-size:2rem;color:var(--accent);">—</span>
   </div>
+  <div class="tanto-row" id="tantoRow" style="display:none;">
+    <span class="tanto-label">担当小計</span>
+    <span class="tanto-val" id="dispTanto">—</span>
+  </div>
 </div>
 
 <p class="tax-note">合計 ＝ スタート料金 ＋ 注文小計 × 1.507</p>
@@ -281,9 +294,38 @@
 <button class="reset-btn" onclick="resetAll()">↺ リセット</button>
 
 <script>
+  function fmtInput(val) {
+    const n = parseInt(val.replace(/,/g, '')) || 0;
+    return n > 0 ? n.toLocaleString('ja-JP') : '';
+  }
+
+  function onBudget(el) {
+    const raw = el.value.replace(/,/g, '');
+    const n = parseInt(raw) || 0;
+    el.value = n > 0 ? n.toLocaleString('ja-JP') : (raw === '' ? '' : raw);
+    document.getElementById('budget').value = n || '';
+    calc();
+  }
+
+  function onOrder(el, idx) {
+    const raw = el.value.replace(/,/g, '');
+    const n = parseInt(raw) || 0;
+    el.value = n > 0 ? n.toLocaleString('ja-JP') : (raw === '' ? '' : raw);
+    document.getElementById('ov' + idx).value = n || 0;
+    calc();
+  }
+
   const TAX = 1.507;
   const STEP = 500;
   let startPrice = 0;
+
+  const TANTO_MAP = {
+    11535: 2000,
+    16056: 5000,
+    20577: 8000,
+    31126: 15000,
+    35647: 18000,
+  };
 
   function selectType(btn) {
     document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected'));
@@ -306,7 +348,7 @@
 
     let orderSum = 0;
     for (let i = 1; i <= 5; i++) {
-      const v = parseInt(document.getElementById('o' + i).value) || 0;
+      const v = parseInt(document.getElementById('ov' + i).value) || 0;
       orderSum += v;
       document.getElementById('t' + i).textContent = v > 0 ? '税込' + fmt(v * TAX) : '';
     }
@@ -318,6 +360,7 @@
       document.getElementById('dispTax').textContent = '—';
       document.getElementById('dispTotal').textContent = '—';
       document.getElementById('dispRounded').textContent = '—';
+      document.getElementById('tantoRow').style.display = 'none';
       setRemain(null, null, null, null);
       return;
     }
@@ -331,17 +374,21 @@
     document.getElementById('dispTotal').textContent = fmt(total);
     document.getElementById('dispRounded').textContent = fmt(roundedTotal);
 
+    // 担当小計
+    const tanto = (TANTO_MAP[startPrice] || 0) + orderSum;
+    document.getElementById('tantoRow').style.display = 'flex';
+    document.getElementById('dispTanto').textContent = fmt(tanto);
+
     if (!budget) { setRemain(null, null, null, null); return; }
 
     const remain = budget - roundedTotal;
 
-    // 追加注文可能額：追加小計Xを足したとき丸め後支払い額が予算以内になる最大X（500円単位）
+    // 追加注文可能額：丸め後支払い額が予算以内になる最大小計（500円単位）
     let addable = 0;
     if (roundedTotal <= budget) {
       for (let x = 0; x <= 5000000; x += STEP) {
         const newTotal = startPrice + (orderSum + x) * TAX;
-        const rounded = roundPayment(newTotal);
-        if (rounded <= budget) {
+        if (roundPayment(newTotal) <= budget) {
           addable = x;
         } else {
           break;
@@ -393,8 +440,11 @@
     document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected'));
     startPrice = 0;
     document.getElementById('budget').value = '';
+    document.getElementById('budgetDisp').value = '';
+    document.getElementById('tantoRow').style.display = 'none';
     for (let i = 1; i <= 5; i++) {
       document.getElementById('o' + i).value = '';
+      document.getElementById('ov' + i).value = '';
       document.getElementById('t' + i).textContent = '';
     }
     calc();

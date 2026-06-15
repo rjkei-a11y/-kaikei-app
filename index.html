@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja" style="background:#0a0a0f;min-height:100%;">
+<html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,10 +21,9 @@
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #0a0a0f; }
 
   body {
-    background: var(--bg);
-    background-color: #0a0a0f;
     color: var(--text);
     font-family: 'Noto Sans JP', sans-serif;
     min-height: 100vh;
@@ -35,43 +34,14 @@
   }
 
   header { text-align: center; margin-bottom: 28px; }
-  header h1 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 2.6rem;
-    letter-spacing: 0.12em;
-    color: var(--accent);
-    line-height: 1;
-  }
+  header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 2.6rem; letter-spacing: 0.12em; color: var(--accent); line-height: 1; }
   header p { color: var(--muted); font-size: 0.78rem; letter-spacing: 0.1em; margin-top: 4px; }
 
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 20px 18px;
-    margin-bottom: 16px;
-  }
-  .card-title {
-    font-size: 0.7rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 14px;
-    font-weight: 700;
-  }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px 18px; margin-bottom: 16px; }
+  .card-title { font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; font-weight: 700; }
 
   .type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .type-btn {
-    background: var(--surface2);
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    color: var(--text);
-    padding: 10px 8px;
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.18s;
-    font-family: 'Noto Sans JP', sans-serif;
-  }
+  .type-btn { background: var(--surface2); border: 1.5px solid var(--border); border-radius: 10px; color: var(--text); padding: 10px 8px; cursor: pointer; text-align: center; transition: all 0.18s; font-family: 'Noto Sans JP', sans-serif; }
   .type-btn .label { font-size: 0.82rem; font-weight: 700; display: block; }
   .type-btn .price { font-size: 0.7rem; color: var(--muted); margin-top: 2px; display: block; }
   .type-btn.selected { background: rgba(232,184,109,0.15); border-color: var(--accent); color: var(--accent); }
@@ -81,70 +51,33 @@
   .input-row label { font-size: 0.78rem; color: var(--muted); white-space: nowrap; }
 
   input[type="number"], input[type="text"] {
-    flex: 1;
-    background: var(--surface2);
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    color: var(--text);
-    font-size: 1rem;
-    font-family: 'Noto Sans JP', sans-serif;
-    padding: 10px 12px;
-    outline: none;
-    transition: border-color 0.15s;
-    width: 100%;
-    -moz-appearance: textfield;
+    flex: 1; background: var(--surface2); border: 1.5px solid var(--border);
+    border-radius: 8px; color: var(--text); font-size: 1rem;
+    font-family: 'Noto Sans JP', sans-serif; padding: 10px 12px;
+    outline: none; transition: border-color 0.15s; width: 100%;
+    -moz-appearance: textfield; -webkit-appearance: none;
   }
   input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
   input[type="number"]:focus, input[type="text"]:focus { border-color: var(--accent); }
 
   .order-list { display: flex; flex-direction: column; gap: 10px; }
   .order-item { display: flex; align-items: center; gap: 8px; }
-  .order-num {
-    font-size: 0.7rem;
-    color: var(--accent);
-    font-weight: 900;
-    font-family: 'Bebas Neue', sans-serif;
-    letter-spacing: 0.05em;
-    min-width: 22px;
-  }
+  .order-num { font-size: 0.7rem; color: var(--accent); font-weight: 900; font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.05em; min-width: 22px; }
   .order-input { flex: 1; min-width: 0; }
-  .taxxed-display {
-    font-size: 0.68rem;
-    color: var(--accent2);
-    text-align: right;
-    white-space: nowrap;
-    min-width: 80px;
-  }
+  .taxxed-display { font-size: 0.68rem; color: var(--accent2); text-align: right; white-space: nowrap; min-width: 80px; }
 
-  .total-card {
-    background: linear-gradient(135deg, rgba(232,184,109,0.12), rgba(201,123,62,0.08)), #0d0d14;
-    border: 1.5px solid var(--accent);
-  }
+  .total-card { background: linear-gradient(135deg, rgba(232,184,109,0.12), rgba(201,123,62,0.08)), #13131c; border: 1.5px solid var(--accent); }
   .total-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
-  .total-row .total-label { font-size: 0.72rem; color: var(--muted); letter-spacing: 0.08em; }
-  .total-row .total-val { font-size: 1.1rem; font-weight: 700; color: var(--text); }
-  .total-row.big .total-val {
-    font-size: 1.5rem; color: var(--accent);
-    font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.05em;
-  }
+  .total-row .total-label { font-size: 0.72rem; color: #888899; letter-spacing: 0.08em; }
+  .total-row .total-val { font-size: 1.1rem; font-weight: 700; color: #f0eee8; }
+  .total-row.big .total-val { font-size: 1.5rem; color: var(--accent); font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.05em; }
   .divider { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
 
-  .tanto-row {
-    display: flex; justify-content: space-between; align-items: baseline;
-    background: rgba(224,90,90,0.08); border: 1px solid rgba(224,90,90,0.3);
-    border-radius: 8px; padding: 8px 12px; margin-top: 10px;
-  }
+  .tanto-row { display: flex; justify-content: space-between; align-items: baseline; background: rgba(224,90,90,0.08); border: 1px solid rgba(224,90,90,0.3); border-radius: 8px; padding: 8px 12px; margin-top: 10px; }
   .tanto-label { font-size: 0.72rem; color: var(--danger); letter-spacing: 0.08em; }
   .tanto-val { font-size: 1.1rem; font-weight: 700; color: var(--danger); }
 
-  .remain-card {
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    border-radius: 14px;
-    padding: 20px 18px;
-    margin-bottom: 16px;
-    text-align: center;
-  }
+  .remain-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: 14px; padding: 20px 18px; margin-bottom: 16px; text-align: center; }
   .remain-label { font-size: 0.7rem; letter-spacing: 0.18em; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; }
   .remain-amount { font-family: 'Bebas Neue', sans-serif; font-size: 3.2rem; letter-spacing: 0.04em; line-height: 1; transition: color 0.3s; }
   .remain-amount.positive { color: var(--success); }
@@ -152,35 +85,117 @@
   .remain-amount.zero { color: var(--muted); }
   .remain-sub { font-size: 0.75rem; color: var(--muted); margin-top: 6px; }
 
-  .addorder-card {
-    background: var(--surface2);
-    border: 1.5px solid var(--border);
-    border-radius: 14px;
-    padding: 18px;
-    margin-bottom: 16px;
-    text-align: center;
-  }
+  .addorder-card { background: var(--surface2); border: 1.5px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 16px; text-align: center; }
   .addorder-label { font-size: 0.7rem; letter-spacing: 0.15em; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; font-weight: 700; }
   .addorder-amount { font-family: 'Bebas Neue', sans-serif; font-size: 2.6rem; color: var(--success); letter-spacing: 0.04em; }
   .addorder-sub { font-size: 0.72rem; color: var(--muted); margin-top: 4px; }
   .addorder-card.over .addorder-amount { color: var(--danger); }
   .addorder-card.over .addorder-sub { color: var(--danger); }
 
-  .reset-btn {
-    width: 100%; background: transparent; border: 1.5px solid var(--border);
-    border-radius: 10px; color: var(--muted); padding: 12px;
-    font-size: 0.8rem; font-family: 'Noto Sans JP', sans-serif;
-    letter-spacing: 0.1em; cursor: pointer; transition: all 0.2s;
+  .tax-note { text-align: center; font-size: 0.68rem; color: var(--muted); margin-top: -10px; margin-bottom: 14px; letter-spacing: 0.06em; }
+
+  /* 会計確定ボタン */
+  .confirm-btn {
+    width: 100%; background: linear-gradient(135deg, rgba(232,184,109,0.2), rgba(201,123,62,0.15));
+    border: 1.5px solid var(--accent); border-radius: 10px; color: var(--accent);
+    padding: 14px; font-size: 0.95rem; font-family: 'Noto Sans JP', sans-serif;
+    letter-spacing: 0.12em; cursor: pointer; transition: all 0.2s; margin-bottom: 12px; font-weight: 700;
   }
+  .confirm-btn:active { background: rgba(232,184,109,0.3); }
+
+  .reset-btn { width: 100%; background: transparent; border: 1.5px solid var(--border); border-radius: 10px; color: var(--muted); padding: 12px; font-size: 0.8rem; font-family: 'Noto Sans JP', sans-serif; letter-spacing: 0.1em; cursor: pointer; transition: all 0.2s; }
   .reset-btn:active { background: rgba(255,255,255,0.04); }
 
-  .tax-note {
-    text-align: center; font-size: 0.68rem; color: var(--muted);
-    margin-top: -10px; margin-bottom: 14px; letter-spacing: 0.06em;
+  /* 日次集計 */
+  .daily-section { margin-top: 28px; }
+  .daily-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .daily-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; color: var(--accent); letter-spacing: 0.1em; }
+  .daily-clear { font-size: 0.65rem; color: var(--muted); background: transparent; border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; }
+
+  /* 集計サマリー */
+  .summary-card {
+    background: linear-gradient(135deg, rgba(232,184,109,0.1), rgba(201,123,62,0.06));
+    border: 1.5px solid var(--accent); border-radius: 14px; padding: 16px 18px; margin-bottom: 12px;
   }
+  .summary-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .summary-item { text-align: center; }
+  .summary-label { font-size: 0.58rem; color: var(--muted); letter-spacing: 0.1em; margin-bottom: 4px; }
+  .summary-val { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; color: var(--accent); letter-spacing: 0.04em; line-height: 1; }
+  .summary-val.danger { color: var(--danger); }
+  .summary-divider { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
+  .summary-total-row { display: flex; justify-content: space-between; align-items: baseline; }
+  .summary-total-label { font-size: 0.68rem; color: var(--muted); }
+  .summary-total-val { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; color: var(--accent); letter-spacing: 0.05em; }
+  .summary-total-val.danger { color: var(--danger); }
+
+  /* 履歴リスト */
+  .history-list { display: flex; flex-direction: column; gap: 8px; }
+  .history-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .history-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; cursor: pointer; }
+  .history-num { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; color: var(--accent); letter-spacing: 0.08em; min-width: 36px; }
+  .history-info { flex: 1; }
+  .history-type { font-size: 0.75rem; font-weight: 700; color: var(--text); }
+  .history-type-label { color: var(--accent); }
+  .history-memo-text { color: #b8b8c4; font-weight: 400; }
+  .history-pay { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
+  .history-tanto { font-size: 0.68rem; color: var(--danger); margin-top: 1px; }
+  .history-right { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; flex-shrink: 0; }
+  .history-budget { font-size: 0.62rem; color: var(--muted); white-space: nowrap; }
+  .history-addable { font-size: 0.62rem; color: var(--success); white-space: nowrap; }
+  .history-arrow { font-size: 0.7rem; color: var(--muted); transition: transform 0.2s; margin-top: 4px; }
+  .history-arrow.open { transform: rotate(180deg); }
+
+  /* 履歴展開（編集） */
+  .history-edit { padding: 0 14px 14px; border-top: 1px solid var(--border); display: none; }
+  .history-edit.open { display: block; }
+  .edit-section-title { font-size: 0.58rem; letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase; margin: 10px 0 6px; }
+  .edit-type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 8px; }
+  .edit-type-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 7px; color: var(--text); padding: 6px 4px; cursor: pointer; text-align: center; font-family: 'Noto Sans JP', sans-serif; font-size: 0.72rem; font-weight: 700; }
+  .edit-type-btn.selected { background: rgba(232,184,109,0.15); border-color: var(--accent); color: var(--accent); }
+  .edit-order-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+  .edit-order-item { display: flex; align-items: center; gap: 6px; }
+  .edit-order-num { font-size: 0.62rem; color: var(--accent); font-family: 'Bebas Neue', sans-serif; min-width: 18px; }
+  .edit-input { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 0.85rem; font-family: 'Noto Sans JP', sans-serif; padding: 6px 10px; outline: none; -moz-appearance: textfield; -webkit-appearance: none; }
+  .edit-input:focus { border-color: var(--accent); }
+  .edit-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .edit-result { background: var(--surface2); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; }
+  .edit-result-row { display: flex; justify-content: space-between; font-size: 0.68rem; margin-bottom: 3px; }
+  .edit-result-label { color: var(--muted); }
+  .edit-result-val { color: var(--text); font-weight: 700; }
+  .edit-result-val.accent { color: var(--accent); }
+  .edit-result-val.danger { color: var(--danger); }
+  .edit-btn-row { display: flex; gap: 6px; }
+  .edit-save-btn { flex: 1; background: rgba(232,184,109,0.15); border: 1px solid var(--accent); border-radius: 8px; color: var(--accent); padding: 8px; font-size: 0.75rem; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; font-weight: 700; }
+  .edit-del-btn { background: rgba(224,90,90,0.1); border: 1px solid rgba(224,90,90,0.3); border-radius: 8px; color: var(--danger); padding: 8px 12px; font-size: 0.75rem; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; }
+
+  .no-history { text-align: center; color: var(--muted); font-size: 0.75rem; padding: 20px; }
+
+  /* メモ欄 */
+  .memo-input {
+    flex: 1; background: var(--surface2); border: 1.5px solid var(--border);
+    border-radius: 8px; color: var(--text); font-size: 0.85rem;
+    font-family: 'Noto Sans JP', sans-serif; padding: 8px 12px;
+    outline: none; width: 100%; -webkit-appearance: none;
+  }
+  .memo-input:focus { border-color: var(--accent); }
+  .memo-input::placeholder { color: #555566; }
+
+  .history-memo {
+    font-size: 0.65rem; color: var(--accent2); margin-top: 2px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+
+  .edit-memo-input {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text); font-size: 0.78rem;
+    font-family: 'Noto Sans JP', sans-serif; padding: 6px 10px;
+    outline: none; -webkit-appearance: none;
+  }
+  .edit-memo-input:focus { border-color: var(--accent); }
+  .edit-memo-input::placeholder { color: #555566; }
 </style>
 </head>
-<body style="background:#0a0a0f;min-height:100vh;margin:0;">
+<body>
 
 <header>
   <h1>会計計算ツール</h1>
@@ -190,19 +205,19 @@
 <div class="card">
   <div class="card-title">① 入店種別</div>
   <div class="type-grid">
-    <button class="type-btn" data-price="11535" onclick="selectType(this)">
+    <button class="type-btn" data-price="11535" data-label="1時間" onclick="selectType(this)">
       <span class="label">1時間</span><span class="price">¥11,535</span>
     </button>
-    <button class="type-btn" data-price="16056" onclick="selectType(this)">
+    <button class="type-btn" data-price="16056" data-label="2時間" onclick="selectType(this)">
       <span class="label">2時間</span><span class="price">¥16,056</span>
     </button>
-    <button class="type-btn" data-price="20577" onclick="selectType(this)">
+    <button class="type-btn" data-price="20577" data-label="フリータイム" onclick="selectType(this)">
       <span class="label">フリータイム</span><span class="price">¥20,577</span>
     </button>
-    <button class="type-btn" data-price="31126" onclick="selectType(this)">
+    <button class="type-btn" data-price="31126" data-label="VIP通常" onclick="selectType(this)">
       <span class="label">VIP通常</span><span class="price">¥31,126</span>
     </button>
-    <button class="type-btn" style="grid-column:span 2;" data-price="35647" onclick="selectType(this)">
+    <button class="type-btn" style="grid-column:span 2;" data-price="35647" data-label="VIP特殊" onclick="selectType(this)">
       <span class="label">VIP特殊</span><span class="price">¥35,647</span>
     </button>
   </div>
@@ -212,60 +227,29 @@
   <div class="card-title">② お客様予算</div>
   <div class="input-row">
     <label>予算 ¥</label>
-    <input type="text" id="budgetDisp" placeholder="例: 50,000" inputmode="numeric" oninput="onBudget(this)" style="flex:1;background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-size:1rem;font-family:'Noto Sans JP',sans-serif;padding:10px 12px;outline:none;width:100%;"><input type="hidden" id="budget">
+    <input type="text" id="budgetDisp" placeholder="例: 50,000" inputmode="numeric" oninput="onBudget(this)">
+    <input type="hidden" id="budget">
   </div>
 </div>
 
 <div class="card">
   <div class="card-title">③ 現在の注文（小計）</div>
   <div class="order-list">
-    <div class="order-item">
-      <span class="order-num">01</span>
-      <input type="text" class="order-input" id="o1" placeholder="¥0" inputmode="numeric" oninput="onOrder(this,1)"><input type="hidden" id="ov1">
-      <span class="taxxed-display" id="t1"></span>
-    </div>
-    <div class="order-item">
-      <span class="order-num">02</span>
-      <input type="text" class="order-input" id="o2" placeholder="¥0" inputmode="numeric" oninput="onOrder(this,2)"><input type="hidden" id="ov2">
-      <span class="taxxed-display" id="t2"></span>
-    </div>
-    <div class="order-item">
-      <span class="order-num">03</span>
-      <input type="text" class="order-input" id="o3" placeholder="¥0" inputmode="numeric" oninput="onOrder(this,3)"><input type="hidden" id="ov3">
-      <span class="taxxed-display" id="t3"></span>
-    </div>
-    <div class="order-item">
-      <span class="order-num">04</span>
-      <input type="text" class="order-input" id="o4" placeholder="¥0" inputmode="numeric" oninput="onOrder(this,4)"><input type="hidden" id="ov4">
-      <span class="taxxed-display" id="t4"></span>
-    </div>
-    <div class="order-item">
-      <span class="order-num">05</span>
-      <input type="text" class="order-input" id="o5" placeholder="¥0" inputmode="numeric" oninput="onOrder(this,5)"><input type="hidden" id="ov5">
-      <span class="taxxed-display" id="t5"></span>
-    </div>
+    <div class="order-item"><span class="order-num">01</span><input type="text" class="order-input" id="o1" placeholder="¥0" inputmode="numeric" oninput="onOrder(this,1)"><input type="hidden" id="ov1"><span class="taxxed-display" id="t1"></span></div>
+    <div class="order-item"><span class="order-num">02</span><input type="text" class="order-input" id="o2" placeholder="¥0" inputmode="numeric" oninput="onOrder(this,2)"><input type="hidden" id="ov2"><span class="taxxed-display" id="t2"></span></div>
+    <div class="order-item"><span class="order-num">03</span><input type="text" class="order-input" id="o3" placeholder="¥0" inputmode="numeric" oninput="onOrder(this,3)"><input type="hidden" id="ov3"><span class="taxxed-display" id="t3"></span></div>
+    <div class="order-item"><span class="order-num">04</span><input type="text" class="order-input" id="o4" placeholder="¥0" inputmode="numeric" oninput="onOrder(this,4)"><input type="hidden" id="ov4"><span class="taxxed-display" id="t4"></span></div>
+    <div class="order-item"><span class="order-num">05</span><input type="text" class="order-input" id="o5" placeholder="¥0" inputmode="numeric" oninput="onOrder(this,5)"><input type="hidden" id="ov5"><span class="taxxed-display" id="t5"></span></div>
   </div>
 </div>
 
 <div class="card total-card">
   <div class="card-title">④ 現在の合計</div>
-  <div class="total-row">
-    <span class="total-label">スタート料金</span>
-    <span class="total-val" id="dispStart">—</span>
-  </div>
-  <div class="total-row">
-    <span class="total-label">注文小計</span>
-    <span class="total-val" id="dispOrder">¥0</span>
-  </div>
-  <div class="total-row">
-    <span class="total-label">注文小計への税・諸費用（×1.507）</span>
-    <span class="total-val" id="dispTax">—</span>
-  </div>
+  <div class="total-row"><span class="total-label">スタート料金</span><span class="total-val" id="dispStart">—</span></div>
+  <div class="total-row"><span class="total-label">注文小計</span><span class="total-val" id="dispOrder">¥0</span></div>
+  <div class="total-row"><span class="total-label">注文小計への税・諸費用（×1.507）</span><span class="total-val" id="dispTax">—</span></div>
   <hr class="divider">
-  <div class="total-row big">
-    <span class="total-label">現在の合計金額</span>
-    <span class="total-val" id="dispTotal">—</span>
-  </div>
+  <div class="total-row big"><span class="total-label">現在の合計金額</span><span class="total-val" id="dispTotal">—</span></div>
   <hr class="divider">
   <div class="total-row big" style="background:rgba(232,184,109,0.08);border-radius:10px;padding:10px 12px;margin-top:4px;">
     <span class="total-label" style="color:var(--accent);font-weight:700;letter-spacing:0.1em;">お支払い額（1,000円単位）</span>
@@ -274,6 +258,10 @@
   <div class="tanto-row" id="tantoRow" style="display:none;">
     <span class="tanto-label">担当小計</span>
     <span class="tanto-val" id="dispTanto">—</span>
+  </div>
+  <div class="input-row" style="margin-top:10px;">
+    <label style="white-space:nowrap;">メモ</label>
+    <input type="text" id="memoInput" class="memo-input" placeholder="卓番・特記事項など">
   </div>
 </div>
 
@@ -291,41 +279,109 @@
   <div class="addorder-sub" id="addOrderSub">500円単位（税・諸費用込みの残額から逆算）</div>
 </div>
 
-<button class="reset-btn" onclick="resetAll()">↺ リセット</button>
+<button class="confirm-btn" onclick="confirmBilling()">✓ 会計確定して次のお客様へ</button>
+<button class="reset-btn" onclick="resetAll()">↺ 入力をリセット</button>
+
+<!-- 日次集計 -->
+<div class="daily-section">
+  <div class="daily-header">
+    <div class="daily-title">日次集計</div>
+    <div style="display:flex;gap:6px;">
+      <button class="daily-clear" id="undoBtn" onclick="undoLast()" style="display:none;">↺ 元に戻す</button>
+      <button class="daily-clear" onclick="clearHistory()">履歴をクリア</button>
+    </div>
+  </div>
+
+  <div class="summary-card" id="summaryCard">
+    <div class="summary-grid">
+      <div class="summary-item">
+        <div class="summary-label">客数</div>
+        <div class="summary-val" id="sumCount">0</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-label">担当小計合計</div>
+        <div class="summary-val danger" id="sumTanto">¥0</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-label">お支払い合計</div>
+        <div class="summary-val" id="sumPay">¥0</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="history-list" id="historyList">
+    <div class="no-history">まだ会計履歴がありません</div>
+  </div>
+</div>
 
 <script>
-  function fmtInput(val) {
-    const n = parseInt(val.replace(/,/g, '')) || 0;
-    return n > 0 ? n.toLocaleString('ja-JP') : '';
+  const TAX = 1.507;
+  const STEP = 500;
+  const TANTO_MAP = { 11535:2000, 16056:5000, 20577:8000, 31126:15000, 35647:18000 };
+  const TYPE_LABELS = { 11535:'1時間', 16056:'2時間', 20577:'フリータイム', 31126:'VIP通常', 35647:'VIP特殊' };
+  const TYPES = [
+    { price:11535, label:'1時間' }, { price:16056, label:'2時間' },
+    { price:20577, label:'フリータイム' }, { price:31126, label:'VIP通常' }, { price:35647, label:'VIP特殊' }
+  ];
+
+  let startPrice = 0;
+  let history = [];
+  let undoStack = null; // 直前の履歴状態を保持
+
+  // ローカルストレージから履歴を読み込む
+  function loadHistory() {
+    try {
+      const saved = localStorage.getItem('kaikei_history');
+      if (saved) history = JSON.parse(saved);
+    } catch(e) { history = []; }
+    renderHistory();
   }
 
+  // ローカルストレージに履歴を保存
+  function saveHistory() {
+    try { localStorage.setItem('kaikei_history', JSON.stringify(history)); } catch(e) {}
+  }
+
+  function fmt(n) { return '¥' + Math.round(n).toLocaleString('ja-JP'); }
+  function roundPayment(t) { const r = t % 1000; return r >= 500 ? Math.ceil(t/1000)*1000 : Math.floor(t/1000)*1000; }
+
   function onBudget(el) {
-    const raw = el.value.replace(/,/g, '');
+    const raw = el.value.replace(/,/g,'');
     const n = parseInt(raw) || 0;
-    el.value = n > 0 ? n.toLocaleString('ja-JP') : (raw === '' ? '' : raw);
+    el.value = n > 0 ? n.toLocaleString('ja-JP') : (raw===''?'':raw);
     document.getElementById('budget').value = n || '';
     calc();
   }
 
   function onOrder(el, idx) {
-    const raw = el.value.replace(/,/g, '');
+    const raw = el.value.replace(/,/g,'');
     const n = parseInt(raw) || 0;
-    el.value = n > 0 ? n.toLocaleString('ja-JP') : (raw === '' ? '' : raw);
-    document.getElementById('ov' + idx).value = n || 0;
+    el.value = n > 0 ? n.toLocaleString('ja-JP') : (raw===''?'':raw);
+    document.getElementById('ov'+idx).value = n || 0;
     calc();
   }
 
-  const TAX = 1.507;
-  const STEP = 500;
-  let startPrice = 0;
+  function budgetHTML(e) {
+    var b = e.budget ? fmt(e.budget) : '—';
+    var a = e.budget ? fmt(e.addable||0) : '—';
+    return '<div class="history-budget">予算 ' + b + '</div><div class="history-addable">残り小計 ' + a + '</div>';
+  }
 
-  const TANTO_MAP = {
-    11535: 2000,
-    16056: 5000,
-    20577: 8000,
-    31126: 15000,
-    35647: 18000,
-  };
+  function onEditMemo(id, el) {
+    const entry = history.find(e=>e.id===id);
+    if (!entry) return;
+    entry.memo = el.value.trim();
+    const hinfo = document.querySelector('#hitem-'+id+' .history-info .history-type');
+    if (hinfo) hinfo.textContent = entry.typeLabel + (entry.memo ? ' ・ '+entry.memo : '');
+    saveHistory();
+  }
+
+  function onEditOrder(el, id, idx) {
+    const raw = el.value.replace(/,/g,'');
+    const n = parseInt(raw) || 0;
+    el.value = n > 0 ? n.toLocaleString('ja-JP') : (raw===''?'':raw);
+    editCalc(id);
+  }
 
   function selectType(btn) {
     document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected'));
@@ -334,25 +390,14 @@
     calc();
   }
 
-  function fmt(n) {
-    return '¥' + Math.round(n).toLocaleString('ja-JP');
-  }
-
-  function roundPayment(total) {
-    const rem = total % 1000;
-    return rem >= 500 ? Math.ceil(total / 1000) * 1000 : Math.floor(total / 1000) * 1000;
-  }
-
   function calc() {
     const budget = parseInt(document.getElementById('budget').value) || 0;
-
     let orderSum = 0;
-    for (let i = 1; i <= 5; i++) {
-      const v = parseInt(document.getElementById('ov' + i).value) || 0;
+    for (let i=1;i<=5;i++) {
+      const v = parseInt(document.getElementById('ov'+i).value) || 0;
       orderSum += v;
-      document.getElementById('t' + i).textContent = v > 0 ? '税込' + fmt(v * TAX) : '';
+      document.getElementById('t'+i).textContent = v > 0 ? '税込'+fmt(v*TAX) : '';
     }
-
     document.getElementById('dispStart').textContent = startPrice ? fmt(startPrice) : '—';
     document.getElementById('dispOrder').textContent = fmt(orderSum);
 
@@ -361,8 +406,7 @@
       document.getElementById('dispTotal').textContent = '—';
       document.getElementById('dispRounded').textContent = '—';
       document.getElementById('tantoRow').style.display = 'none';
-      setRemain(null, null, null, null);
-      return;
+      setRemain(null,null,null,null); return;
     }
 
     const orderWithTax = orderSum * TAX;
@@ -370,32 +414,23 @@
     const total = startPrice + orderWithTax;
     const roundedTotal = roundPayment(total);
 
-    document.getElementById('dispTax').textContent = '+' + fmt(tax);
+    document.getElementById('dispTax').textContent = '+'+fmt(tax);
     document.getElementById('dispTotal').textContent = fmt(total);
     document.getElementById('dispRounded').textContent = fmt(roundedTotal);
 
-    // 担当小計
-    const tanto = (TANTO_MAP[startPrice] || 0) + orderSum;
+    const tanto = (TANTO_MAP[startPrice]||0) + orderSum;
     document.getElementById('tantoRow').style.display = 'flex';
     document.getElementById('dispTanto').textContent = fmt(tanto);
 
-    if (!budget) { setRemain(null, null, null, null); return; }
+    if (!budget) { setRemain(null,null,null,null); return; }
 
     const remain = budget - roundedTotal;
-
-    // 追加注文可能額：丸め後支払い額が予算以内になる最大小計（500円単位）
     let addable = 0;
     if (roundedTotal <= budget) {
-      for (let x = 0; x <= 5000000; x += STEP) {
-        const newTotal = startPrice + (orderSum + x) * TAX;
-        if (roundPayment(newTotal) <= budget) {
-          addable = x;
-        } else {
-          break;
-        }
+      for (let x=0;x<=5000000;x+=STEP) {
+        if (roundPayment(startPrice+(orderSum+x)*TAX) <= budget) addable=x; else break;
       }
     }
-
     setRemain(remain, roundedTotal, budget, addable);
   }
 
@@ -406,49 +441,238 @@
     const addAmt = document.getElementById('addOrderAmount');
     const addSub = document.getElementById('addOrderSub');
 
-    if (remain === null) {
-      el.textContent = '—'; el.className = 'remain-amount zero';
-      sub.textContent = '入店種別と予算を入力してください';
-      addAmt.textContent = '—';
-      addCard.className = 'addorder-card';
-      addSub.textContent = '500円単位（税・諸費用込みの残額から逆算）';
-      return;
+    if (remain===null) {
+      el.textContent='—'; el.className='remain-amount zero';
+      sub.textContent='入店種別と予算を入力してください';
+      addAmt.textContent='—'; addCard.className='addorder-card';
+      addSub.textContent='500円単位（税・諸費用込みの残額から逆算）'; return;
     }
-
     el.textContent = fmt(remain);
-    if (remain > 0) { el.className = 'remain-amount positive'; sub.textContent = '予算内です'; }
-    else if (remain < 0) { el.className = 'remain-amount negative'; sub.textContent = '⚠️ 予算超過しています'; }
-    else { el.className = 'remain-amount zero'; sub.textContent = 'ちょうどです'; }
+    if (remain>0){el.className='remain-amount positive';sub.textContent='予算内です';}
+    else if(remain<0){el.className='remain-amount negative';sub.textContent='⚠️ 予算超過しています';}
+    else{el.className='remain-amount zero';sub.textContent='ちょうどです';}
 
-    if (roundedTotal <= budget) {
-      addCard.className = 'addorder-card';
-      if (addable > 0) {
-        addAmt.textContent = fmt(addable);
-        addSub.textContent = '小計 ' + fmt(addable) + ' 追加すると税込 ' + fmt(addable * TAX) + ' かかります';
-      } else {
-        addAmt.textContent = '¥0';
-        addSub.textContent = '追加注文の余裕がありません（500円未満）';
-      }
+    if (roundedTotal<=budget) {
+      addCard.className='addorder-card';
+      if(addable>0){addAmt.textContent=fmt(addable);addSub.textContent='小計 '+fmt(addable)+' 追加すると税込 '+fmt(addable*TAX)+' かかります';}
+      else{addAmt.textContent='¥0';addSub.textContent='追加注文の余裕がありません（500円未満）';}
     } else {
-      addCard.className = 'addorder-card over';
-      addAmt.textContent = '超過中';
-      addSub.textContent = '予算を超えています';
+      addCard.className='addorder-card over';
+      addAmt.textContent='超過中'; addSub.textContent='予算を超えています';
     }
+  }
+
+  function confirmBilling() {
+    if (!startPrice) { alert('入店種別を選択してください'); return; }
+    let orderSum = 0;
+    const orders = [];
+    for (let i=1;i<=5;i++) {
+      const v = parseInt(document.getElementById('ov'+i).value)||0;
+      orderSum += v; orders.push(v);
+    }
+    const total = startPrice + orderSum*TAX;
+    const roundedTotal = roundPayment(total);
+    const tanto = (TANTO_MAP[startPrice]||0) + orderSum;
+
+    const budget = parseInt(document.getElementById('budget').value) || 0;
+    const memo = document.getElementById('memoInput').value.trim();
+    let addable = 0;
+    if (budget && roundedTotal <= budget) {
+      for (let x=0;x<=5000000;x+=STEP) {
+        if (roundPayment(startPrice+(orderSum+x)*TAX) <= budget) addable=x; else break;
+      }
+    }
+    const entry = {
+      id: Date.now(),
+      typePrice: startPrice,
+      typeLabel: TYPE_LABELS[startPrice],
+      orders,
+      orderSum,
+      roundedTotal,
+      tanto,
+      budget,
+      addable,
+      memo,
+    };
+    history.push(entry);
+    saveHistory();
+    renderHistory();
+    resetAll();
   }
 
   function resetAll() {
-    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected'));
-    startPrice = 0;
-    document.getElementById('budget').value = '';
-    document.getElementById('budgetDisp').value = '';
-    document.getElementById('tantoRow').style.display = 'none';
-    for (let i = 1; i <= 5; i++) {
-      document.getElementById('o' + i).value = '';
-      document.getElementById('ov' + i).value = '';
-      document.getElementById('t' + i).textContent = '';
+    document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('selected'));
+    startPrice=0;
+    document.getElementById('budget').value='';
+    document.getElementById('budgetDisp').value='';
+    document.getElementById('tantoRow').style.display='none';
+    document.getElementById('memoInput').value='';
+    for(let i=1;i<=5;i++){
+      document.getElementById('o'+i).value='';
+      document.getElementById('ov'+i).value='';
+      document.getElementById('t'+i).textContent='';
     }
     calc();
   }
+
+  function undoLast() {
+    if (!undoStack) return;
+    history = undoStack;
+    undoStack = null;
+    saveHistory();
+    renderHistory();
+  }
+
+  function clearHistory() {
+    if (history.length===0) return;
+    undoStack = JSON.parse(JSON.stringify(history));
+    history=[]; saveHistory(); renderHistory();
+  }
+
+  function renderHistory() {
+    const undoBtn = document.getElementById('undoBtn');
+    if (undoBtn) undoBtn.style.display = undoStack ? 'inline-block' : 'none';
+    // 集計更新
+    const count = history.length;
+    const totalPay = history.reduce((s,e)=>s+e.roundedTotal,0);
+    const totalTanto = history.reduce((s,e)=>s+e.tanto,0);
+    document.getElementById('sumCount').textContent = count;
+    document.getElementById('sumPay').textContent = fmt(totalPay);
+    document.getElementById('sumTanto').textContent = fmt(totalTanto);
+
+    const list = document.getElementById('historyList');
+    if (count===0) { list.innerHTML='<div class="no-history">まだ会計履歴がありません</div>'; return; }
+
+    list.innerHTML = history.map((e,idx) => `
+      <div class="history-item" id="hitem-${e.id}">
+        <div class="history-header" onclick="toggleEdit(${e.id})">
+          <span class="history-num">#${idx+1}</span>
+          <div class="history-info">
+            <div class="history-type"><span class="history-type-label">${e.typeLabel}</span>${e.memo ? ' <span class="history-memo-text">・ '+e.memo+'</span>' : ''}</div>
+            <div class="history-pay">お支払い ${fmt(e.roundedTotal)}</div>
+            <div class="history-tanto">担当小計 ${fmt(e.tanto)}</div>
+          </div>
+          <div class="history-right">
+            ${budgetHTML(e)}
+            <span class="history-arrow" id="arrow-${e.id}">▼</span>
+          </div>
+        </div>
+        <div class="history-edit" id="edit-${e.id}">
+          <div class="edit-section-title">メモ</div>
+          <input type="text" class="edit-memo-input" id="ememo-${e.id}" value="${e.memo||''}" placeholder="卓番・特記事項など" oninput="onEditMemo(${e.id}, this)" style="margin-bottom:8px;">
+          <div class="edit-section-title">入店種別</div>
+          <div class="edit-type-grid">
+            ${TYPES.map(t=>`<button class="edit-type-btn ${e.typePrice===t.price?'selected':''}" onclick="editSelectType(${e.id},${t.price},this)">${t.label}</button>`).join('')}
+          </div>
+          <div class="edit-section-title">注文小計</div>
+          <div class="edit-order-list">
+            ${e.orders.map((v,i)=>`
+              <div class="edit-order-item">
+                <span class="edit-order-num">${String(i+1).padStart(2,'0')}</span>
+                <input type="text" class="edit-input" id="einput-${e.id}-${i}" value="${v>0?v.toLocaleString('ja-JP'):''}" placeholder="¥0" inputmode="numeric" oninput="onEditOrder(this,${e.id},${i})">
+              </div>
+            `).join('')}
+          </div>
+          <div class="edit-result" id="eresult-${e.id}">
+            ${editResultHTML(e)}
+          </div>
+          <div class="edit-btn-row">
+            <button class="edit-del-btn" style="flex:1;" onclick="deleteEntry(${e.id})">削除</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function editResultHTML(e) {
+    return `
+      <div class="edit-result-row"><span class="edit-result-label">お支払い額</span><span class="edit-result-val accent">${fmt(e.roundedTotal)}</span></div>
+      <div class="edit-result-row"><span class="edit-result-label">担当小計</span><span class="edit-result-val danger">${fmt(e.tanto)}</span></div>
+    `;
+  }
+
+  function toggleEdit(id) {
+    const edit = document.getElementById('edit-'+id);
+    const arrow = document.getElementById('arrow-'+id);
+    const isOpen = edit.classList.contains('open');
+    edit.classList.toggle('open', !isOpen);
+    arrow.classList.toggle('open', !isOpen);
+  }
+
+  function editSelectType(id, price, btn) {
+    const entry = history.find(e=>e.id===id);
+    if (!entry) return;
+    entry.typePrice = price;
+    entry.typeLabel = TYPE_LABELS[price];
+    btn.closest('.edit-type-grid').querySelectorAll('.edit-type-btn').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+    editCalc(id);
+  }
+
+  function editCalc(id) {
+    const entry = history.find(e=>e.id===id);
+    if (!entry) return;
+    let orderSum = 0;
+    for (let i=0;i<5;i++) {
+      const v = parseInt((document.getElementById(`einput-${id}-${i}`).value||'').replace(/,/g,''))||0;
+      entry.orders[i]=v; orderSum+=v;
+    }
+    entry.orderSum = orderSum;
+    entry.roundedTotal = roundPayment(entry.typePrice + orderSum*TAX);
+    entry.tanto = (TANTO_MAP[entry.typePrice]||0) + orderSum;
+    // 追加注文可能額を再計算
+    let addable = 0;
+    if (entry.budget && entry.roundedTotal <= entry.budget) {
+      for (let x=0;x<=5000000;x+=STEP) {
+        if (roundPayment(entry.typePrice+(orderSum+x)*TAX) <= entry.budget) addable=x; else break;
+      }
+    }
+    entry.addable = addable;
+    document.getElementById('eresult-'+id).innerHTML = editResultHTML(entry);
+    // ヘッダーもリアルタイム更新
+    const hinfo = document.querySelector('#hitem-'+id+' .history-info');
+    if (hinfo) {
+      hinfo.innerHTML = `
+        <div class="history-type"><span class="history-type-label">${entry.typeLabel}</span>${entry.memo ? ' <span class="history-memo-text">・ '+entry.memo+'</span>' : ''}</div>
+        <div class="history-pay">お支払い ${fmt(entry.roundedTotal)}</div>
+        <div class="history-tanto">担当小計 ${fmt(entry.tanto)}</div>
+      `;
+    }
+    const hright = document.querySelector('#hitem-'+id+' .history-right');
+    if (hright) {
+      const arrow = hright.querySelector('.history-arrow');
+      const arrowHTML = arrow ? arrow.outerHTML : '';
+      hright.innerHTML = budgetHTML(entry) + arrowHTML;
+    }
+    saveHistory();
+    renderSummary();
+  }
+
+  function renderSummary() {
+    const totalPay = history.reduce((s,e)=>s+e.roundedTotal,0);
+    const totalTanto = history.reduce((s,e)=>s+e.tanto,0);
+    document.getElementById('sumCount').textContent = history.length;
+    document.getElementById('sumPay').textContent = fmt(totalPay);
+    document.getElementById('sumTanto').textContent = fmt(totalTanto);
+  }
+
+  function saveEdit(id) {
+    saveHistory();
+    renderHistory();
+    // 保存後も編集欄を開いたままにする
+    const edit = document.getElementById('edit-'+id);
+    const arrow = document.getElementById('arrow-'+id);
+    if (edit) { edit.classList.add('open'); arrow.classList.add('open'); }
+  }
+
+  function deleteEntry(id) {
+    undoStack = JSON.parse(JSON.stringify(history));
+    history = history.filter(e=>e.id!==id);
+    saveHistory();
+    renderHistory();
+  }
+  // 起動時に履歴を復元
+  loadHistory();
 </script>
 </body>
 </html>

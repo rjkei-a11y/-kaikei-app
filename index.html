@@ -2,677 +2,4046 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>会計計算ツール</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>卓管理</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700;900&family=Bebas+Neue&display=swap');
-
   :root {
-    --bg: #0a0a0f;
-    --surface: #13131c;
-    --surface2: #1c1c2e;
-    --accent: #e8b86d;
-    --accent2: #c97b3e;
-    --text: #f0eee8;
-    --muted: #888899;
-    --danger: #e05a5a;
-    --success: #5ae07a;
-    --border: rgba(232,184,109,0.18);
+    --bg: #0d0d0d;
+    --surface: #1a1a1a;
+    --surface2: #242424;
+    --border: #333;
+    --accent: #c9a84c;
+    --accent-dim: #7a6330;
+    --arrived: #1a3a2a;
+    --arrived-border: #2ecc71;
+    --text: #f0ece0;
+    --text-dim: #888;
+    --danger: #c0392b;
+    --font-main: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { background: #0a0a0f; }
 
   body {
+    background: var(--bg);
     color: var(--text);
-    font-family: 'Noto Sans JP', sans-serif;
+    font-family: var(--font-main);
     min-height: 100vh;
-    padding: 20px 16px 40px;
-    background-image:
-      radial-gradient(ellipse at 20% 10%, rgba(232,184,109,0.07) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 80%, rgba(201,123,62,0.05) 0%, transparent 50%);
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  /* 入力欄・テキストエリアは通常通りテキスト選択できるようにする */
+  input, textarea {
+    -webkit-touch-callout: default;
+    -webkit-user-select: text;
+    user-select: text;
   }
 
-  header { text-align: center; margin-bottom: 28px; }
-  header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 2.6rem; letter-spacing: 0.12em; color: var(--accent); line-height: 1; }
-  header p { color: var(--muted); font-size: 0.78rem; letter-spacing: 0.1em; margin-top: 4px; }
-
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px 18px; margin-bottom: 16px; }
-  .card-title { font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; font-weight: 700; }
-
-  .type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .type-btn { background: var(--surface2); border: 1.5px solid var(--border); border-radius: 10px; color: var(--text); padding: 10px 8px; cursor: pointer; text-align: center; transition: all 0.18s; font-family: 'Noto Sans JP', sans-serif; }
-  .type-btn .label { font-size: 0.82rem; font-weight: 700; display: block; }
-  .type-btn .price { font-size: 0.7rem; color: var(--muted); margin-top: 2px; display: block; }
-  .type-btn.selected { background: rgba(232,184,109,0.15); border-color: var(--accent); color: var(--accent); }
-  .type-btn.selected .price { color: var(--accent2); }
-
-  .input-row { display: flex; align-items: center; gap: 10px; }
-  .input-row label { font-size: 0.78rem; color: var(--muted); white-space: nowrap; }
-
-  input[type="number"], input[type="text"] {
-    flex: 1; background: var(--surface2); border: 1.5px solid var(--border);
-    border-radius: 8px; color: var(--text); font-size: 1rem;
-    font-family: 'Noto Sans JP', sans-serif; padding: 10px 12px;
-    outline: none; transition: border-color 0.15s; width: 100%;
-    -moz-appearance: textfield; -webkit-appearance: none;
+  /* ===== HEADER ===== */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--accent-dim);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    z-index: 100;
   }
-  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
-  input[type="number"]:focus, input[type="text"]:focus { border-color: var(--accent); }
-
-  .order-list { display: flex; flex-direction: column; gap: 10px; }
-  .order-item { display: flex; align-items: center; gap: 8px; }
-  .order-num { font-size: 0.7rem; color: var(--accent); font-weight: 900; font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.05em; min-width: 22px; }
-  .order-input { flex: 1; min-width: 0; }
-  .taxxed-display { font-size: 0.68rem; color: var(--accent2); text-align: right; white-space: nowrap; min-width: 80px; }
-
-  .total-card { background: linear-gradient(135deg, rgba(232,184,109,0.12), rgba(201,123,62,0.08)), #13131c; border: 1.5px solid var(--accent); }
-  .total-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
-  .total-row .total-label { font-size: 0.72rem; color: #888899; letter-spacing: 0.08em; }
-  .total-row .total-val { font-size: 1.1rem; font-weight: 700; color: #f0eee8; }
-  .total-row.big .total-val { font-size: 1.5rem; color: var(--accent); font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.05em; }
-  .divider { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
-
-  .tanto-row { display: flex; justify-content: space-between; align-items: baseline; background: rgba(224,90,90,0.08); border: 1px solid rgba(224,90,90,0.3); border-radius: 8px; padding: 8px 12px; margin-top: 10px; }
-  .tanto-label { font-size: 0.72rem; color: var(--danger); letter-spacing: 0.08em; }
-  .tanto-val { font-size: 1.1rem; font-weight: 700; color: var(--danger); }
-
-  .remain-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: 14px; padding: 20px 18px; margin-bottom: 16px; text-align: center; }
-  .remain-label { font-size: 0.7rem; letter-spacing: 0.18em; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; }
-  .remain-amount { font-family: 'Bebas Neue', sans-serif; font-size: 3.2rem; letter-spacing: 0.04em; line-height: 1; transition: color 0.3s; }
-  .remain-amount.positive { color: var(--success); }
-  .remain-amount.negative { color: var(--danger); }
-  .remain-amount.zero { color: var(--muted); }
-  .remain-sub { font-size: 0.75rem; color: var(--muted); margin-top: 6px; }
-
-  .addorder-card { background: var(--surface2); border: 1.5px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 16px; text-align: center; }
-  .addorder-label { font-size: 0.7rem; letter-spacing: 0.15em; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; font-weight: 700; }
-  .addorder-amount { font-family: 'Bebas Neue', sans-serif; font-size: 2.6rem; color: var(--success); letter-spacing: 0.04em; }
-  .addorder-sub { font-size: 0.72rem; color: var(--muted); margin-top: 4px; }
-  .addorder-card.over .addorder-amount { color: var(--danger); }
-  .addorder-card.over .addorder-sub { color: var(--danger); }
-
-  .tax-note { text-align: center; font-size: 0.68rem; color: var(--muted); margin-top: -10px; margin-bottom: 14px; letter-spacing: 0.06em; }
-
-  /* 会計確定ボタン */
-  .confirm-btn {
-    width: 100%; background: linear-gradient(135deg, rgba(232,184,109,0.2), rgba(201,123,62,0.15));
-    border: 1.5px solid var(--accent); border-radius: 10px; color: var(--accent);
-    padding: 14px; font-size: 0.95rem; font-family: 'Noto Sans JP', sans-serif;
-    letter-spacing: 0.12em; cursor: pointer; transition: all 0.2s; margin-bottom: 12px; font-weight: 700;
+  .header-title {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--accent);
   }
-  .confirm-btn:active { background: rgba(232,184,109,0.3); }
-
-  .reset-btn { width: 100%; background: transparent; border: 1.5px solid var(--border); border-radius: 10px; color: var(--muted); padding: 12px; font-size: 0.8rem; font-family: 'Noto Sans JP', sans-serif; letter-spacing: 0.1em; cursor: pointer; transition: all 0.2s; }
-  .reset-btn:active { background: rgba(255,255,255,0.04); }
-
-  /* 日次集計 */
-  .daily-section { margin-top: 28px; }
-  .daily-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-  .daily-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; color: var(--accent); letter-spacing: 0.1em; }
-  .daily-clear { font-size: 0.65rem; color: var(--muted); background: transparent; border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; }
-
-  /* 集計サマリー */
-  .summary-card {
-    background: linear-gradient(135deg, rgba(232,184,109,0.1), rgba(201,123,62,0.06));
-    border: 1.5px solid var(--accent); border-radius: 14px; padding: 16px 18px; margin-bottom: 12px;
+  .header-date {
+    font-size: 12px;
+    color: var(--text-dim);
   }
-  .summary-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-  .summary-item { text-align: center; }
-  .summary-label { font-size: 0.58rem; color: var(--muted); letter-spacing: 0.1em; margin-bottom: 4px; }
-  .summary-val { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; color: var(--accent); letter-spacing: 0.04em; line-height: 1; }
-  .summary-val.danger { color: var(--danger); }
-  .summary-divider { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
-  .summary-total-row { display: flex; justify-content: space-between; align-items: baseline; }
-  .summary-total-label { font-size: 0.68rem; color: var(--muted); }
-  .summary-total-val { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; color: var(--accent); letter-spacing: 0.05em; }
-  .summary-total-val.danger { color: var(--danger); }
-
-  /* 履歴リスト */
-  .history-list { display: flex; flex-direction: column; gap: 8px; }
-  .history-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
-  .history-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; cursor: pointer; }
-  .history-num { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; color: var(--accent); letter-spacing: 0.08em; min-width: 36px; }
-  .history-info { flex: 1; }
-  .history-type { font-size: 0.75rem; font-weight: 700; color: var(--text); }
-  .history-type-label { color: var(--accent); }
-  .history-memo-text { color: #b8b8c4; font-weight: 400; }
-  .history-pay { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
-  .history-tanto { font-size: 0.68rem; color: var(--danger); margin-top: 1px; }
-  .history-right { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; flex-shrink: 0; }
-  .history-budget { font-size: 0.62rem; color: var(--muted); white-space: nowrap; }
-  .history-addable { font-size: 0.62rem; color: var(--success); white-space: nowrap; }
-  .history-arrow { font-size: 0.7rem; color: var(--muted); transition: transform 0.2s; margin-top: 4px; }
-  .history-arrow.open { transform: rotate(180deg); }
-
-  /* 履歴展開（編集） */
-  .history-edit { padding: 0 14px 14px; border-top: 1px solid var(--border); display: none; }
-  .history-edit.open { display: block; }
-  .edit-section-title { font-size: 0.58rem; letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase; margin: 10px 0 6px; }
-  .edit-type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 8px; }
-  .edit-type-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 7px; color: var(--text); padding: 6px 4px; cursor: pointer; text-align: center; font-family: 'Noto Sans JP', sans-serif; font-size: 0.72rem; font-weight: 700; }
-  .edit-type-btn.selected { background: rgba(232,184,109,0.15); border-color: var(--accent); color: var(--accent); }
-  .edit-order-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
-  .edit-order-item { display: flex; align-items: center; gap: 6px; }
-  .edit-order-num { font-size: 0.62rem; color: var(--accent); font-family: 'Bebas Neue', sans-serif; min-width: 18px; }
-  .edit-input { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 0.85rem; font-family: 'Noto Sans JP', sans-serif; padding: 6px 10px; outline: none; -moz-appearance: textfield; -webkit-appearance: none; }
-  .edit-input:focus { border-color: var(--accent); }
-  .edit-input::-webkit-inner-spin-button { -webkit-appearance: none; }
-  .edit-result { background: var(--surface2); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; }
-  .edit-result-row { display: flex; justify-content: space-between; font-size: 0.68rem; margin-bottom: 3px; }
-  .edit-result-label { color: var(--muted); }
-  .edit-result-val { color: var(--text); font-weight: 700; }
-  .edit-result-val.accent { color: var(--accent); }
-  .edit-result-val.danger { color: var(--danger); }
-  .edit-btn-row { display: flex; gap: 6px; }
-  .edit-save-btn { flex: 1; background: rgba(232,184,109,0.15); border: 1px solid var(--accent); border-radius: 8px; color: var(--accent); padding: 8px; font-size: 0.75rem; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; font-weight: 700; }
-  .edit-del-btn { background: rgba(224,90,90,0.1); border: 1px solid rgba(224,90,90,0.3); border-radius: 8px; color: var(--danger); padding: 8px 12px; font-size: 0.75rem; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; }
-
-  .no-history { text-align: center; color: var(--muted); font-size: 0.75rem; padding: 20px; }
-
-  /* メモ欄 */
-  .memo-input {
-    flex: 1; background: var(--surface2); border: 1.5px solid var(--border);
-    border-radius: 8px; color: var(--text); font-size: 0.85rem;
-    font-family: 'Noto Sans JP', sans-serif; padding: 8px 12px;
-    outline: none; width: 100%; -webkit-appearance: none;
+  .header-stats {
+    font-size: 12px;
+    color: var(--text-dim);
+    text-align: right;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
   }
-  .memo-input:focus { border-color: var(--accent); }
-  .memo-input::placeholder { color: #555566; }
-
-  .history-memo {
-    font-size: 0.65rem; color: var(--accent2); margin-top: 2px;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  .header-stats span {
+    color: var(--accent);
+    font-weight: 700;
   }
 
-  .edit-memo-input {
-    width: 100%; background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 6px; color: var(--text); font-size: 0.78rem;
-    font-family: 'Noto Sans JP', sans-serif; padding: 6px 10px;
-    outline: none; -webkit-appearance: none;
+  /* ===== TABS ===== */
+  .tabs {
+    display: flex;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    z-index: 99;
   }
-  .edit-memo-input:focus { border-color: var(--accent); }
-  .edit-memo-input::placeholder { color: #555566; }
+  .tab {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--text-dim);
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  /* ===== PANELS ===== */
+  .panel { display: none; padding: 16px; }
+  .panel.active { display: block; }
+
+  /* 固定統計バー（スクロールしても常時表示） */
+  #fixedStats, #tantoStats, #baanaiBar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0; /* JSのupdateFixedTop()で実際の位置に上書きされる。裏に隠れる事故を防ぐ初期値 */
+  }
+
+  /* ===== LINE INPUT ===== */
+  .parse-area {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .parse-area-label {
+    padding: 8px 12px;
+    font-size: 11px;
+    color: var(--text-dim);
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    letter-spacing: 0.05em;
+  }
+  textarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: 13px;
+    padding: 12px;
+    min-height: 140px;
+    resize: vertical;
+    outline: none;
+    line-height: 1.6;
+  }
+  textarea::placeholder { color: #555; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 6px;
+    font-family: var(--font-main);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.05em;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+    width: 100%;
+    justify-content: center;
+    font-size: 14px;
+    padding: 12px;
+  }
+  .btn-primary:hover { filter: brightness(1.1); }
+  .btn-primary:active { filter: brightness(0.9); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .btn-sm {
+    padding: 5px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 4px;
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+  .btn-danger {
+    background: transparent;
+    color: var(--danger);
+    border: 1px solid var(--danger);
+  }
+
+  /* ===== LOADING ===== */
+  .loading {
+    display: none;
+    text-align: center;
+    padding: 20px;
+    color: var(--text-dim);
+    font-size: 13px;
+  }
+  .loading.show { display: block; }
+  .spinner {
+    display: inline-block;
+    width: 20px; height: 20px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ===== PARSED PREVIEW ===== */
+  .parsed-preview {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 12px;
+  }
+  .parsed-preview-header {
+    padding: 8px 12px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .parsed-preview-header span {
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .preview-item {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .preview-item:last-child { border-bottom: none; }
+  .preview-item .name { font-weight: 700; color: var(--accent); margin-bottom: 3px; }
+  .preview-item .meta { color: var(--text-dim); line-height: 1.6; }
+
+  /* ===== TABLE LIST (紙様式) ===== */
+  .paper-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    table-layout: fixed;
+    background: #fff;
+    color: #000;
+  }
+  .paper-table th {
+    background: #f0f0f0;
+    color: #000;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 6px 3px;
+    border: 1.5px solid #555;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .paper-table td {
+    padding: 5px 4px;
+    border: 1px solid #888;
+    vertical-align: middle;
+    color: #000;
+    font-size: 12px;
+    line-height: 1.4;
+    min-height: 28px;
+    height: 28px;
+  }
+  .paper-table tr.arrived td {
+    background: #b0c4b0;
+    text-decoration: line-through;
+    color: #444;
+  }
+  .paper-table tr:not(.arrived):nth-child(even) td { background: #fafafa; }
+  .paper-table tr:not(.arrived) td { background: #fff; }
+  .paper-table tr.overdue-highlight td { background: #5a2a2a !important; color: #fff !important; }
+
+  .p-col-no   { width: 24px; text-align: center; color: #888; font-size: 11px; cursor:pointer; }
+  .p-col-num  { width: 42px; text-align: center; font-weight: 700; color: #c9a84c; }
+  .p-col-time { width: 52px; text-align: center; font-size: 11px; }
+  .p-col-tanto{ width: 46px; }
+  .p-col-guest{ width: 80px; }
+  .p-col-keep { width: 44px; text-align: center; }
+  .p-col-note { width: 136px; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .table-num-input {
+    width: 100%;
+    border: none;
+    background: #fffde7;
+    font-size: 12px;
+    font-weight: 700;
+    color: #c9a84c;
+    text-align: center;
+    outline: 1px solid #c9a84c;
+    padding: 2px;
+    border-radius: 2px;
+    font-family: var(--font-main);
+  }
+  .editable { cursor: pointer; }
+  .editable:hover { background: #fffde7 !important; }
+  .paper-table tr.arrived .editable:hover { background: #c8ddc8 !important; }
+  .cell-input {
+    width: 100%;
+    border: none;
+    outline: 1px solid #c9a84c;
+    background: #fffde7;
+    font-size: 12px;
+    color: #000;
+    padding: 2px 3px;
+    font-family: var(--font-main);
+    border-radius: 2px;
+    box-sizing: border-box;
+  }
+
+  .paper-table tr {
+    cursor: pointer;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  #deleteOverlay {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .paper-table tr:hover td { filter: brightness(0.95); }
+
+  /* ===== TABLE LIST (テーブル形式) ===== */
+  .res-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    table-layout: fixed;
+  }
+  .res-table th {
+    background: var(--surface2);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 8px 5px;
+    border: 1px solid var(--border);
+    text-align: center;
+  }
+  .res-table td {
+    padding: 8px 5px;
+    border: 1px solid var(--border);
+    vertical-align: middle;
+    color: var(--text);
+    font-size: 12px;
+    word-break: break-all;
+    line-height: 1.5;
+  }
+  .res-table tr.arrived td { background: var(--arrived); }
+  .paper-table tr.arrived td { background: #d4edda !important; color: #000; }
+  .res-table tr:nth-child(even):not(.arrived) td { background: rgba(255,255,255,0.02); }
+
+  .col-num   { width: 30px; text-align: center; }
+  .col-time  { width: 54px; text-align: center; }
+  .col-tanto { width: 52px; }
+  .col-guest { width: auto; font-weight: 600; }
+  .col-keep  { width: 56px; }
+  .col-note  { width: 72px; font-size: 11px; color: var(--text-dim); }
+  .col-act   { width: 36px; text-align: center; }
+
+  .num-cell { font-weight: 900; color: var(--accent); font-size: 15px; }
+  .arrived-cell { color: var(--arrived-border); font-weight: 900; font-size: 15px; }
+
+  .arrive-btn {
+    width: 100%;
+    padding: 6px 2px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .arrive-btn:hover { border-color: var(--arrived-border); color: var(--arrived-border); }
+  tr.arrived .arrive-btn.main-btn { background: var(--arrived-border); color: #000; border-color: var(--arrived-border); }
+
+  /* ===== VIEW LIST ===== */
+  .view-section-label {
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    font-weight: 700;
+    padding: 6px 0 4px;
+    border-bottom: 1px solid var(--accent-dim);
+    margin-bottom: 8px;
+    margin-top: 16px;
+  }
+  .view-section-label:first-child { margin-top: 0; }
+  .view-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .view-row:last-child { border-bottom: none; }
+  .view-num {
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--accent);
+    min-width: 32px;
+    text-align: center;
+    line-height: 1.3;
+  }
+  .view-num.no-table { color: var(--text-dim); font-size: 12px; font-weight: 400; padding-top: 2px; }
+  .view-body { flex: 1; }
+  .view-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+  .view-meta { font-size: 11px; color: var(--text-dim); line-height: 1.6; }
+  .view-arrived { color: var(--arrived-border); font-size: 11px; font-weight: 700; }
+  .view-num-inline { color: var(--accent); font-weight: 900; font-size: 15px; min-width: 40px; display: inline-block; }
+
+  /* ===== UNASSIGNED LIST ===== */
+  .unassigned-section { margin-top: 16px; }
+  .section-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--border);
+  }
+  .guest-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .guest-chip-info { flex: 1; font-size: 12px; }
+  .guest-chip-name { font-weight: 700; color: var(--accent); margin-bottom: 2px; }
+  .guest-chip-meta { color: var(--text-dim); line-height: 1.5; }
+  .guest-chip-assign { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+  .table-select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: 12px;
+    padding: 5px 6px;
+    outline: none;
+    max-width: 80px;
+  }
+  .table-select:focus { border-color: var(--accent); }
+
+  /* ===== EMPTY STATE ===== */
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-dim);
+  }
+  .empty-state .icon { font-size: 36px; margin-bottom: 10px; opacity: 0.4; }
+  .empty-state p { font-size: 13px; line-height: 1.7; }
+
+  /* ===== TOAST ===== */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--accent);
+    color: #000;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 999;
+    white-space: nowrap;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ===== MODAL ===== */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    width: 100%;
+    max-width: 400px;
+    overflow: hidden;
+  }
+  .modal-header {
+    padding: 12px 16px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .modal-body { padding: 16px; }
+  .form-row { margin-bottom: 12px; }
+  .form-label { font-size: 11px; color: var(--text-dim); letter-spacing: 0.08em; margin-bottom: 4px; display: block; }
+  .form-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: 13px;
+    padding: 8px 10px;
+    outline: none;
+  }
+  .form-input:focus { border-color: var(--accent); }
+
+  /* 項目数の多いモーダル用のコンパクト表示 */
+  .form-row-compact { margin-bottom: 7px; }
+  .form-label-compact { font-size: 10px; color: var(--text-dim); margin-bottom: 2px; display: block; }
+  .form-input-compact {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: 13px;
+    padding: 6px 8px;
+    outline: none;
+  }
+  .form-input-compact:focus { border-color: var(--accent); }
+
+  .aiban-input {
+    flex: 1;
+    min-width: 0;
+    box-sizing: border-box;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: 12px;
+    padding: 5px 7px;
+    outline: none;
+  }
+  .aiban-input:focus {
+    border-color: #3498db;
+    background: #0d1b26;
+    box-shadow: 0 0 0 1px #3498db;
+  }
+
+  .modal-footer {
+    padding: 12px 16px;
+    display: flex;
+    gap: 8px;
+    border-top: 1px solid var(--border);
+  }
+  .modal-footer .btn { flex: 1; justify-content: center; }
+
+  /* ===== UPLOAD ===== */
+  .upload-area {
+    background: var(--surface);
+    border: 2px dashed var(--accent-dim);
+    border-radius: 10px;
+    padding: 36px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .upload-area:hover { border-color: var(--accent); }
+  .upload-icon { font-size: 40px; margin-bottom: 10px; }
+  .upload-text { font-size: 15px; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
+  .upload-sub { font-size: 12px; color: var(--text-dim); }
+  .thumb-wrap { position: relative; width: 72px; height: 72px; }
+  .thumb-wrap img { width: 72px; height: 72px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); }
+  .thumb-remove {
+    position: absolute; top: -6px; right: -6px;
+    width: 18px; height: 18px;
+    background: var(--danger); border-radius: 50%; border: none;
+    color: #fff; font-size: 11px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ===== LOGIN ===== */
+  #loginScreen {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .login-box {
+    background: var(--surface);
+    border: 1px solid var(--accent-dim);
+    border-radius: 12px;
+    padding: 32px 24px;
+    width: 100%;
+    max-width: 320px;
+    text-align: center;
+  }
+  .login-title {
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    margin-bottom: 8px;
+  }
+  .login-sub {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 24px;
+  }
+  .login-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: 16px;
+    padding: 12px;
+    outline: none;
+    text-align: center;
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+  }
+  .login-input:focus { border-color: var(--accent); }
+  .login-error {
+    font-size: 12px;
+    color: var(--danger);
+    margin-bottom: 8px;
+    min-height: 16px;
+  }
+
+  /* iOSズームアップ防止 */
+  input, select, textarea { font-size: 16px !important; }
+
+  @media (max-width: 480px) {
+    .table-grid { grid-template-columns: 1fr; }
+    .header-title { font-size: 14px; }
+  }
 </style>
+<!-- Firebase SDK（有効） -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCdOu7waepEH5WXQkvFKLLFRah-FODcOUI",
+    authDomain: "rjtable-cdd5c.firebaseapp.com",
+    databaseURL: "https://rjtable-cdd5c-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "rjtable-cdd5c",
+    storageBucket: "rjtable-cdd5c.firebasestorage.app",
+    messagingSenderId: "893265704748",
+    appId: "1:893265704748:web:95615ebcd7be9927631e89"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const guestsRef = ref(db, 'guests');
+  const staffRef = ref(db, 'staff');
+  const firstRef = ref(db, 'firstGroups');
+  const backupRef = ref(db, 'resetBackup');
+  const aliasRef = ref(db, 'staffAliases');
+  const baanaiRef = ref(db, 'baanai');
+  const floorRef = ref(db, 'floorData');
+  const dayStatusRef = ref(db, 'staffDayStatus');
+  const monthlyLogsRef = ref(db, 'monthlyLogs');
+
+  // Firebaseにゲストデータを保存
+  // Firebaseにゲスト1件を保存（衝突回避：全体を上書きせず該当IDのみ書き込む）
+  window.fbSaveGuest = function(guest) {
+    if (!guest || guest.id == null) return;
+    set(ref(db, 'guests/g' + guest.id), guest).catch(e => console.error('FB save guest error:', e));
+  };
+  // Firebaseからゲスト1件を削除
+  window.fbRemoveGuest = function(id) {
+    if (id == null) return;
+    remove(ref(db, 'guests/g' + id)).catch(e => console.error('FB remove guest error:', e));
+  };
+
+  // Firebaseにスタッフリストを保存
+  window.fbSaveStaff = function(list) {
+    set(staffRef, list).catch(e => console.error('FB staff save error:', e));
+  };
+
+  // Firebaseに初回データを保存
+  // Firebaseに初回グループ1件を保存（衝突回避：全体を上書きせず該当IDのみ書き込む）
+  window.fbSaveFirstGroup = function(group) {
+    if (!group || group.id == null) return;
+    set(ref(db, 'firstGroups/g' + group.id), group).catch(e => console.error('FB save firstGroup error:', e));
+  };
+  // Firebaseから初回グループ1件を削除
+  window.fbRemoveFirstGroup = function(id) {
+    if (id == null) return;
+    remove(ref(db, 'firstGroups/g' + id)).catch(e => console.error('FB remove firstGroup error:', e));
+  };
+
+  // Firebaseにリセット直前のバックアップを保存
+  window.fbSaveBackup = function(backupData) {
+    set(backupRef, backupData).catch(e => console.error('FB backup save error:', e));
+  };
+
+  // Firebaseに呼び名データを保存
+  window.fbSaveAliases = function(aliasData) {
+    set(aliasRef, aliasData || {}).catch(e => console.error('FB alias save error:', e));
+  };
+  // 呼び名は1名分だけをピンポイントで更新する版（衝突回避）
+  window.fbSaveAliasesFor = function(staffName, aliasList) {
+    if (!staffName) return;
+    set(ref(db, 'staffAliases/' + staffName), aliasList || []).catch(e => console.error('FB alias save error:', e));
+  };
+
+  // Firebaseに場内メモを保存
+  window.fbSaveBaanai = function(text) {
+    set(baanaiRef, text || '').catch(e => console.error('FB baanai save error:', e));
+  };
+
+  // Firebaseに卓状況（フロア構成）を保存
+  window.fbSaveFloor = function(floorDataObj) {
+    set(floorRef, floorDataObj || {}).catch(e => console.error('FB floor save error:', e));
+  };
+
+  // Firebaseに本日の報告状況（休み・有休・半休・予定未定）を保存
+  window.fbSaveDayStatus = function(dayStatusObj) {
+    set(dayStatusRef, dayStatusObj || {}).catch(e => console.error('FB dayStatus save error:', e));
+  };
+  // 報告状況は1名分だけをピンポイントで更新する版（衝突回避）
+  window.fbSaveDayStatusFor = function(staffName, entry) {
+    if (!staffName) return;
+    set(ref(db, 'staffDayStatus/' + staffName), entry).catch(e => console.error('FB dayStatus save error:', e));
+  };
+
+  // Firebaseに月次集計ログの1日分を保存（キーは日付文字列）
+  window.fbSaveMonthlyLog = function(dateKey, logData) {
+    set(ref(db, 'monthlyLogs/' + dateKey), logData).catch(e => console.error('FB monthlyLog save error:', e));
+  };
+
+  // Firebaseからゲストをリアルタイム受信
+  onValue(guestsRef, (snapshot) => {
+    const data = snapshot.val();
+    window._fbGuests = data === null ? [] : Object.values(data).filter(g => g && (g.name || g.tanto || g.tableNum));
+    if (typeof guests !== 'undefined' && typeof renderTables === 'function') {
+      // 初回以降もリアルタイム反映
+      guests = window._fbGuests;
+      nextId = guests.reduce((m,g) => Math.max(m, (g.id||0)+1), 1);
+      if (window.renderTables) window.renderTables();
+      if (window.renderStaffStatus) window.renderStaffStatus();
+      if (window.renderView && document.getElementById('panel-view') && document.getElementById('panel-view').classList.contains('active')) window.renderView();
+      if (window.updateStats) window.updateStats();
+    } else if (window._fbReady) {
+      window._fbReady();
+    }
+  });
+
+  // Firebaseからスタッフリストをリアルタイム受信
+  onValue(staffRef, (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      const list = Array.isArray(data) ? data : String(data).split('\n').map(s => s.trim()).filter(Boolean);
+      window._fbStaff = list;
+      // 常にリアルタイムで反映
+      if (typeof staffList !== 'undefined') {
+        staffList = list;
+        try { localStorage.setItem('tableManager_staff', JSON.stringify(staffList)); } catch(e) {}
+        if (window.renderStaffStatus) window.renderStaffStatus();
+      } else if (window._fbStaffReady) {
+        window._fbStaffReady();
+      }
+    }
+  });
+
+  // Firebaseから初回データをリアルタイム受信
+  onValue(firstRef, (snapshot) => {
+    const data = snapshot.val();
+    // 1件ずつ 'g'+id キーで保存された形式に対応（配列としてもオブジェクトとしても受け取れるようにする）
+    const list = Array.isArray(data) ? data.filter(Boolean) : (data && typeof data === 'object' ? Object.values(data).filter(Boolean) : []);
+    window._fbFirstGroups = list;
+    if (typeof firstGroups !== 'undefined' && typeof renderFirstTab === 'function') {
+      firstGroups = list;
+      // idカウンタがFirebase側のデータと衝突しないよう調整
+      if (typeof firstGid !== 'undefined') {
+        firstGid = list.reduce((m,g)=>Math.max(m,(g.id||0)+1), 1);
+      }
+      if (typeof firstRid !== 'undefined') {
+        list.forEach(g => {
+          (g.rows||[]).forEach(r => { firstRid = Math.max(firstRid, (r.id||0)+1); });
+        });
+      }
+      try { localStorage.setItem('rj_firstData', JSON.stringify(firstGroups)); } catch(e) {}
+      if (window.renderFirstTabFromFB) window.renderFirstTabFromFB();
+    } else if (window._fbFirstReady) {
+      window._fbFirstReady();
+    }
+  });
+
+  // Firebaseからリセットバックアップをリアルタイム受信（別端末からの復元にも対応）
+  onValue(backupRef, (snapshot) => {
+    const data = snapshot.val();
+    window._fbBackup = data || null;
+    if (window.updateUndoButtonState) window.updateUndoButtonState();
+  });
+
+  // Firebaseから呼び名データをリアルタイム受信
+  onValue(aliasRef, (snapshot) => {
+    const data = snapshot.val();
+    const aliases = (data && typeof data === 'object') ? data : {};
+    window._fbAliases = aliases;
+    if (typeof staffAliases !== 'undefined') {
+      staffAliases = aliases;
+      try { localStorage.setItem('rj_staffAliases', JSON.stringify(staffAliases)); } catch(e) {}
+      if (window.refreshAliasModalIfOpen) window.refreshAliasModalIfOpen();
+    }
+  });
+
+  // Firebaseから場内メモをリアルタイム受信
+  onValue(baanaiRef, (snapshot) => {
+    const data = snapshot.val();
+    const text = typeof data === 'string' ? data : '';
+    window._fbBaanai = text;
+    try { localStorage.setItem('rj_baanai', text); } catch(e) {}
+    const el = document.getElementById('baanaiInput');
+    // 自分が今まさに入力中でなければ値を反映（別端末からの更新を取りこぼさないため）
+    if (el && document.activeElement !== el) el.value = text;
+    if (window.updateBaanaiBar) window.updateBaanaiBar(text);
+    if (window.renderFloorStatus) window.renderFloorStatus();
+  });
+
+  // Firebaseから卓状況（フロア構成）をリアルタイム受信
+  onValue(floorRef, (snapshot) => {
+    const data = snapshot.val();
+    if (data && typeof data === 'object' && (data.V || data.A || data.B)) {
+      window._fbFloorData = data;
+      if (typeof floorData !== 'undefined') {
+        floorData = data;
+        try { localStorage.setItem('rj_floorData', JSON.stringify(floorData)); } catch(e) {}
+        if (window.renderFloorStatus) window.renderFloorStatus();
+        if (window.refreshFloorModalIfOpen) window.refreshFloorModalIfOpen();
+      }
+    }
+  });
+
+  // Firebaseから本日の報告状況（休み・有休・半休・予定未定）をリアルタイム受信
+  onValue(dayStatusRef, (snapshot) => {
+    const data = snapshot.val();
+    const statusObj = (data && typeof data === 'object') ? data : {};
+    window._fbDayStatus = statusObj;
+    if (typeof staffDayStatus !== 'undefined') {
+      staffDayStatus = statusObj;
+      try { localStorage.setItem('rj_staffDayStatus', JSON.stringify(staffDayStatus)); } catch(e) {}
+      if (window.renderStaffStatus) window.renderStaffStatus();
+    }
+  });
+
+  // Firebaseから月次集計ログをリアルタイム受信（過去分含む全件）
+  onValue(monthlyLogsRef, (snapshot) => {
+    const data = snapshot.val();
+    const logs = (data && typeof data === 'object') ? data : {};
+    window._fbMonthlyLogs = logs;
+    try { localStorage.setItem('rj_monthlyLogs', JSON.stringify(logs)); } catch(e) {}
+    if (window.refreshSummaryModalIfOpen) window.refreshSummaryModalIfOpen();
+  });
+</script>
 </head>
 <body>
 
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-title">卓 管 理</div>
+    <div class="login-sub">ROMEO &amp; JULIET</div>
+    <input class="login-input" id="loginInput" type="password" placeholder="パスワードを入力" maxlength="20"
+      onkeydown="if(event.key==='Enter')doLogin()">
+    <div class="login-error" id="loginError"></div>
+    <button class="btn btn-primary" onclick="doLogin()" style="width:100%;font-size:15px;padding:12px;">
+      入室
+    </button>
+  </div>
+</div>
+
 <header>
-  <h1>会計計算ツール</h1>
-  <p>CASHIER ASSISTANT APP</p>
+  <div>
+    <div class="header-title">卓 管 理</div>
+    <div class="header-date" id="headerDate"></div>
+  </div>
+  <div class="header-stats">
+    <span id="statTotal" style="display:none"></span>
+    <span id="statArrived" style="display:none"></span>
+    <button id="summaryBtn" onclick="openSummaryModal()" style="background:none;border:1px solid var(--accent-dim);border-radius:4px;color:var(--accent);font-size:11px;padding:5px 9px;cursor:pointer;font-family:var(--font-main);white-space:nowrap;">📊 集計</button>
+    <button id="undoResetBtn" onclick="confirmUndoReset()" style="display:none;background:none;border:1px solid var(--border);border-radius:4px;color:var(--text-dim);font-size:11px;padding:5px 9px;cursor:pointer;font-family:var(--font-main);white-space:nowrap;">↩ 復元</button>
+    <button id="resetReportsBtn" onclick="confirmResetReports()" style="background:none;border:1px solid #c0392b;border-radius:4px;color:#c0392b;font-size:11px;padding:5px 9px;cursor:pointer;font-family:var(--font-main);white-space:nowrap;">🔄 本日分リセット</button>
+  </div>
 </header>
 
-<div class="card">
-  <div class="card-title">① 入店種別</div>
-  <div class="type-grid">
-    <button class="type-btn" data-price="11535" data-label="1時間" onclick="selectType(this)">
-      <span class="label">1時間</span><span class="price">¥11,535</span>
-    </button>
-    <button class="type-btn" data-price="16056" data-label="2時間" onclick="selectType(this)">
-      <span class="label">2時間</span><span class="price">¥16,056</span>
-    </button>
-    <button class="type-btn" data-price="20577" data-label="フリータイム" onclick="selectType(this)">
-      <span class="label">フリータイム</span><span class="price">¥20,577</span>
-    </button>
-    <button class="type-btn" data-price="31126" data-label="VIP通常" onclick="selectType(this)">
-      <span class="label">VIP通常</span><span class="price">¥31,126</span>
-    </button>
-    <button class="type-btn" style="grid-column:span 2;" data-price="35647" data-label="VIP特殊" onclick="selectType(this)">
-      <span class="label">VIP特殊</span><span class="price">¥35,647</span>
-    </button>
-  </div>
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('input')">📋 予定報告</div>
+  <div class="tab" onclick="switchTab('tables')">📊 卓一覧</div>
+  <div class="tab" onclick="switchTab('first')">🔰 初回</div>
+  <div class="tab" onclick="switchTab('view')">👁 全体</div>
 </div>
 
-<div class="card">
-  <div class="card-title">② お客様予算</div>
-  <div class="input-row">
-    <label>予算 ¥</label>
-    <input type="text" id="budgetDisp" placeholder="例: 50,000" inputmode="numeric" oninput="onBudget(this)">
-    <input type="hidden" id="budget">
+<!-- 固定統計バー（JSでtop位置を計算してヘッダー/タブ直下に固定） -->
+<div id="fixedStats" style="display:none;z-index:90;background:var(--surface);border-bottom:1px solid var(--border);padding:6px 16px;font-size:13px;"></div>
+<div id="tantoStats" style="display:none;z-index:89;background:var(--surface2);border-bottom:1px solid var(--border);padding:4px 16px;font-size:11px;"></div>
+<div id="baanaiBar" style="display:none;z-index:88;background:var(--surface2);border-bottom:1px solid var(--border);padding:4px 16px;font-size:11px;"></div>
+<!-- 固定バーの高さぶん、本文を押し下げるためのスペーサー -->
+<div id="fixedSpacer" style="height:0px;"></div>
+
+<!-- 予定報告パネル -->
+<div class="panel active" id="panel-input">
+  <div id="identityIndicator" style="margin-bottom:10px;font-size:12px;"></div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
+    <button onclick="promptQuickStatus('pending')" style="flex:1;min-width:70px;padding:8px 4px;border-radius:6px;border:1px solid #3498db;background:transparent;color:#3498db;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font-main);">予定未定</button>
+    <button onclick="promptQuickStatus('off')" style="flex:1;min-width:70px;padding:8px 4px;border-radius:6px;border:1px solid #e74c3c;background:transparent;color:#e74c3c;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font-main);">本日お休み</button>
+    <button onclick="promptQuickStatus('paid_off')" style="flex:1;min-width:70px;padding:8px 4px;border-radius:6px;border:1px solid #e74c3c;background:transparent;color:#e74c3c;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font-main);">有休</button>
+    <button onclick="promptQuickStatus('half_off')" style="flex:1;min-width:70px;padding:8px 4px;border-radius:6px;border:1px solid #e67e22;background:transparent;color:#e67e22;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font-main);">半休</button>
   </div>
-</div>
 
-<div class="card">
-  <div class="card-title">③ 現在の注文（小計）</div>
-  <div class="order-list">
-    <div class="order-item"><span class="order-num">01</span><input type="text" class="order-input" id="o1" placeholder="¥0" inputmode="numeric" oninput="onOrder(this,1)"><input type="hidden" id="ov1"><span class="taxxed-display" id="t1"></span></div>
-    <div class="order-item"><span class="order-num">02</span><input type="text" class="order-input" id="o2" placeholder="¥0" inputmode="numeric" oninput="onOrder(this,2)"><input type="hidden" id="ov2"><span class="taxxed-display" id="t2"></span></div>
-    <div class="order-item"><span class="order-num">03</span><input type="text" class="order-input" id="o3" placeholder="¥0" inputmode="numeric" oninput="onOrder(this,3)"><input type="hidden" id="ov3"><span class="taxxed-display" id="t3"></span></div>
-    <div class="order-item"><span class="order-num">04</span><input type="text" class="order-input" id="o4" placeholder="¥0" inputmode="numeric" oninput="onOrder(this,4)"><input type="hidden" id="ov4"><span class="taxxed-display" id="t4"></span></div>
-    <div class="order-item"><span class="order-num">05</span><input type="text" class="order-input" id="o5" placeholder="¥0" inputmode="numeric" oninput="onOrder(this,5)"><input type="hidden" id="ov5"><span class="taxxed-display" id="t5"></span></div>
+  <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:10px;">
+    <button class="btn btn-ghost btn-sm" onclick="addTemplate()" style="flex-shrink:0;">📋 追加</button>
+    <button class="btn btn-ghost btn-sm" onclick="clearTemplate()" style="flex-shrink:0;color:var(--text-dim);">空欄を削除</button>
+    <p style="font-size:11px;color:var(--text-dim);line-height:1.6;margin:0;">予定卓が複数ある場合は「追加」でテンプレを複製できます。「空欄を削除」は未入力のまま残ったテンプレだけを消すので、入力済みの内容が消える心配はありません。</p>
   </div>
-</div>
 
-<div class="card total-card">
-  <div class="card-title">④ 現在の合計</div>
-  <div class="total-row"><span class="total-label">スタート料金</span><span class="total-val" id="dispStart">—</span></div>
-  <div class="total-row"><span class="total-label">注文小計</span><span class="total-val" id="dispOrder">¥0</span></div>
-  <div class="total-row"><span class="total-label">注文小計への税・諸費用（×1.507）</span><span class="total-val" id="dispTax">—</span></div>
-  <hr class="divider">
-  <div class="total-row big"><span class="total-label">現在の合計金額</span><span class="total-val" id="dispTotal">—</span></div>
-  <hr class="divider">
-  <div class="total-row big" style="background:rgba(232,184,109,0.08);border-radius:10px;padding:10px 12px;margin-top:4px;">
-    <span class="total-label" style="color:var(--accent);font-weight:700;letter-spacing:0.1em;">お支払い額（1,000円単位）</span>
-    <span class="total-val" id="dispRounded" style="font-size:2rem;color:var(--accent);">—</span>
-  </div>
-  <div class="tanto-row" id="tantoRow" style="display:none;">
-    <span class="tanto-label">担当小計</span>
-    <span class="tanto-val" id="dispTanto">—</span>
-  </div>
-  <div class="input-row" style="margin-top:10px;">
-    <label style="white-space:nowrap;">メモ</label>
-    <input type="text" id="memoInput" class="memo-input" placeholder="卓番・特記事項など">
-  </div>
-</div>
+  <div style="display:flex; gap:10px; align-items:flex-start;">
+    <!-- 左：入力フォーム -->
+    <div style="flex:1; min-width:0;">
+      <div class="parse-area">
+        <textarea id="lineTextInput" style="min-height:220px;">担当名：
+お客様名：
+来店時間：
+退店時間：
+予算：
+ヘルプ：
+備考：</textarea>
+      </div>
+      <button class="btn btn-primary" onclick="parseLineText()" id="parseBtn" style="margin-top:8px;width:100%;">
+        来店予定を報告する
+      </button>
+      <div class="loading" id="loading">
+        <span class="spinner"></span>読み取り中...
+      </div>
+    </div>
 
-<p class="tax-note">合計 ＝ スタート料金 ＋ 注文小計 × 1.507</p>
-
-<div class="remain-card">
-  <div class="remain-label">お客様の残り予算</div>
-  <div class="remain-amount zero" id="remainAmount">—</div>
-  <div class="remain-sub" id="remainSub">入店種別と予算を入力してください</div>
-</div>
-
-<div class="addorder-card" id="addOrderCard">
-  <div class="addorder-label">あと追加注文できる小計金額</div>
-  <div class="addorder-amount" id="addOrderAmount">—</div>
-  <div class="addorder-sub" id="addOrderSub">500円単位（税・諸費用込みの残額から逆算）</div>
-</div>
-
-<button class="confirm-btn" onclick="confirmBilling()">✓ 会計確定して次のお客様へ</button>
-<button class="reset-btn" onclick="resetAll()">↺ 入力をリセット</button>
-
-<!-- 日次集計 -->
-<div class="daily-section">
-  <div class="daily-header">
-    <div class="daily-title">日次集計</div>
-    <div style="display:flex;gap:6px;">
-      <button class="daily-clear" id="undoBtn" onclick="undoLast()" style="display:none;">↺ 元に戻す</button>
-      <button class="daily-clear" onclick="clearHistory()">履歴をクリア</button>
+    <!-- 右：報告状況 -->
+    <div style="width:90px; flex-shrink:0;">
+      <div style="font-size:10px;color:var(--accent);letter-spacing:0.08em;font-weight:700;margin-bottom:6px;padding-bottom:3px;border-bottom:1px solid var(--accent-dim);">報告状況</div>
+      <div id="staffStatusList" style="font-size:11px;"></div>
+      <button onclick="openStaffSettings()" style="margin-top:8px;width:100%;background:none;border:1px solid var(--border);border-radius:4px;color:var(--text-dim);font-size:10px;padding:4px;cursor:pointer;font-family:var(--font-main);">⚙ 編集</button>
     </div>
   </div>
 
-  <div class="summary-card" id="summaryCard">
-    <div class="summary-grid">
-      <div class="summary-item">
-        <div class="summary-label">客数</div>
-        <div class="summary-val" id="sumCount">0</div>
-      </div>
-      <div class="summary-item">
-        <div class="summary-label">担当小計合計</div>
-        <div class="summary-val danger" id="sumTanto">¥0</div>
-      </div>
-      <div class="summary-item">
-        <div class="summary-label">お支払い合計</div>
-        <div class="summary-val" id="sumPay">¥0</div>
-      </div>
+  <div id="previewArea"></div>
+
+  <!-- 卓状況 -->
+  <div style="margin-top:16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--accent-dim);">
+      <span style="font-size:10px;color:var(--accent);letter-spacing:0.08em;font-weight:700;">卓状況</span>
+      <button onclick="openFloorSettings()" style="background:none;border:1px solid var(--border);border-radius:4px;color:var(--text-dim);font-size:10px;padding:2px 8px;cursor:pointer;font-family:var(--font-main);">⚙ 編集</button>
+    </div>
+    <div id="floorLegend" style="display:none;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;"></div>
+    <div style="display:flex;gap:8px;" id="floorStatusArea">
+      <!-- V・A・Bフロア -->
     </div>
   </div>
+</div>
 
-  <div class="history-list" id="historyList">
-    <div class="no-history">まだ会計履歴がありません</div>
+<!-- 卓一覧パネル -->
+<div class="panel" id="panel-tables">
+  <div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
+    <button onclick="openManageModal()" style="background:none;border:1px solid var(--border);border-radius:6px;color:var(--text-dim);font-size:11px;padding:6px 12px;cursor:pointer;font-family:var(--font-main);">📝 一覧管理</button>
+  </div>
+  <div id="assignedTables"></div>
+  <div class="unassigned-section" id="unassignedSection" style="display:none;">
+    <div class="section-label" style="margin-top:16px;">▼ 卓未割り当て</div>
+    <div id="unassignedList"></div>
   </div>
 </div>
+
+<!-- 初回パネル -->
+<div class="panel" id="panel-first">
+  <div style="font-size:14px;color:var(--text-dim);margin-bottom:8px;" id="firstStats"></div>
+  <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;">
+    <button class="btn btn-ghost btn-sm" onclick="addFirstRow()">＋ 追加</button>
+    <button class="btn btn-ghost btn-sm" onclick="clearFirstData()" style="margin-left:auto;color:#c0392b;border-color:#c0392b;">🗑 全クリア</button>
+  </div>
+  <div style="overflow-x:auto;">
+    <table class="paper-table" id="firstTable">
+      <thead>
+        <tr>
+          <th style="width:30px;">No.</th>
+          <th style="width:36px;">人数</th>
+          <th style="width:44px;">卓番</th>
+          <th style="width:44px;">席位置</th>
+          <th style="width:56px;">写真指名①</th>
+          <th style="width:56px;">写真指名②</th>
+          <th style="width:50px;">送り</th>
+          <th style="width:50px;">飲直</th>
+          <th style="width:60px;">プラン</th>
+        </tr>
+      </thead>
+      <tbody id="firstTableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 全体ビューパネル -->
+<div class="panel" id="panel-view">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:6px 0;border-bottom:1px solid var(--border);">
+    <span style="font-size:11px;color:var(--text-dim);white-space:nowrap;">【場内】</span>
+    <input id="baanaiInput" type="text" placeholder="手入力..."
+      style="flex:1;background:transparent;border:none;color:var(--text);padding:2px 4px;outline:none;font-family:var(--font-main);font-size:11px;"
+      oninput="saveBaanai()">
+  </div>
+  <div id="viewList"></div>
+</div>
+
+<!-- 手動追加モーダル -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span>予約を追加</span>
+      <button onclick="closeModal()" style="background:none;border:none;color:var(--text-dim);font-size:18px;cursor:pointer;">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label class="form-label">卓番（空白で未割当）</label>
+        <input class="form-input" id="m-table" type="number" min="1" max="30" placeholder="例: 5">
+      </div>
+      <div class="form-row">
+        <label class="form-label">名前</label>
+        <input class="form-input" id="m-name" placeholder="お客様名">
+      </div>
+      <div class="form-row">
+        <label class="form-label">来店時間</label>
+        <input class="form-input" id="m-arrive" placeholder="例: 21:00 / 同伴">
+      </div>
+      <div class="form-row">
+        <label class="form-label">退店</label>
+        <input class="form-input" id="m-leave" placeholder="例: ワンタイ / 00:00">
+      </div>
+      <div class="form-row">
+        <label class="form-label">担当者</label>
+        <input class="form-input" id="m-tanto" placeholder="例: ゆかり">
+      </div>
+      <div class="form-row">
+        <label class="form-label">予算</label>
+        <input class="form-input" id="m-budget" placeholder="例: 未定">
+      </div>
+      <div class="form-row">
+        <label class="form-label">ヘルプ</label>
+        <input class="form-input" id="m-help" placeholder="例: ゆき">
+      </div>
+      <div class="form-row">
+        <label class="form-label">備考</label>
+        <input class="form-input" id="m-note" placeholder="備考">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">キャンセル</button>
+      <button class="btn btn-primary" onclick="addManual()">追加</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
-  const TAX = 1.507;
-  const STEP = 500;
-  const TANTO_MAP = { 11535:2000, 16056:5000, 20577:8000, 31126:15000, 35647:18000 };
-  const TYPE_LABELS = { 11535:'1時間', 16056:'2時間', 20577:'フリータイム', 31126:'VIP通常', 35647:'VIP特殊' };
-  const TYPES = [
-    { price:11535, label:'1時間' }, { price:16056, label:'2時間' },
-    { price:20577, label:'フリータイム' }, { price:31126, label:'VIP通常' }, { price:35647, label:'VIP特殊' }
+// ===== STATE =====
+let guests = []; // { id, name, arrive, leave, tanto, budget, help, note, tableNum, arrived }
+let nextId = 1;
+let firstGroups = [];
+let firstGid = 1;
+let firstRid = 1;
+let staffList = [];
+let staffAliases = {}; // { "本名": ["呼び名1","呼び名2", ...] }
+let staffDayStatus = {}; // { "本名": { status: 'pending'|'off'|'paid_off'|'half_off', reportType: 'self'|'proxy'|null, timestamp } }
+let proxyMode = false; // 内勤端末での「代理入力モード」。ページを開くたびOFFにリセットされる（意図的に永続化しない）
+
+// ===== LOGIN =====
+const PASS_ADMIN = 'rj0123';
+const PASS_HOST  = '1234';
+
+function checkLogin() {
+  const role = localStorage.getItem('rj_role');
+  if (role === 'admin' || role === 'host') {
+    applyRole(role);
+    document.getElementById('loginScreen').style.display = 'none';
+  }
+}
+
+function doLogin() {
+  const val = document.getElementById('loginInput').value.trim();
+  if (val === PASS_ADMIN) {
+    localStorage.setItem('rj_role', 'admin');
+    applyRole('admin');
+    document.getElementById('loginScreen').style.display = 'none';
+  } else if (val === PASS_HOST) {
+    localStorage.setItem('rj_role', 'host');
+    applyRole('host');
+    document.getElementById('loginScreen').style.display = 'none';
+  } else {
+    document.getElementById('loginError').textContent = 'パスワードが違います';
+    document.getElementById('loginInput').value = '';
+  }
+}
+
+function applyRole(role) {
+  if (role === 'host') {
+    // ホストは卓一覧タブを非表示
+    const tabs = document.querySelectorAll('.tab');
+    const panels = document.querySelectorAll('.panel');
+    // 卓一覧タブ（index 1）を非表示
+    if (tabs[1]) tabs[1].style.display = 'none';
+    if (panels[1]) panels[1].style.display = 'none';
+    // アクティブを予定報告に
+    tabs[0].classList.add('active');
+    panels[0].classList.add('active');
+    // 本日分リセットは内勤（admin）のみ操作可能
+    const resetBtn = document.getElementById('resetReportsBtn');
+    if (resetBtn) resetBtn.style.display = 'none';
+    // 集計も内勤（admin）のみ閲覧可能
+    const summaryBtn = document.getElementById('summaryBtn');
+    if (summaryBtn) summaryBtn.style.display = 'none';
+  }
+  if (typeof updateUndoButtonState === 'function') updateUndoButtonState();
+  if (typeof renderIdentityIndicator === 'function') renderIdentityIndicator();
+  setTimeout(updateFixedTop, 50);
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  // Firebase module scriptからアクセスできるようにwindowに登録
+  window.renderStaffStatus = renderStaffStatus;
+  window.renderTables = renderTables;
+  window.renderFloorStatus = renderFloorStatus;
+  window.updateBaanaiBar = updateBaanaiBar;
+  window.renderView = renderView;
+  window.updateStats = updateStats;
+  window.updateUndoButtonState = updateUndoButtonState;
+  window.refreshAliasModalIfOpen = refreshAliasModalIfOpen;
+  window.refreshFloorModalIfOpen = refreshFloorModalIfOpen;
+  window.refreshSummaryModalIfOpen = refreshSummaryModalIfOpen;
+  window.renderFirstTabFromFB = function() {
+    renderFirstTab();
+    if (window.renderFloorStatus) window.renderFloorStatus();
+    if (document.getElementById('panel-view') && document.getElementById('panel-view').classList.contains('active') && window.renderView) window.renderView();
+  };
+  checkLogin();
+  // firstGroupsを必ずクリーンな状態で初期化
+  firstGroups = [];
+  firstGid = 1;
+  firstRid = 1;
+  loadFirstData();
+  updateDate();
+  renderFirstTab();
+  // Firebase準備完了時に実行
+  window._fbReady = function() {
+    if (window._fbGuests) {
+      guests = window._fbGuests;
+      nextId = guests.reduce((m,g) => Math.max(m, (g.id||0)+1), 1);
+      renderTables();
+      if (document.getElementById('panel-view').classList.contains('active')) renderView();
+      updateStats();
+    }
+  };
+  window._fbFirstReady = function() {
+    if (window._fbFirstGroups) {
+      firstGroups = window._fbFirstGroups;
+      firstGid = firstGroups.reduce((m,g)=>Math.max(m,(g.id||0)+1), 1);
+      firstGroups.forEach(g => {
+        (g.rows||[]).forEach(r => { firstRid = Math.max(firstRid, (r.id||0)+1); });
+      });
+      renderFirstTab();
+      renderFloorStatus();
+    }
+  };
+  // ローカルのデータで先に表示（Firebase接続前）
+  loadFromStorage();
+  loadStaff();
+  loadBaanai();
+  loadFloorData();
+  renderTables();
+  renderStaffStatus();
+  renderIdentityIndicator();
+  updateFixedTop();
+  setTimeout(updateFixedTop, 100);
+  // 来店予定・退店予定の時刻経過ハイライトを1分ごとに再評価する
+  setInterval(() => {
+    renderTables();
+    renderFloorStatus();
+  }, 60000);
+});
+
+function updateDate() {
+  const now = new Date();
+  const d = `${now.getMonth()+1}月${now.getDate()}日（${'日月火水木金土'[now.getDay()]}）`;
+  document.getElementById('headerDate').textContent = d;
+}
+
+// ===== TABS =====
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    t.classList.toggle('active', ['input','tables','first','view'][i] === name);
+  });
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  if (name === 'tables') renderTables();
+  if (name === 'view') renderView();
+  if (name === 'first') renderFirstTab();
+  if (name === 'input') renderFloorStatus();
+}
+
+// ===== AI TEXT PARSE =====
+function resetTemplate() {
+  document.getElementById('lineTextInput').value = '担当名：\nお客様名：\n来店時間：\n退店時間：\n予算：\nヘルプ：\n備考：';
+}
+
+function clearTemplate() {
+  const ta = document.getElementById('lineTextInput');
+  const tmpl = '担当名：\nお客様名：\n来店時間：\n退店時間：\n予算：\nヘルプ：\n備考：';
+  const blocks = ta.value.split('\n\n').filter(b => b.trim());
+  const filtered = blocks.filter(block => {
+    const lines = block.split('\n');
+    return lines.some(line => {
+      const idx = line.indexOf('：');
+      const val = idx >= 0 ? line.slice(idx + 1).trim() : line.trim();
+      return val !== '';
+    });
+  });
+  ta.value = filtered.join('\n\n');
+}
+
+function addTemplate() {
+  const ta = document.getElementById('lineTextInput');
+  const current = ta.value.trim();
+  const tmpl = '担当名：\nお客様名：\n来店時間：\n退店時間：\n予算：\nヘルプ：\n備考：';
+  ta.value = current ? current + '\n\n' + tmpl : tmpl;
+  ta.scrollTop = ta.scrollHeight;
+}
+
+function parseLineText() {
+  const text = document.getElementById('lineTextInput').value.trim();
+  if (!text) { showToast('内容を入力してください'); return; }
+
+  // ブロックを空行で分割
+  const blocks = text.split(/\n\s*\n/).filter(b => b.trim());
+  const parsed = [];
+
+  blocks.forEach(block => {
+    const get = (key) => {
+      const match = block.match(new RegExp(key + '：(.*)'));
+      return match ? match[1].trim() : '';
+    };
+
+    // テンプレ形式かチェック
+    const tanto = get('担当名');
+    const name = get('お客様名');
+
+    if (tanto || name) {
+      // テンプレ形式
+      if (!tanto) { showToast('担当名を入力してください'); return; }
+      // 予定未定はスキップ（お客様名なしor予定未定）
+      if (!name || name.includes('予定未定')) {
+        // 報告状況に反映するためtantoだけ記録
+        markReported(tanto);
+        return;
+      }
+      parsed.push({
+        tanto, name,
+        arrive: get('来店時間'),
+        leave:  get('退店時間'),
+        budget: get('予算'),
+        help:   get('ヘルプ'),
+        note:   get('備考'),
+        aiban:  get('アイバン'),
+      });
+    } else {
+      // 自由入力形式（例：「カルマ 予定未定」）
+      const trimmed = block.trim();
+      if (!trimmed) return;
+      // 予定未定を含む場合は報告状況に反映してスキップ
+      if (trimmed.includes('予定未定')) {
+        // 名前部分を抽出（「カルマ予定未定」「カルマ 予定未定」両対応）
+        const tName = trimmed.replace(/\s*予定未定.*/, '').trim();
+        if (tName) markReported(tName);
+        return;
+      }
+      // スペース区切りで最初の単語を担当名、残りをお客様名として扱う
+      const parts = trimmed.split(/\s+/);
+      if (parts.length < 2) { showToast('担当名とお客様名を入力してください'); return; }
+      parsed.push({
+        tanto: parts[0],
+        name: parts.slice(1).join(' '),
+        arrive: '', leave: '', budget: '', help: '', note: '',
+      });
+    }
+  });
+
+  if (!parsed.length) {
+    showToast('有効な報告が見つかりませんでした');
+    return;
+  }
+
+  showReportPreview(parsed);
+}
+
+// ===== 報告内容の確認ポップアップ =====
+let _reportPreviewData = [];
+
+function showReportPreview(parsed) {
+  const previous = _reportPreviewData || [];
+  _reportPreviewData = parsed.map(p => {
+    const copy = { ...p };
+    // 「戻って修正」→再度「報告する」で戻ってきた時、同じ担当名+お客様名ならアイバン入力を引き継ぐ
+    if (!copy.aiban) {
+      const match = previous.find(prev => prev.tanto === copy.tanto && prev.name === copy.name && prev.aiban);
+      if (match) {
+        copy.aiban = match.aiban;
+        copy._aibanTanto = match._aibanTanto;
+        copy._aibanName = match._aibanName;
+      }
+    }
+    return copy;
+  });
+  _aibanFormOpen = {};
+  renderReportPreviewModal();
+}
+
+function renderReportPreviewModal() {
+  let modal = document.getElementById('reportPreviewModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.id = 'reportPreviewModal';
+    document.body.appendChild(modal);
+  }
+
+  const fields = [
+    ['tanto', '担当'], ['name', 'お客様名'], ['arrive', '来店時間'], ['leave', '退店時間'],
+    ['budget', '予算'], ['help', 'ヘルプ'], ['note', '備考']
   ];
 
-  let startPrice = 0;
-  let history = [];
-  let undoStack = null; // 直前の履歴状態を保持
+  const cards = _reportPreviewData.map((p, i) => {
+    const fieldsHtml = fields.map(([key, label]) => `
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <div style="width:56px;flex-shrink:0;font-size:11px;color:var(--text-dim);">${label}</div>
+          <input value="${(p[key] || '').replace(/"/g,'&quot;')}" oninput="updateReportPreviewField(${i},'${key}',this.value)"
+            style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:var(--font-main);font-size:13px;padding:5px 7px;outline:none;">
+        </div>`);
+    // お客様名の直下にアイバン専用UIを挿入（設定済みならチップ表示、未設定ならボタン→簡易フォーム）
+    const aibanBlock = renderAibanBlock(p, i);
+    fieldsHtml.splice(2, 0, aibanBlock);
 
-  // ローカルストレージから履歴を読み込む
-  function loadHistory() {
-    try {
-      const saved = localStorage.getItem('kaikei_history');
-      if (saved) history = JSON.parse(saved);
-    } catch(e) { history = []; }
-    renderHistory();
+    return `
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:10px;">
+      <div style="font-size:11px;color:var(--accent);font-weight:700;margin-bottom:8px;">報告 ${i + 1}件目</div>
+      ${fieldsHtml.join('')}
+      <button onclick="removeReportPreviewRow(${i})" style="margin-top:4px;background:none;border:1px solid #c0392b;border-radius:4px;color:#c0392b;font-size:11px;padding:3px 10px;cursor:pointer;font-family:var(--font-main);">この報告を削除</button>
+    </div>`;
+  }).join('');
+
+  modal.innerHTML = `
+    <div class="modal" style="max-width:420px;max-height:85vh;display:flex;flex-direction:column;">
+      <div class="modal-header">
+        <span>この内容で報告しますか？</span>
+        <button onclick="document.getElementById('reportPreviewModal').classList.remove('show')" style="background:none;border:none;color:var(--text-dim);font-size:18px;cursor:pointer;">✕</button>
+      </div>
+      <div class="modal-body" style="overflow-y:auto;flex:1;">
+        ${cards || '<p style="color:var(--text-dim);text-align:center;">報告内容がありません</p>'}
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="document.getElementById('reportPreviewModal').classList.remove('show')">戻って修正</button>
+        <button class="btn btn-primary" onclick="confirmReportPreview()">この内容で報告する</button>
+      </div>
+    </div>`;
+  modal.classList.add('show');
+}
+
+// アイバン欄のミニUIを組み立てる（未設定→追加ボタン／入力中→2項目フォーム／設定済み→チップ表示）
+let _aibanFormOpen = {};
+function renderAibanBlock(p, i) {
+  const hasValue = p.aiban && p.aiban.trim();
+  if (hasValue && !_aibanFormOpen[i]) {
+    return `
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <div style="width:56px;flex-shrink:0;"></div>
+          <span style="display:inline-flex;align-items:center;gap:5px;background:#1a3a52;border:1px solid #3498db;border-radius:12px;padding:3px 6px 3px 10px;font-size:12px;color:#5dade2;max-width:100%;overflow:hidden;">
+            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">🔗 ${p.aiban}</span>
+            <button onclick="toggleAibanForm(${i})" style="background:none;border:none;color:#5dade2;font-size:12px;cursor:pointer;padding:0 4px;flex-shrink:0;">編集</button>
+            <button onclick="clearAibanField(${i})" style="background:none;border:none;color:#e74c3c;font-size:12px;cursor:pointer;padding:0 4px 0 0;flex-shrink:0;">削除</button>
+          </span>
+        </div>`;
   }
-
-  // ローカルストレージに履歴を保存
-  function saveHistory() {
-    try { localStorage.setItem('kaikei_history', JSON.stringify(history)); } catch(e) {}
-  }
-
-  function fmt(n) { return '¥' + Math.round(n).toLocaleString('ja-JP'); }
-  function roundPayment(t) { const r = t % 1000; return r >= 500 ? Math.ceil(t/1000)*1000 : Math.floor(t/1000)*1000; }
-
-  function onBudget(el) {
-    const raw = el.value.replace(/,/g,'');
-    const n = parseInt(raw) || 0;
-    el.value = n > 0 ? n.toLocaleString('ja-JP') : (raw===''?'':raw);
-    document.getElementById('budget').value = n || '';
-    calc();
-  }
-
-  function onOrder(el, idx) {
-    const raw = el.value.replace(/,/g,'');
-    const n = parseInt(raw) || 0;
-    el.value = n > 0 ? n.toLocaleString('ja-JP') : (raw===''?'':raw);
-    document.getElementById('ov'+idx).value = n || 0;
-    calc();
-  }
-
-  function budgetHTML(e) {
-    var b = e.budget ? fmt(e.budget) : '—';
-    var a = e.budget ? fmt(e.addable||0) : '—';
-    return '<div class="history-budget">予算 ' + b + '</div><div class="history-addable">残り小計 ' + a + '</div>';
-  }
-
-  function onEditMemo(id, el) {
-    const entry = history.find(e=>e.id===id);
-    if (!entry) return;
-    entry.memo = el.value.trim();
-    const hinfo = document.querySelector('#hitem-'+id+' .history-info .history-type');
-    if (hinfo) hinfo.textContent = entry.typeLabel + (entry.memo ? ' ・ '+entry.memo : '');
-    saveHistory();
-  }
-
-  function onEditOrder(el, id, idx) {
-    const raw = el.value.replace(/,/g,'');
-    const n = parseInt(raw) || 0;
-    el.value = n > 0 ? n.toLocaleString('ja-JP') : (raw===''?'':raw);
-    editCalc(id);
-  }
-
-  function selectType(btn) {
-    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    startPrice = parseInt(btn.dataset.price);
-    calc();
-  }
-
-  function calc() {
-    const budget = parseInt(document.getElementById('budget').value) || 0;
-    let orderSum = 0;
-    for (let i=1;i<=5;i++) {
-      const v = parseInt(document.getElementById('ov'+i).value) || 0;
-      orderSum += v;
-      document.getElementById('t'+i).textContent = v > 0 ? '税込'+fmt(v*TAX) : '';
-    }
-    document.getElementById('dispStart').textContent = startPrice ? fmt(startPrice) : '—';
-    document.getElementById('dispOrder').textContent = fmt(orderSum);
-
-    if (!startPrice) {
-      document.getElementById('dispTax').textContent = '—';
-      document.getElementById('dispTotal').textContent = '—';
-      document.getElementById('dispRounded').textContent = '—';
-      document.getElementById('tantoRow').style.display = 'none';
-      setRemain(null,null,null,null); return;
-    }
-
-    const orderWithTax = orderSum * TAX;
-    const tax = orderWithTax - orderSum;
-    const total = startPrice + orderWithTax;
-    const roundedTotal = roundPayment(total);
-
-    document.getElementById('dispTax').textContent = '+'+fmt(tax);
-    document.getElementById('dispTotal').textContent = fmt(total);
-    document.getElementById('dispRounded').textContent = fmt(roundedTotal);
-
-    const tanto = (TANTO_MAP[startPrice]||0) + orderSum;
-    document.getElementById('tantoRow').style.display = 'flex';
-    document.getElementById('dispTanto').textContent = fmt(tanto);
-
-    if (!budget) { setRemain(null,null,null,null); return; }
-
-    const remain = budget - roundedTotal;
-    let addable = 0;
-    if (roundedTotal <= budget) {
-      for (let x=0;x<=5000000;x+=STEP) {
-        if (roundPayment(startPrice+(orderSum+x)*TAX) <= budget) addable=x; else break;
-      }
-    }
-    setRemain(remain, roundedTotal, budget, addable);
-  }
-
-  function setRemain(remain, roundedTotal, budget, addable) {
-    const el = document.getElementById('remainAmount');
-    const sub = document.getElementById('remainSub');
-    const addCard = document.getElementById('addOrderCard');
-    const addAmt = document.getElementById('addOrderAmount');
-    const addSub = document.getElementById('addOrderSub');
-
-    if (remain===null) {
-      el.textContent='—'; el.className='remain-amount zero';
-      sub.textContent='入店種別と予算を入力してください';
-      addAmt.textContent='—'; addCard.className='addorder-card';
-      addSub.textContent='500円単位（税・諸費用込みの残額から逆算）'; return;
-    }
-    el.textContent = fmt(remain);
-    if (remain>0){el.className='remain-amount positive';sub.textContent='予算内です';}
-    else if(remain<0){el.className='remain-amount negative';sub.textContent='⚠️ 予算超過しています';}
-    else{el.className='remain-amount zero';sub.textContent='ちょうどです';}
-
-    if (roundedTotal<=budget) {
-      addCard.className='addorder-card';
-      if(addable>0){addAmt.textContent=fmt(addable);addSub.textContent='小計 '+fmt(addable)+' 追加すると税込 '+fmt(addable*TAX)+' かかります';}
-      else{addAmt.textContent='¥0';addSub.textContent='追加注文の余裕がありません（500円未満）';}
-    } else {
-      addCard.className='addorder-card over';
-      addAmt.textContent='超過中'; addSub.textContent='予算を超えています';
-    }
-  }
-
-  function confirmBilling() {
-    if (!startPrice) { alert('入店種別を選択してください'); return; }
-    let orderSum = 0;
-    const orders = [];
-    for (let i=1;i<=5;i++) {
-      const v = parseInt(document.getElementById('ov'+i).value)||0;
-      orderSum += v; orders.push(v);
-    }
-    const total = startPrice + orderSum*TAX;
-    const roundedTotal = roundPayment(total);
-    const tanto = (TANTO_MAP[startPrice]||0) + orderSum;
-
-    const budget = parseInt(document.getElementById('budget').value) || 0;
-    const memo = document.getElementById('memoInput').value.trim();
-    let addable = 0;
-    if (budget && roundedTotal <= budget) {
-      for (let x=0;x<=5000000;x+=STEP) {
-        if (roundPayment(startPrice+(orderSum+x)*TAX) <= budget) addable=x; else break;
-      }
-    }
-    const entry = {
-      id: Date.now(),
-      typePrice: startPrice,
-      typeLabel: TYPE_LABELS[startPrice],
-      orders,
-      orderSum,
-      roundedTotal,
-      tanto,
-      budget,
-      addable,
-      memo,
-    };
-    history.push(entry);
-    saveHistory();
-    renderHistory();
-    resetAll();
-  }
-
-  function resetAll() {
-    document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('selected'));
-    startPrice=0;
-    document.getElementById('budget').value='';
-    document.getElementById('budgetDisp').value='';
-    document.getElementById('tantoRow').style.display='none';
-    document.getElementById('memoInput').value='';
-    for(let i=1;i<=5;i++){
-      document.getElementById('o'+i).value='';
-      document.getElementById('ov'+i).value='';
-      document.getElementById('t'+i).textContent='';
-    }
-    calc();
-  }
-
-  function undoLast() {
-    if (!undoStack) return;
-    history = undoStack;
-    undoStack = null;
-    saveHistory();
-    renderHistory();
-  }
-
-  function clearHistory() {
-    if (history.length===0) return;
-    undoStack = JSON.parse(JSON.stringify(history));
-    history=[]; saveHistory(); renderHistory();
-  }
-
-  function renderHistory() {
-    const undoBtn = document.getElementById('undoBtn');
-    if (undoBtn) undoBtn.style.display = undoStack ? 'inline-block' : 'none';
-    // 集計更新
-    const count = history.length;
-    const totalPay = history.reduce((s,e)=>s+e.roundedTotal,0);
-    const totalTanto = history.reduce((s,e)=>s+e.tanto,0);
-    document.getElementById('sumCount').textContent = count;
-    document.getElementById('sumPay').textContent = fmt(totalPay);
-    document.getElementById('sumTanto').textContent = fmt(totalTanto);
-
-    const list = document.getElementById('historyList');
-    if (count===0) { list.innerHTML='<div class="no-history">まだ会計履歴がありません</div>'; return; }
-
-    list.innerHTML = history.map((e,idx) => `
-      <div class="history-item" id="hitem-${e.id}">
-        <div class="history-header" onclick="toggleEdit(${e.id})">
-          <span class="history-num">#${idx+1}</span>
-          <div class="history-info">
-            <div class="history-type"><span class="history-type-label">${e.typeLabel}</span>${e.memo ? ' <span class="history-memo-text">・ '+e.memo+'</span>' : ''}</div>
-            <div class="history-pay">お支払い ${fmt(e.roundedTotal)}</div>
-            <div class="history-tanto">担当小計 ${fmt(e.tanto)}</div>
+  if (_aibanFormOpen[i]) {
+    return `
+        <div style="margin-bottom:6px;background:var(--surface);border:1px solid #3498db;border-radius:6px;padding:8px;box-sizing:border-box;">
+          <div style="font-size:10px;color:#5dade2;margin-bottom:5px;">🔗 アイバン予定の相手</div>
+          <div style="display:flex;gap:6px;margin-bottom:5px;">
+            <input class="aiban-input" placeholder="担当名" value="${(p._aibanTanto||'').replace(/"/g,'&quot;')}" oninput="updateAibanField(${i},'tanto',this.value)">
+            <input class="aiban-input" placeholder="お客様名" value="${(p._aibanName||'').replace(/"/g,'&quot;')}" oninput="updateAibanField(${i},'name',this.value)">
           </div>
-          <div class="history-right">
-            ${budgetHTML(e)}
-            <span class="history-arrow" id="arrow-${e.id}">▼</span>
+          <button onclick="toggleAibanForm(${i})" style="background:none;border:1px solid var(--border);border-radius:4px;color:var(--text-dim);font-size:11px;padding:3px 10px;cursor:pointer;font-family:var(--font-main);">閉じる</button>
+        </div>`;
+  }
+  return `
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <div style="width:56px;flex-shrink:0;"></div>
+          <button onclick="toggleAibanForm(${i})" style="background:none;border:1px dashed var(--border);border-radius:12px;color:var(--text-dim);font-size:11px;padding:4px 10px;cursor:pointer;font-family:var(--font-main);">🔗 アイバン予定を追加</button>
+        </div>`;
+}
+
+function toggleAibanForm(i) {
+  _aibanFormOpen[i] = !_aibanFormOpen[i];
+  renderReportPreviewModal();
+}
+
+function updateAibanField(index, part, value) {
+  const p = _reportPreviewData[index];
+  if (!p) return;
+  if (part === 'tanto') p._aibanTanto = value;
+  if (part === 'name') p._aibanName = value;
+  p.aiban = [p._aibanTanto, p._aibanName].filter(Boolean).join(' ');
+}
+
+function clearAibanField(index) {
+  const p = _reportPreviewData[index];
+  if (!p) return;
+  p.aiban = '';
+  p._aibanTanto = '';
+  p._aibanName = '';
+  _aibanFormOpen[index] = false;
+  renderReportPreviewModal();
+}
+
+function updateReportPreviewField(index, key, value) {
+  if (!_reportPreviewData[index]) return;
+  _reportPreviewData[index][key] = value;
+}
+
+function removeReportPreviewRow(index) {
+  _reportPreviewData.splice(index, 1);
+  if (!_reportPreviewData.length) {
+    document.getElementById('reportPreviewModal').classList.remove('show');
+    showToast('報告内容がなくなりました');
+    return;
+  }
+  renderReportPreviewModal();
+}
+
+function confirmReportPreview() {
+  document.getElementById('reportPreviewModal').classList.remove('show');
+  // アイバン入力フォーム用の一時フィールドはゲストデータに持ち込まない
+  const cleaned = _reportPreviewData.map(p => {
+    const copy = { ...p };
+    delete copy._aibanTanto;
+    delete copy._aibanName;
+    return copy;
+  });
+  importTextParsed(cleaned);
+  _reportPreviewData = [];
+  _aibanFormOpen = {};
+}
+
+function importTextParsed(parsed) {
+  if (!parsed || !parsed.length) {
+    showToast('該当する報告が見つかりませんでした');
+    return;
+  }
+  const usedRows = new Set(guests.map(g => Number(g.rowNum)).filter(Boolean));
+  let rc = 1;
+  let skipped = 0;
+  parsed.forEach(g => {
+    const isDuplicate = guests.some(existing =>
+      existing.tanto && existing.name && g.tanto && g.name &&
+      (existing.tanto.includes(g.tanto) || g.tanto.includes(existing.tanto)) &&
+      existing.name === g.name
+    );
+    if (isDuplicate) { skipped++; return; }
+    while (usedRows.has(rc)) rc++;
+    usedRows.add(rc);
+    guests.push({ id: nextId++, ...g, rowNum: String(rc++), tableNum: g.tableNum||'', arrived: false, reportType: getCurrentReportType() });
+  });
+  document.getElementById('previewArea').innerHTML = '';
+  document.getElementById('lineTextInput').value = '担当名：\nお客様名：\n来店時間：\n退店時間：\n予算：\nヘルプ：\n備考：';
+  saveToStorage();
+  updateStats();
+  renderStaffStatus();
+  const msg = skipped > 0 ? `取り込みました！（重複${skipped}件をスキップ）` : `${parsed.length - skipped}件を取り込みました！`;
+  showToast(msg);
+  switchTab('tables');
+}
+
+
+// ===== RENDER TABLES =====
+function renderTables() {
+  const container = document.getElementById('assignedTables');
+  const MAX_ROWS = 30;
+
+  // 表示前に行番号を詰め直す（他端末から隙間のあるデータを受信した場合も自動修復）
+  const beforeRepack = JSON.stringify(guests.map(g => g.rowNum));
+  repackRowNums();
+  const afterRepack = JSON.stringify(guests.map(g => g.rowNum));
+  if (beforeRepack !== afterRepack) {
+    // 詰め直しで変化があった場合のみ保存し直し、他端末にも修復結果を反映する（1件ずつ書き込み）
+    try { localStorage.setItem('tableManager_guests', JSON.stringify(guests)); } catch(e) {}
+    if (window.fbSaveGuest) {
+      guests.forEach(g => window.fbSaveGuest(g));
+    }
+  }
+
+  // No.ごとにゲストをマップ（rowNum = 行番号）
+  const rowMap = {};
+  guests.forEach(g => { if (g.rowNum) rowMap[g.rowNum] = g; });
+
+  let rows = '';
+  for (let i = 1; i <= MAX_ROWS; i++) {
+    const g = rowMap[i];
+    if (g) {
+      rows += rowHTML(i, g);
+    } else {
+      rows += emptyRowHTML(i);
+    }
+  }
+
+  // MAX_ROWS超えの行
+  guests.filter(g => g.rowNum && Number(g.rowNum) > MAX_ROWS)
+    .sort((a,b) => Number(a.rowNum)-Number(b.rowNum))
+    .forEach(g => { rows += rowHTML(g.rowNum, g); });
+
+  container.innerHTML = `
+    <div style="overflow-x:auto;">
+      <table class="paper-table">
+        <thead>
+          <tr>
+            <th class="p-col-no">No.</th>
+            <th class="p-col-num">卓番</th>
+            <th class="p-col-time">来店時間</th>
+            <th class="p-col-tanto">担当者</th>
+            <th class="p-col-guest">お客様名</th>
+            <th class="p-col-keep">ボトル</th>
+            <th class="p-col-note">備考</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+
+  updateStats();
+  updateTableStats();
+}
+
+// アイバン文字列（「担当名 お客様名」形式）を、担当名部分とお客様名部分に分解する
+// 編集モーダルなどで2列入力欄に事前入力するために使う
+function splitAibanText(text) {
+  if (!text || !text.trim()) return { tanto: '', name: '' };
+  const trimmed = text.trim();
+  const aliasIndex = buildAliasIndex();
+  const normText = toHiragana(trimmed);
+  const staffMatch = aliasIndex.find(entry => normText.startsWith(entry.norm));
+  if (staffMatch) {
+    return { tanto: staffMatch.name, name: trimmed.slice(staffMatch.text.length).trim() };
+  }
+  return { tanto: '', name: trimmed };
+}
+
+// アイバン欄（「担当名　お客様名」形式）から、対応する相手のゲストを探す
+// 表記は担当名の呼び名マッチ＋お客様名の部分一致で判定する（完全一致は求めない）
+function findAibanPartner(g) {
+  if (!g.aiban) return null;
+  const text = g.aiban.trim();
+  if (!text) return null;
+  const aliasIndex = buildAliasIndex();
+  const normText = toHiragana(text);
+  // 担当名らしき部分を先頭から検出
+  const staffMatch = aliasIndex.find(entry => normText.startsWith(entry.norm));
+  const nameHint = staffMatch ? text.slice(staffMatch.text.length).trim() : text;
+  return guests.find(other => {
+    if (other.id === g.id || other.left) return false;
+    const nameOk = nameHint && other.name && toHiragana(other.name).includes(toHiragana(nameHint).replace(/[△\s]/g,''));
+    const tantoOk = !staffMatch || (other.tanto && toHiragana(other.tanto).includes(staffMatch.norm));
+    return nameOk && tantoOk;
+  }) || null;
+}
+
+// そのゲストがアイバンで誰かと紐づいているかを判定する（自分が設定側／相手として参照される側の両方に対応）
+// アイバンで繋がっているグループごとに色を割り当てる（複数組のアイバンが同時にあっても見分けられるように）
+const AIBAN_PALETTE = ['#3498db', '#9b59b6', '#e67e22', '#1abc9c', '#e91e63', '#2ecc71', '#f39c12', '#95a5a6'];
+function computeAibanColorMap() {
+  const active = guests.filter(g => !g.left);
+  const parent = {};
+  function find(x) {
+    if (!(x in parent)) parent[x] = x;
+    while (parent[x] !== x) { parent[x] = parent[parent[x]]; x = parent[x]; }
+    return x;
+  }
+  function union(a, b) {
+    const ra = find(a), rb = find(b);
+    if (ra !== rb) parent[ra] = rb;
+  }
+  active.forEach(g => {
+    if (g.aiban && g.aiban.trim()) {
+      const partner = findAibanPartner(g);
+      if (partner) { find(g.id); find(partner.id); union(g.id, partner.id); }
+    }
+  });
+  const groupsMap = {};
+  Object.keys(parent).forEach(idStr => {
+    const id = Number(idStr);
+    const root = find(id);
+    if (!groupsMap[root]) groupsMap[root] = [];
+    groupsMap[root].push(id);
+  });
+  // グループ内最小idの昇順で色を安定的に割り当てる
+  const groupList = Object.values(groupsMap).sort((a,b) => Math.min(...a) - Math.min(...b));
+  const colorMap = {};
+  groupList.forEach((ids, idx) => {
+    const color = AIBAN_PALETTE[idx % AIBAN_PALETTE.length];
+    ids.forEach(id => { colorMap[id] = color; });
+  });
+  return colorMap;
+}
+
+function getAibanLinkInfo(g) {
+  const colorMap = computeAibanColorMap();
+  const color = colorMap[g.id] || '#3498db';
+  if (g.aiban && g.aiban.trim()) {
+    const partner = findAibanPartner(g);
+    const label = partner
+      ? `アイバン: ${partner.tanto||''} ${formatGuestDisplayName(partner.name)}`
+      : `アイバン: ${g.aiban}`;
+    return { linked: true, label, color, partnerId: partner ? partner.id : null };
+  }
+  const referrer = guests.find(other => {
+    if (other.id === g.id || other.left || !other.aiban) return false;
+    const partner = findAibanPartner(other);
+    return partner && partner.id === g.id;
+  });
+  if (referrer) {
+    return { linked: true, label: `アイバン: ${referrer.tanto||''} ${formatGuestDisplayName(referrer.name)}と`, color, partnerId: referrer.id };
+  }
+  return { linked: false, label: '', color: null, partnerId: null };
+}
+
+// アイバンの詳細をポップアップで表示（自分とペア相手、双方の卓番などを確認できる）
+function openAibanDetailModal(id) {
+  const g = guests.find(x => x.id === id);
+  if (!g) return;
+  const info = getAibanLinkInfo(g);
+  const partner = info.partnerId ? guests.find(x => x.id === info.partnerId) : null;
+  let modal = document.getElementById('aibanDetailModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.id = 'aibanDetailModal';
+    document.body.appendChild(modal);
+  }
+  const rowHtml = (label, g2) => g2 ? `
+    <div style="padding:10px 0;border-bottom:1px solid var(--border);">
+      <div style="font-size:11px;color:var(--text-dim);margin-bottom:3px;">${label}</div>
+      <div style="font-size:14px;color:var(--text);">
+        <span style="color:var(--accent);font-weight:700;">${g2.tableNum ? g2.tableNum+'卓 ' : ''}</span>
+        <span style="color:#f0c040;">${g2.tanto||''}</span>
+        <span style="font-weight:700;">${formatGuestDisplayName(g2.name)}</span>
+      </div>
+    </div>` : '';
+  modal.innerHTML = `
+    <div class="modal" style="max-width:340px;">
+      <div class="modal-header">
+        <span>🔗 アイバン</span>
+        <button onclick="document.getElementById('aibanDetailModal').classList.remove('show')" style="background:none;border:none;color:var(--text-dim);font-size:18px;cursor:pointer;">✕</button>
+      </div>
+      <div class="modal-body">
+        ${rowHtml('この予約', g)}
+        ${partner ? rowHtml('アイバン相手', partner) : `<div style="padding:10px 0;color:var(--text-dim);font-size:13px;">相手の予約が見つかりませんでした（入力: ${g.aiban || ''}）</div>`}
+      </div>
+    </div>`;
+  modal.classList.add('show');
+}
+
+function rowHTML(no, g) {
+  const bottleState = g.bottle || 0;
+  const bottleIcon = bottleState === 0 ? '' : bottleState === 1 ? '○' : '◉';
+  const bottleColor = bottleState === 2 ? '#2ecc71' : '#c9a84c';
+  const aibanInfo = getAibanLinkInfo(g);
+  const aibanIcon = aibanInfo.linked
+    ? `<span title="${aibanInfo.label.replace(/"/g,'&quot;')}" onclick="event.stopPropagation();openAibanDetailModal(${g.id})" style="color:${aibanInfo.color};margin-right:2px;cursor:pointer;">🔗</span>`
+    : '';
+  // 未来店で、来店予定時刻を過ぎている行はハイライトする
+  const isOverdue = !g.arrived && isTimeOverdue(g.arrive);
+  return `
+    <tr class="${g.arrived ? 'arrived' : ''}${isOverdue ? ' overdue-highlight' : ''}" id="card-${g.id}" data-rownum="${no}"
+        oncontextmenu="event.preventDefault();confirmDelete(${g.id})"
+        data-hold="" ontouchstart="startHold(${g.id})" ontouchend="cancelHold()" ontouchmove="cancelHold()">
+      <td class="p-col-no" onclick="toggleArrived(${g.id})" style="cursor:pointer;user-select:none;">${no}${isOverdue ? ' ⏰' : ''}</td>
+      <td class="p-col-num editable" onclick="editCell(${g.id},'tableNum',this)">${g.tableNum||''}</td>
+      <td class="p-col-time editable" onclick="editCell(${g.id},'arrive',this)">${g.arrive||''}</td>
+      <td class="p-col-tanto editable" onclick="editCell(${g.id},'tanto',this)">${g.tanto||''}</td>
+      <td class="p-col-guest editable" onclick="editCell(${g.id},'name',this)">${aibanIcon}${g.name||''}</td>
+      <td class="p-col-keep" onclick="toggleBottle(${g.id})" style="cursor:pointer;text-align:center;font-size:16px;color:${bottleColor};user-select:none;">${bottleIcon}</td>
+      <td class="p-col-note editable" onclick="editCell(${g.id},'note',this)">${g.note||''}</td>
+    </tr>`;
+}
+
+function emptyRowHTML(no) {
+  // 空行タップで新規ゲスト作成
+  return `
+    <tr id="emptyrow-${no}" data-rownum="${no}">
+      <td class="p-col-no" style="color:#aaa;">${no}</td>
+      <td class="p-col-num editable empty-cell" onclick="createAndEdit(${no},'tableNum',this)"></td>
+      <td class="p-col-time editable empty-cell" onclick="createAndEdit(${no},'arrive',this)"></td>
+      <td class="p-col-tanto editable empty-cell" onclick="createAndEdit(${no},'tanto',this)"></td>
+      <td class="p-col-guest editable empty-cell" onclick="createAndEdit(${no},'name',this)"></td>
+      <td class="p-col-keep editable empty-cell" onclick="createAndEdit(${no},'budget',this)"></td>
+      <td class="p-col-note editable empty-cell" onclick="createAndEdit(${no},'note',this)"></td>
+    </tr>`;
+}
+
+// インライン編集でセルを再描画すると、キーボードが閉じるタイミングと重なって
+// 画面が勝手にスクロールしてしまうことがあるため、再描画の前後でスクロール位置を保持する
+// 編集していた行(trEl)を目印に、再描画後も同じ行が画面上の同じ位置に見えるよう調整する
+// （絶対スクロール位置の保持だけだと、編集前後で行の高さがわずかに変わる場合にズレてしまうため）
+function withScrollPreserved(renderFn, trEl) {
+  const rowNum = trEl ? trEl.getAttribute('data-rownum') : null;
+  const trId = trEl ? trEl.id : null;
+  const beforeTop = trEl ? trEl.getBoundingClientRect().top : null;
+
+  function realign() {
+    if (beforeTop === null) return;
+    let newTr = null;
+    if (rowNum) newTr = document.querySelector(`[data-rownum="${rowNum}"]`);
+    if (!newTr && trId) newTr = document.getElementById(trId);
+    if (newTr) {
+      const afterTop = newTr.getBoundingClientRect().top;
+      window.scrollBy(0, afterTop - beforeTop);
+    }
+  }
+
+  // キーボードが閉じるアニメーションと再描画のタイミングが重なるとズレやすいため、
+  // 少し待ってキーボードが閉じきってから再描画し、その後複数回にわたって位置を補正する
+  setTimeout(() => {
+    renderFn();
+    realign();
+    requestAnimationFrame(realign);
+    setTimeout(realign, 100);
+    setTimeout(realign, 300);
+  }, 120);
+}
+
+// セルをインライン編集
+function editCell(id, field, td) {
+  const g = guests.find(x => x.id === id);
+  if (!g) return;
+  const current = g[field] || '';
+  const input = document.createElement('input');
+  input.className = 'cell-input';
+  input.value = current;
+  input.placeholder = field === 'tableNum' ? 'A1〜P12' : '';
+  td.innerHTML = '';
+  td.appendChild(input);
+  input.focus();
+  // カーソルを末尾に（全選択しない）
+  const len = input.value.length;
+  input.setSelectionRange(len, len);
+  function save() {
+    g[field] = input.value.trim();
+    saveToStorage();
+    withScrollPreserved(renderTables, td.closest('tr'));
+  }
+  input.addEventListener('blur', save);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') input.blur();
+    if (e.key === 'Escape') { td.textContent = current; }
+  });
+}
+
+// 空行タップで新規作成してその場編集
+function createAndEdit(rowNum, field, td) {
+  const input = document.createElement('input');
+  input.className = 'cell-input';
+  input.placeholder = field === 'tableNum' ? 'A1〜P12' : '';
+  td.innerHTML = '';
+  td.appendChild(input);
+  input.focus();
+  function save() {
+    const val = input.value.trim();
+    if (!val) { withScrollPreserved(renderTables, td.closest('tr')); return; } // 空なら何もしない
+    const g = { id: nextId++, rowNum: String(rowNum), tableNum:'', arrive:'', leave:'', tanto:'', name:'', budget:'', note:'', help:'', arrived: false };
+    g[field] = val;
+    guests.push(g);
+    repackRowNums();
+    saveToStorage();
+    withScrollPreserved(renderTables, td.closest('tr'));
+  }
+  input.addEventListener('blur', save);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') input.blur();
+    if (e.key === 'Escape') { withScrollPreserved(renderTables, td.closest('tr')); }
+  });
+}
+
+
+
+// ===== 卓状況 =====
+const DEFAULT_FLOORS = {
+  V: Array.from({length:9},(_,i)=>'V'+(i+1)),
+  A: Array.from({length:6},(_,i)=>'A'+(i+1)),
+  B: Array.from({length:9},(_,i)=>'B'+(i+1)),
+};
+let floorData = JSON.parse(JSON.stringify(DEFAULT_FLOORS));
+
+function loadFloorData() {
+  try {
+    const raw = localStorage.getItem('rj_floorData');
+    if (raw) floorData = JSON.parse(raw);
+  } catch(e) {}
+}
+
+function saveFloorData() {
+  try { localStorage.setItem('rj_floorData', JSON.stringify(floorData)); } catch(e) {}
+  if (window.fbSaveFloor) window.fbSaveFloor(floorData);
+}
+
+function renderFloorStatus() {
+  const area = document.getElementById('floorStatusArea');
+  if (!area) return;
+  // 卓番→表示情報のマップを作成（通常ゲスト・初回グループ両対応）
+  // 同じ卓に「予定報告の来店予定」と「今対応中の初回」が重なる場合、初回を優先表示する
+  // （例：22時に予定の客がいても、19時に来た初回を同じ卓で先に対応しているケース）
+  const infoMap = {}; // { "V1": { tanto, name, help, specials, isFirst } }
+  (firstGroups || []).filter(g => g.tableNum).forEach(g => {
+    // 全員が飲直に転換済みなら、もう「初回」ではなく実際のお客様として扱う（優先表示の対象から外す）
+    const allDone = (g.rows||[]).length > 0 && (g.rows||[]).every(r => r.nominaoshi && r.nominaoshi.trim() !== '');
+    if (allDone) return;
+    const key = g.tableNum.toUpperCase().replace(/^P/, 'V');
+    if (!infoMap[key]) {
+      const count = parseInt(g.count) || 0;
+      const photoNames = [...new Set((g.rows||[]).flatMap(r => [r.photo1, r.photo2]).filter(Boolean))];
+      infoMap[key] = { tanto: '', name: `初回${count ? count+'名' : ''}`, help: photoNames.length ? '写指:'+photoNames.join('/') : '', specials: [], isFirst: true, arrived: true };
+    }
+  });
+  guests.filter(g => g.tableNum && !g.left).forEach(g => {
+    const key = g.tableNum.toUpperCase().replace(/^P/, 'V');
+    if (!infoMap[key]) {
+      infoMap[key] = {
+        tanto: g.tanto || '',
+        name: (g.name || '').replace('△','').trim(),
+        help: g.help || '',
+        leave: g.leave || '',
+        specials: g.specials || [],
+        isFirst: false,
+        arrived: !!g.arrived
+      };
+    }
+  });
+
+  // 【場内】欄から卓番ごとの場内指名を取得
+  let baanaiText = '';
+  try { baanaiText = localStorage.getItem('rj_baanai') || ''; } catch(e) {}
+  const baanaiMap = parseBaanaiAssignments(baanaiText);
+
+  // 特記事項アイコンの凡例（表示中の卓に1つでも使われていれば表示）
+  const legendEl = document.getElementById('floorLegend');
+  if (legendEl) {
+    const usedKeys = new Set();
+    Object.values(infoMap).forEach(info => (info.specials || []).forEach(k => usedKeys.add(k)));
+    if (usedKeys.size) {
+      legendEl.innerHTML = SPECIALS.filter(s => usedKeys.has(s.key))
+        .map(s => `<span style="font-size:10px;color:var(--text-dim);">${s.icon}${s.label}</span>`).join('');
+      legendEl.style.display = 'flex';
+    } else {
+      legendEl.style.display = 'none';
+      legendEl.innerHTML = '';
+    }
+  }
+
+  const floors = ['V','A','B'];
+  area.innerHTML = floors.map(f => {
+    const tables = floorData[f] || [];
+    return `
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:10px;color:var(--text-dim);text-align:center;margin-bottom:4px;font-weight:700;">${f}フロア</div>
+        <div style="display:flex;flex-direction:column;gap:3px;">
+          ${tables.map(t => {
+            const key = t.toUpperCase();
+            const info = infoMap[key];
+            const baanaiName = baanaiMap[key];
+            const used = !!info || !!baanaiName;
+            if (!used) {
+              return `<div style="display:flex;align-items:center;font-size:10px;padding:3px 5px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text-dim);">
+                <span style="font-weight:700;">${t}</span>
+              </div>`;
+            }
+            // 1行目: 卓番 → アイコン → キャスト　/　2行目: お客様名(キャストと同色) → ヘルプ → 場内指名(薄色)
+            const iconsHtml = (info && info.specials && info.specials.length)
+              ? info.specials.map(k => { const s = SPECIALS.find(x => x.key === k); return s ? s.icon : ''; }).join('')
+              : '';
+            const arrived = !!(info && info.arrived);
+            // 来店済み: ゴールド塗りつぶし（今まで通り） / 未来店: ゴールド枠線のみで控えめに
+            const boxBg = arrived ? '#c9a84c' : 'transparent';
+            const boxText = arrived ? '#000' : 'var(--text)';
+            const boxDim = arrived ? '#5a4a1a' : '#a68a4a';
+            let line1, line2, line3;
+            if (info && info.isFirst) {
+              line1 = `<span style="font-weight:700;">${t}</span>${iconsHtml ? ' '+iconsHtml : ''}`;
+              line2 = info.help
+                ? `<span style="color:${boxText};">${info.name}</span> <span style="color:${boxDim};">${info.help}</span>`
+                : `<span style="color:${boxText};">${info.name}</span>`;
+              line3 = baanaiName ? `<span style="color:${boxDim};">場内: ${baanaiName}</span>` : '';
+            } else {
+              const tanto = (info && info.tanto) || '';
+              const leaveHtml = (info && info.leave) ? ` <span style="color:${arrived?'#8b2f2f':'#e57373'};font-weight:700;">⏰${info.leave}</span>` : '';
+              line1 = `<span style="font-weight:700;">${t}</span>${iconsHtml ? ' '+iconsHtml : ''}${tanto ? ' '+tanto : ''}${leaveHtml}`;
+              const subBits = [];
+              if (info && info.name) subBits.push(`<span style="color:${boxText};">${formatGuestDisplayName(info.name)}</span>`);
+              if (info && info.help) subBits.push(`<span style="color:${boxDim};">H: ${info.help}</span>`);
+              line2 = subBits.join(' ');
+              line3 = baanaiName ? `<span style="color:${boxDim};">場内: ${baanaiName}</span>` : '';
+            }
+            // 来店済みの卓で、退店予定10分前を過ぎたら赤くハイライトする
+            const isLeaveSoon = arrived && info && !info.isFirst && info.leave && isTimeOverdue(info.leave, 10);
+            const finalBoxBg = isLeaveSoon ? '#c0392b' : boxBg;
+            const finalBoxText = isLeaveSoon ? '#fff' : boxText;
+            return `<div onclick="if(_leaveEditHoldFired){_leaveEditHoldFired=false;return;}openTableDetailModal('${key}')"
+              ontouchstart="startLeaveEditHold('table','${key}')" ontouchend="cancelLeaveEditHold()" ontouchmove="cancelLeaveEditHold()"
+              style="cursor:pointer;padding:3px 5px;border-radius:4px;border:1px solid ${isLeaveSoon?'#c0392b':'#c9a84c'};background:${finalBoxBg};color:${finalBoxText};overflow:hidden;">
+              <div style="font-size:10px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${line1}</div>
+              <div style="font-size:8.5px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${line2}</div>
+              ${line3 ? `<div style="font-size:8.5px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${line3}</div>` : ''}
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// 卓状況の卓をタップした時に、全体タブ相当の詳細情報をポップアップ表示する
+function openTableDetailModal(tableKey) {
+  const active = guests.filter(g => !g.left);
+  const guest = active.find(g => g.tableNum && g.tableNum.toUpperCase().replace(/^P/, 'V') === tableKey);
+  const firstGroup = (firstGroups || []).find(g => g.tableNum && g.tableNum.toUpperCase().replace(/^P/, 'V') === tableKey);
+
+  let baanaiText = '';
+  try { baanaiText = localStorage.getItem('rj_baanai') || ''; } catch(e) {}
+  const baanaiMap = parseBaanaiAssignments(baanaiText);
+  const baanaiName = baanaiMap[tableKey];
+
+  let modal = document.getElementById('tableDetailModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.id = 'tableDetailModal';
+    document.body.appendChild(modal);
+  }
+
+  let bodyHtml = '';
+  if (guest) {
+    const specialIcons = (guest.specials || []).map(k => {
+      const s = SPECIALS.find(x => x.key === k);
+      return s ? `<span style="font-size:20px;margin-right:4px;" title="${s.label}">${s.icon}</span>` : '';
+    }).join('');
+    const rows = [
+      ['担当', guest.tanto],
+      ['お客様名', formatGuestDisplayName(guest.name)],
+      ['来店時間', guest.arrive],
+      ['退店時間', guest.leave],
+      ['予算', guest.budget],
+      ['ヘルプ', guest.help],
+      ['備考', guest.note],
+      ['アイバン', guest.aiban],
+      ['場内指名', baanaiName],
+    ].filter(([,v]) => v);
+    const actionButtons = guest.arrived
+      ? `<button class="btn btn-ghost" onclick="document.getElementById('tableDetailModal').classList.remove('show');toggleLeft(${guest.id})" style="flex:1;color:var(--text-dim);">退店にする</button>`
+      : `<button class="btn btn-primary" onclick="document.getElementById('tableDetailModal').classList.remove('show');toggleArrived(${guest.id})" style="flex:1;">来店にする</button>
+         <button class="btn btn-ghost" onclick="document.getElementById('tableDetailModal').classList.remove('show');confirmDelete(${guest.id})" style="flex:1;color:#c0392b;border-color:#c0392b;">予約をキャンセル</button>`;
+    bodyHtml = `
+      ${specialIcons ? `<div style="margin-bottom:10px;">${specialIcons}</div>` : ''}
+      ${!guest.arrived ? `<div style="font-size:11px;color:#e67e22;margin-bottom:10px;">⚠ まだ来店確認されていません</div>` : ''}
+      ${rows.map(([label, val]) => `
+        <div style="display:flex;padding:7px 0;border-bottom:1px solid var(--border);">
+          <div style="width:80px;flex-shrink:0;font-size:11px;color:var(--text-dim);">${label}</div>
+          <div style="font-size:13px;color:var(--text);">${val}</div>
+        </div>`).join('')}
+      <div style="display:flex;gap:8px;margin-top:14px;">
+        <button class="btn btn-ghost" onclick="document.getElementById('tableDetailModal').classList.remove('show');openSpecialModal(${guest.id})" style="flex:1;">特記事項を編集</button>
+        ${actionButtons}
+      </div>`;
+  } else if (firstGroup) {
+    const count = parseInt(firstGroup.count) || 0;
+    const rowsHtml = (firstGroup.rows || []).map(r => {
+      const bits = [];
+      if (r.seat) bits.push('席:' + r.seat);
+      if (r.photo1) bits.push('写真①:' + r.photo1);
+      if (r.photo2) bits.push('写真②:' + r.photo2);
+      if (r.okuri) bits.push('送り:' + r.okuri);
+      if (r.nominaoshi) bits.push('飲直:' + r.nominaoshi);
+      if (r.plan) bits.push('プラン:' + r.plan);
+      return `<div style="padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;color:var(--text);">${bits.join(' ／ ') || '（未入力）'}</div>`;
+    }).join('');
+    bodyHtml = `
+      <div style="font-size:13px;color:#f0c040;font-weight:700;margin-bottom:8px;">初回 ${count}名</div>
+      ${rowsHtml || '<div style="color:var(--text-dim);font-size:12px;">詳細未入力</div>'}
+      ${baanaiName ? `<div style="margin-top:10px;font-size:12px;color:var(--text-dim);">場内指名: ${baanaiName}</div>` : ''}`;
+  } else if (baanaiName) {
+    bodyHtml = `<div style="font-size:13px;color:var(--text);">場内指名: ${baanaiName}</div>`;
+  } else {
+    bodyHtml = `<div style="color:var(--text-dim);font-size:13px;text-align:center;padding:20px 0;">この卓の詳細情報はありません</div>`;
+  }
+
+  modal.innerHTML = `
+    <div class="modal" style="max-width:340px;">
+      <div class="modal-header">
+        <span>${tableKey}卓 詳細</span>
+        <button onclick="document.getElementById('tableDetailModal').classList.remove('show')" style="background:none;border:none;color:var(--text-dim);font-size:18px;cursor:pointer;">✕</button>
+      </div>
+      <div class="modal-body">${bodyHtml}</div>
+    </div>`;
+  modal.classList.add('show');
+}
+
+function refreshFloorModalIfOpen() {
+  const modal = document.getElementById('floorModal');
+  if (modal && modal.classList.contains('show')) {
+    openFloorSettings();
+  }
+}
+
+function openFloorSettings() {
+  let modal = document.getElementById('floorModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.id = 'floorModal';
+    document.body.appendChild(modal);
+  }
+  const floors = ['V','A','B'];
+  modal.innerHTML = `
+    <div class="modal" style="max-width:360px;">
+      <div class="modal-header">
+        <span>卓状況 編集</span>
+        <button onclick="document.getElementById('floorModal').classList.remove('show')" style="background:none;border:none;color:var(--text-dim);font-size:18px;cursor:pointer;">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:11px;color:var(--text-dim);margin-bottom:12px;">1行に1卓ずつ入力（例：V1）</p>
+        <div style="display:flex;gap:10px;">
+          ${floors.map(f => `
+            <div style="flex:1;">
+              <div style="font-size:11px;color:var(--accent);font-weight:700;margin-bottom:4px;">${f}フロア</div>
+              <textarea id="floorInput_${f}" style="width:100%;min-height:160px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:var(--font-main);font-size:12px;padding:8px;outline:none;resize:none;">${(floorData[f]||[]).join('\n')}</textarea>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="resetFloorData()">デフォルトに戻す</button>
+        <button class="btn btn-primary" onclick="saveFloorFromModal()">保存</button>
+      </div>
+    </div>`;
+  modal.classList.add('show');
+}
+
+function saveFloorFromModal() {
+  ['V','A','B'].forEach(f => {
+    const raw = document.getElementById('floorInput_'+f).value;
+    floorData[f] = raw.split('\n').map(s=>s.trim()).filter(Boolean);
+  });
+  saveFloorData();
+  document.getElementById('floorModal').classList.remove('show');
+  renderFloorStatus();
+}
+
+function resetFloorData() {
+  floorData = JSON.parse(JSON.stringify(DEFAULT_FLOORS));
+  saveFloorData();
+  document.getElementById('floorModal').classList.remove('show');
+  renderFloorStatus();
+  openFloorSettings();
+}
+
+// ===== 初回タブ =====
+// groups: [{id, count, tableNum, rows:[{id,seat,photo1,photo2,okuri,nominaoshi,plan}]}]
+function loadFirstData() {
+  try {
+    const raw = localStorage.getItem('rj_firstData');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      firstGroups = Array.isArray(parsed) ? parsed : [];
+      if (firstGroups.length) {
+        firstGid = firstGroups.reduce((m,g)=>Math.max(m,(g.id||0)+1),1);
+        firstGroups.forEach(g => {
+          if (Array.isArray(g.rows)) {
+            g.rows.forEach(r => { firstRid = Math.max(firstRid, (r.id||0)+1); });
+          } else {
+            g.rows = [];
+          }
+        });
+      }
+    }
+  } catch(e) { firstGroups = []; }
+}
+
+function saveFirstData() {
+  try { localStorage.setItem('rj_firstData', JSON.stringify(firstGroups)); } catch(e) {}
+  // Firebase: 各初回グループを個別のパスに書き込む（全体を丸ごと上書きしないので、他端末の変更と衝突しにくい）
+  if (window.fbSaveFirstGroup) {
+    firstGroups.forEach(g => window.fbSaveFirstGroup(g));
+  }
+  if (window.fbRemoveFirstGroup && window._fbFirstGroups) {
+    const currentIds = new Set(firstGroups.map(g => g.id));
+    window._fbFirstGroups.forEach(g => {
+      if (g && g.id != null && !currentIds.has(g.id)) window.fbRemoveFirstGroup(g.id);
+    });
+  }
+}
+
+function addFirstRow() {
+  firstGroups.push({ id: firstGid++, count:'', tableNum:'', rows:[{id:firstRid++,seat:'',photo1:'',photo2:'',okuri:'',nominaoshi:'',plan:''}] });
+  saveFirstData();
+  renderFirstTab();
+}
+
+function clearFirstData() {
+  let overlay = document.getElementById('deleteOverlay');
+  if (!overlay) { overlay = document.createElement('div'); overlay.id='deleteOverlay'; overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999;display:flex;align-items:center;justify-content:center;padding:16px;'; document.body.appendChild(overlay); }
+  overlay.innerHTML = `<div style="background:#1a1a1a;border:1px solid #333;border-radius:10px;padding:24px;max-width:300px;width:100%;text-align:center;">
+    <div style="font-size:14px;color:#f0ece0;margin-bottom:16px;">初回データを全て消去しますか？</div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="document.getElementById('deleteOverlay').style.display='none'" style="flex:1;padding:10px;background:transparent;border:1px solid #555;border-radius:6px;color:#888;font-size:13px;cursor:pointer;">キャンセル</button>
+      <button onclick="document.getElementById('deleteOverlay').style.display='none';firstGroups=[];firstGid=1;firstRid=1;saveFirstData();renderFirstTab();showToast('消去しました');" style="flex:1;padding:10px;background:#c0392b;border:none;border-radius:6px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">消去</button>
+    </div>
+  </div>`;
+  overlay.style.display='flex';
+}
+
+function renderFirstTab() {
+  const tbody = document.getElementById('firstTableBody');
+  if (!tbody) return;
+  if (!Array.isArray(firstGroups)) firstGroups = [];
+  const MAX_GROUPS = 20;
+  let rows = '';
+  let noCounter = 1;
+
+  // グループを描画
+  firstGroups.forEach(g => {
+    const count = parseInt(g.count) || 1;
+    const rowspan = count > 1 ? ` rowspan="${count}"` : '';
+    const allDone = (g.rows||[]).length > 0 && (g.rows||[]).every(r => r.nominaoshi && r.nominaoshi.trim() !== '');
+    g.rows.forEach((r, ri) => {
+      const isDone = r.nominaoshi && r.nominaoshi.trim() !== '';
+      const doneStyle = isDone ? 'background:#d4edda;color:#555;' : '';
+      rows += `<tr id="fr-${r.id}" oncontextmenu="event.preventDefault();deleteFirstGroup(${g.id})"
+          ontouchstart="startHold2(${g.id})" ontouchend="cancelHold()" ontouchmove="cancelHold()">`;
+      if (ri === 0) {
+        rows += `<td style="text-align:center;color:#c9a84c;font-size:12px;font-weight:700;${allDone?'background:#d4edda;':''}"${rowspan}>${noCounter}</td>`;
+        const countLabel = g.isEda ? `枝${g.count||''}名` : (g.count ? `${g.count}名` : '-');
+        rows += `<td${rowspan} style="${allDone?'background:#d4edda;':''}">
+          <div onclick="event.stopPropagation();openCountPicker(${g.id}, this)" style="width:100%;text-align:center;background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:var(--font-main);font-size:12px;padding:5px 2px;cursor:pointer;">${countLabel}</div>
+        </td>`;
+        rows += `<td${rowspan} style="${allDone?'background:#d4edda;':''}">
+          <div class="editable" onclick="editFirstGroup(${g.id},'tableNum',this)" style="font-weight:700;color:var(--accent);padding:2px 0;">${g.tableNum||''}</div>
+          ${g.isEda ? `<div onclick="event.stopPropagation();editFirstGroup(${g.id},'edaReferrer',this)" style="font-size:10px;color:#f0c040;border-top:1px solid var(--border);padding-top:2px;margin-top:2px;cursor:pointer;">枝:${g.edaReferrer ? g.edaReferrer : '未入力'}</div>` : ''}
+        </td>`;
+      }
+      rows += `<td style="${doneStyle}">
+        <div onclick="event.stopPropagation();openSeatPicker(${g.id},${r.id}, this)" style="width:100%;text-align:center;background:${isDone?'#d4edda':'var(--surface2)'};border:1px solid var(--border);border-radius:4px;color:${isDone?'#555':'var(--text)'};font-family:var(--font-main);font-size:12px;padding:5px 2px;cursor:pointer;">${r.seat || '-'}</div>
+      </td>`;
+      rows += `<td class="editable" onclick="editFirstRow(${g.id},${r.id},'photo1',this)" style="${doneStyle}">${r.photo1||''}</td>`;
+      rows += `<td class="editable" onclick="editFirstRow(${g.id},${r.id},'photo2',this)" style="${doneStyle}">${r.photo2||''}</td>`;
+      rows += `<td class="editable" onclick="editFirstRow(${g.id},${r.id},'okuri',this)" style="${isDone?'background:#d4edda;color:#555;':''}">${r.okuri||''}</td>`;
+      const nomiDone = r.nominaoshi && r.nominaoshi.trim() !== '';
+      rows += `<td class="editable" onclick="editFirstRow(${g.id},${r.id},'nominaoshi',this)" style="${nomiDone?'background:#d4edda;color:#000;':''}">${r.nominaoshi||''}</td>`;
+      rows += `<td class="editable" onclick="editFirstRow(${g.id},${r.id},'plan',this)" style="${nomiDone?'background:#d4edda;color:#555;':''}">${r.plan||''}</td>`;
+      rows += '</tr>';
+    });
+    noCounter++;
+  });
+
+  // 空行を20まで埋める
+  const remaining = MAX_GROUPS - firstGroups.length;
+  for (let i = 0; i < remaining; i++) {
+    rows += `<tr><td style="text-align:center;color:#555;font-size:11px;">${noCounter++}</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
+  }
+
+  tbody.innerHTML = rows;
+
+  // 統計表示更新
+  const statsEl = document.getElementById('firstStats');
+  if (statsEl) {
+    const total = firstGroups.reduce((s,g) => s + (parseInt(g.count)||0), 0);
+    const current = firstGroups.reduce((s,g) => {
+      const cnt = parseInt(g.count)||0;
+      const rowCnt = (g.rows||[]).length || 1;
+      const doneRows = (g.rows||[]).filter(r => r.nominaoshi && r.nominaoshi.trim()).length;
+      return s + Math.round(cnt * (rowCnt - doneRows) / rowCnt);
+    }, 0);
+    statsEl.innerHTML = total > 0
+      ? `初回数 現在<span style="color:var(--accent);font-weight:700;">${current}名</span>／トータル<span style="font-weight:700;">${total}名</span>`
+      : '';
+  }
+}
+
+// ===== ミニピッカー（<select>のiOS崩れ回避のため、独自の軽量ドロップダウンを使う） =====
+let _inlinePickerCallback = null;
+
+function openCountPicker(gid, anchorEl) {
+  const g = firstGroups.find(x => x.id === gid);
+  if (!g) return;
+  const options = [
+    { value: '', label: '-' },
+    { value: '1', label: '1名' },
+    { value: '2', label: '2名' },
+    { value: '3', label: '3名' },
+    { value: 'eda-1', label: '枝1名' },
+    { value: 'eda-2', label: '枝2名' },
+    { value: 'eda-3', label: '枝3名' },
+  ];
+  const currentVal = g.isEda ? ('eda-' + g.count) : (g.count || '');
+  renderInlinePicker(anchorEl, options, currentVal, (val) => { onCountChange(gid, val); });
+}
+
+function openSeatPicker(gid, rid, anchorEl) {
+  const g = firstGroups.find(x => x.id === gid);
+  const r = g ? (g.rows || []).find(x => x.id === rid) : null;
+  const options = [
+    { value: '', label: '-' },
+    { value: '左', label: '左' },
+    { value: '中', label: '中' },
+    { value: '右', label: '右' },
+  ];
+  const currentVal = r ? (r.seat || '') : '';
+  renderInlinePicker(anchorEl, options, currentVal, (val) => { updateFirstRow(gid, rid, 'seat', val); });
+}
+
+function renderInlinePicker(anchorEl, options, currentVal, onSelect) {
+  closeInlinePicker();
+  cancelHold();
+  _inlinePickerCallback = onSelect;
+  const picker = document.createElement('div');
+  picker.id = 'inlinePicker';
+  picker.style.cssText = 'position:fixed;z-index:300;background:#e8e8e8;border:1px solid #ccc;border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,0.4);min-width:72px;max-height:240px;overflow-y:auto;-webkit-overflow-scrolling:touch;';
+  picker.innerHTML = options.map((opt, i) => `
+    <div onclick="event.stopPropagation();_inlinePickerCallback('${opt.value}');closeInlinePicker();"
+      style="padding:10px 14px;font-size:13px;color:${opt.value===currentVal?'#8a6d1a':'#333'};font-weight:${opt.value===currentVal?'700':'400'};cursor:pointer;white-space:nowrap;${i<options.length-1?'border-bottom:1px solid #ccc;':''}">${opt.label}</div>
+  `).join('');
+  document.body.appendChild(picker);
+  const rect = anchorEl.getBoundingClientRect();
+  const pickerHeight = Math.min(picker.offsetHeight, 240);
+  const spaceBelow = window.innerHeight - rect.bottom;
+  const spaceAbove = rect.top;
+  let top;
+  if (spaceBelow >= pickerHeight + 8 || spaceBelow >= spaceAbove) {
+    // 下に十分な余白があれば下向きに開く
+    top = rect.bottom + 4;
+  } else {
+    // 下が狭ければ上向きに開く
+    top = Math.max(8, rect.top - pickerHeight - 4);
+  }
+  const left = Math.min(rect.left, window.innerWidth - 90);
+  picker.style.top = top + 'px';
+  picker.style.left = left + 'px';
+  setTimeout(() => { document.addEventListener('click', closeInlinePickerOnce); }, 0);
+}
+
+function closeInlinePickerOnce() {
+  closeInlinePicker();
+  document.removeEventListener('click', closeInlinePickerOnce);
+}
+
+function closeInlinePicker() {
+  const el = document.getElementById('inlinePicker');
+  if (el) el.remove();
+  _inlinePickerCallback = null;
+}
+
+function onCountChange(gid, val) {
+  const g = firstGroups.find(x => x.id === gid);
+  if (!g) return;
+  const isEda = val.startsWith('eda-');
+  const countStr = isEda ? val.slice(4) : val;
+  const newCount = parseInt(countStr) || 1;
+  g.count = countStr;
+  g.isEda = isEda;
+  if (!isEda) g.edaReferrer = ''; // 枝でなくなったら紹介元情報はクリア
+  // 行数を調整
+  while (g.rows.length < newCount) g.rows.push({id:firstRid++,seat:'',photo1:'',photo2:'',okuri:'',nominaoshi:'',plan:''});
+  while (g.rows.length > newCount) g.rows.pop();
+  // 席位置を自動設定
+  const seatMap = {1:[''], 2:['左','右'], 3:['左','中','右']};
+  const seats = seatMap[newCount] || g.rows.map(()=>'');
+  g.rows.forEach((r, i) => { r.seat = seats[i] || ''; });
+  saveFirstData();
+  renderFirstTab();
+  syncFirstGroupToView(g);
+  checkFirstGroupTableConflict(g);
+}
+
+function updateFirstRow(gid, rid, field, val) {
+  const g = firstGroups.find(x => x.id === gid);
+  if (!g) return;
+  const r = g.rows.find(x => x.id === rid);
+  if (!r) return;
+  r[field] = val;
+  saveFirstData();
+  // 飲直が入ったら卓一覧に反映
+  if (field === 'nominaoshi') {
+    syncNominaoshiToTable(g, r);
+  }
+}
+
+function syncNominaoshiToTable(g, r) {
+  const key = `first_${g.id}_${r.id}`;
+  const nomi = (r.nominaoshi || '').trim();
+  // 飲直がない or「なし」の場合は卓一覧から削除
+  if (!nomi || nomi === 'なし') {
+    guests = guests.filter(x => x.firstKey !== key);
+    saveToStorage();
+    renderTables();
+    return;
+  }
+  const noteStr = ['飲直', r.plan ? r.plan.trim() : ''].filter(Boolean).join(' ');
+  const existing = guests.find(x => x.firstKey === key);
+  if (existing) {
+    existing.tableNum = g.tableNum || '';
+    existing.tanto = r.okuri || '';
+    existing.name = nomi;
+    existing.note = noteStr;
+    existing.arrived = true;
+    if (!existing.specials) existing.specials = [];
+    if (!existing.specials.includes('new')) existing.specials.push('new'); // 飲直で出来た卓は自動で🔰マーク
+  } else {
+    guests.push({
+      id: nextId++,
+      rowNum: '999', // 仮番号、repackRowNumsで整理
+      tableNum: g.tableNum || '',
+      tanto: r.okuri || '',
+      name: nomi,
+      note: noteStr,
+      arrive: '', leave: '', budget: '', help: '',
+      arrived: true,
+      specials: ['new'], // 飲直で出来た卓は自動で🔰マーク
+      firstKey: key
+    });
+  }
+  repackRowNums();
+  saveToStorage();
+  renderTables();
+  // 飲直転換で卓が確定した際、その卓に別の予約が重複していないか確認する（アイバンは正常な重複として除外）
+  checkNominaoshiTableConflict(g, r, key);
+}
+
+// 飲直に転換した卓が、既に別の予約（アイバンでない）で埋まっていないか確認して警告する
+function checkNominaoshiTableConflict(g, r, firstKey) {
+  if (!g.tableNum) return;
+  const targetKey = g.tableNum.toUpperCase().replace(/^P/, 'V');
+  const conflictGuest = guests.find(other => {
+    if (other.left || other.firstKey === firstKey) return false;
+    if (!other.tableNum) return false;
+    if (other.tableNum.toUpperCase().replace(/^P/, 'V') !== targetKey) return false;
+    return true;
+  });
+  if (conflictGuest) {
+    // アイバンで意図的に同卓の場合は正常なので警告しない
+    const conflictAibanPartner = conflictGuest.aiban ? findAibanPartner(conflictGuest) : null;
+    const isAibanPair = conflictAibanPartner && guests.some(x => x.firstKey === firstKey && x.id === conflictAibanPartner.id);
+    if (isAibanPair) return;
+    showToast(`⚠ ${g.tableNum}卓は${formatGuestDisplayName(conflictGuest.name)}の予約と重複しています。卓の再配置をご確認ください`);
+  }
+}
+
+// 枝以外の初回が、既に別の予定客（アイバンでない）と同じ卓になっていないか確認して警告する
+// 枝タイプの初回は既存客と同卓になるのが正常なので対象外
+function checkFirstGroupTableConflict(g) {
+  if (!g.tableNum || g.isEda) return;
+  const targetKey = g.tableNum.toUpperCase().replace(/^P/, 'V');
+  const conflictGuest = guests.find(other => {
+    if (other.left || !other.tableNum || !other.arrived) return false; // 来店確認前の予約は「空いている」扱い
+    return other.tableNum.toUpperCase().replace(/^P/, 'V') === targetKey;
+  });
+  if (conflictGuest) {
+    showToast(`⚠ ${g.tableNum}卓は既存客(${formatGuestDisplayName(conflictGuest.name)})と重複しています。記入ミスの可能性があります`);
+  }
+}
+
+function editFirstGroup(gid, field, td) {
+  cancelHold(); // タップ編集時は長押し削除タイマーをキャンセル
+  const g = firstGroups.find(x => x.id === gid);
+  if (!g) return;
+  const current = g[field] || '';
+  const input = document.createElement('input');
+  input.className = 'cell-input';
+  input.value = current;
+  td.innerHTML = '';
+  td.appendChild(input);
+  input.focus();
+  input.setSelectionRange(input.value.length, input.value.length);
+  function save() {
+    g[field] = input.value.trim();
+    saveFirstData();
+    withScrollPreserved(renderFirstTab, td.closest('tr'));
+    // 卓番変更時は全行を再同期＋初回卓を反映
+    if (field === 'tableNum') {
+      (g.rows||[]).forEach(r => syncNominaoshiToTable(g, r));
+      syncFirstGroupToView(g);
+      checkFirstGroupTableConflict(g);
+    }
+  }
+  input.addEventListener('blur', save);
+  input.addEventListener('keydown', e => { if (e.key==='Enter') input.blur(); if (e.key==='Escape') { td.textContent=current; } });
+}
+
+function editFirstRow(gid, rid, field, td) {
+  cancelHold(); // タップ編集時は長押し削除タイマーをキャンセル
+  const g = firstGroups.find(x => x.id === gid);
+  if (!g) return;
+  const r = g.rows.find(x => x.id === rid);
+  if (!r) return;
+  const current = r[field] || '';
+  const input = document.createElement('input');
+  input.className = 'cell-input';
+  input.value = current;
+  td.innerHTML = '';
+  td.appendChild(input);
+  input.focus();
+  input.setSelectionRange(input.value.length, input.value.length);
+  function save() {
+    r[field] = input.value.trim();
+    saveFirstData();
+    withScrollPreserved(renderFirstTab, td.closest('tr'));
+    // 飲直・送り・卓番が変更されたら卓一覧に反映
+    if (field === 'nominaoshi' || field === 'okuri' || field === 'plan') {
+      syncNominaoshiToTable(g, r);
+    }
+  }
+  input.addEventListener('blur', save);
+  input.addEventListener('keydown', e => { if (e.key==='Enter') input.blur(); if (e.key==='Escape') { td.textContent=current; } });
+}
+
+function deleteFirstGroup(gid) {
+  let overlay = document.getElementById('deleteOverlay');
+  if (!overlay) { overlay = document.createElement('div'); overlay.id='deleteOverlay'; overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999;display:flex;align-items:center;justify-content:center;padding:16px;'; document.body.appendChild(overlay); }
+  overlay.innerHTML = `<div style="background:#1a1a1a;border:1px solid #333;border-radius:10px;padding:24px;max-width:300px;width:100%;text-align:center;"><div style="font-size:14px;color:#f0ece0;margin-bottom:16px;">この組を削除しますか？</div><div style="display:flex;gap:10px;"><button onclick="document.getElementById('deleteOverlay').style.display='none'" style="flex:1;padding:10px;background:transparent;border:1px solid #555;border-radius:6px;color:#888;font-size:13px;cursor:pointer;">キャンセル</button><button onclick="document.getElementById('deleteOverlay').style.display='none';firstGroups=firstGroups.filter(x=>x.id!==${gid});saveFirstData();renderFirstTab();" style="flex:1;padding:10px;background:#c0392b;border:none;border-radius:6px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">削除</button></div></div>`;
+  overlay.style.display='flex';
+}
+
+let _holdTimer2 = null;
+function startHold2(id) {
+  _holdTimer2 = setTimeout(() => { deleteFirstGroup(id); }, 600);
+}
+
+
+// ===== 初回→全体タブ同期 =====
+function syncFirstGroupToView(g) {
+  if (!g.tableNum) return;
+  // renderFloorStatusを更新
+  if (window.renderFloorStatus) window.renderFloorStatus();
+  // 全体タブが表示中なら更新
+  if (document.getElementById('panel-view') && document.getElementById('panel-view').classList.contains('active')) {
+    renderView();
+  }
+}
+
+// ===== 場内 =====
+// 「ひろきA4」のような場内メモを解析し、卓番→キャスト名のマップを作る
+// キャスト名（呼び名含む）を先頭から最長一致で判定し、残り文字列が実在する卓番と一致すれば採用する
+function parseBaanaiAssignments(text) {
+  const result = {};
+  if (!text) return result;
+  const aliasIndex = buildAliasIndex();
+  const allTables = new Set([
+    ...(floorData.V || []), ...(floorData.A || []), ...(floorData.B || [])
+  ].map(t => t.toUpperCase()));
+  const tokens = text.split(/[\s,、,\/]+/).map(s => s.trim()).filter(Boolean);
+  tokens.forEach(token => {
+    const normToken = toHiragana(token);
+    const match = aliasIndex.find(entry => normToken.startsWith(entry.norm));
+    if (!match) return;
+    const remainder = token.slice(match.text.length).toUpperCase().replace(/^P/, 'V');
+    if (allTables.has(remainder)) {
+      result[remainder] = match.name;
+    }
+  });
+  return result;
+}
+
+function saveBaanai() {
+  const el = document.getElementById('baanaiInput');
+  const val = el ? el.value : '';
+  try { localStorage.setItem('rj_baanai', val); } catch(e) {}
+  if (window.fbSaveBaanai) window.fbSaveBaanai(val);
+  updateBaanaiBar(val);
+  renderFloorStatus();
+}
+function updateBaanaiBar(val) {
+  const bar = document.getElementById('baanaiBar');
+  if (!bar) return;
+  if (val && val.trim()) {
+    bar.innerHTML = `<span style="color:var(--text-dim);">【場内】</span> <span style="color:var(--text);">${val}</span>`;
+    bar.style.display = 'block';
+  } else {
+    bar.style.display = 'none';
+  }
+  updateFixedTop(); setTimeout(updateFixedTop, 50);
+}
+function loadBaanai() {
+  try {
+    const val = localStorage.getItem('rj_baanai');
+    const el = document.getElementById('baanaiInput');
+    if (el) el.value = val || '';
+    updateBaanaiBar(val || '');
+  } catch(e) {}
+}
+
+// ===== RENDER VIEW =====
+// 卓番ソート: V・P（同フロア）→A→B→その他、番号順
+function tableNumSort(a, b) {
+  const getGroup = (t) => {
+    if (!t) return 9;
+    const p = t[0].toUpperCase();
+    if (p === 'V' || p === 'P') return 0; // VとPは同グループ
+    if (p === 'A') return 1;
+    if (p === 'B') return 2;
+    return 9;
+  };
+  const numA = parseInt((a.tableNum || '').replace(/[^0-9]/g,'')) || 0;
+  const numB = parseInt((b.tableNum || '').replace(/[^0-9]/g,'')) || 0;
+  const groupA = getGroup(a.tableNum);
+  const groupB = getGroup(b.tableNum);
+  if (groupA !== groupB) return groupA - groupB;
+  return numA - numB;
+}
+
+function renderView() {
+  const container = document.getElementById('viewList');
+  const active = guests.filter(g => !g.left);
+
+  // 担当者別卓数集計（2卓以上のみ表示）
+  const tantoCount = {};
+  active.filter(g => g.tanto && g.tableNum && g.arrived).forEach(g => {
+    tantoCount[g.tanto] = (tantoCount[g.tanto] || 0) + 1;
+  });
+  const multiTanto = Object.entries(tantoCount).filter(([,n]) => n >= 2);
+  const tantoStatsEl = document.getElementById('tantoStats');
+  if (tantoStatsEl) {
+    tantoStatsEl.innerHTML = multiTanto.length
+      ? `<span style="color:var(--text-dim);margin-right:6px;">【被り】</span>` + multiTanto.map(([name, n]) => `<span style="margin-right:10px;"><span style="color:var(--accent);">${name}</span><span style="color:#e74c3c;font-weight:700;">${n}</span></span>`).join('')
+      : '';
+    tantoStatsEl.style.display = multiTanto.length ? 'block' : 'none';
+    updateFixedTop(); setTimeout(updateFixedTop, 50);
+  }
+
+  // 全卓をV→A→Bの順に並べて表示
+  const allFloorTables = [...(floorData.V||[]), ...(floorData.A||[]), ...(floorData.B||[])];
+  // 卓番→ゲストのマップ
+  const tableMap = {};
+  active.forEach(g => {
+    if (g.tableNum) tableMap[g.tableNum.toUpperCase()] = g;
+  });
+
+  let html = '';
+
+  // 特記事項凡例
+  const hasSpecial = active.some(g => g.specials && g.specials.length);
+  if (hasSpecial) {
+    const legendHtml = SPECIALS.filter(s => active.some(g => g.specials && g.specials.includes(s.key)))
+      .map(s => `<span style="font-size:11px;color:var(--text-dim);">${s.icon}${s.label}</span>`).join(' ');
+    html += `<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;">${legendHtml}</div>`;
+  }
+
+  // 元に戻すボタン
+  const arrivedCount = active.filter(g => g.arrived).length;
+  if (arrivedCount > 0) {
+    html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+      <span style="font-size:12px;color:var(--text-dim);">来店済み ${arrivedCount}組</span>
+      <button onclick="undoLeft()" style="padding:3px 10px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text-dim);font-size:11px;cursor:pointer;font-family:var(--font-main);">↩ 元に戻す</button>
+    </div>`;
+  }
+
+  // 卓番→ゲスト複数対応のマップ（全体タブは「今、実際に店内にいる人」を表示するため、来店確認済みのみ対象）
+  const tableMapMulti = {};
+  active.filter(g => g.arrived).forEach(g => {
+    if (g.tableNum) {
+      const key = g.tableNum.toUpperCase();
+      if (!tableMapMulti[key]) tableMapMulti[key] = [];
+      tableMapMulti[key].push({ type: 'guest', data: g });
+    }
+  });
+  // 初回グループも追加（全員が飲直に転換済みのグループは、もう実際のゲストとして別枠で表示されるので除外）
+  (firstGroups||[]).forEach(g => {
+    if (!g.tableNum) return;
+    const allDone = (g.rows||[]).length > 0 && (g.rows||[]).every(r => r.nominaoshi && r.nominaoshi.trim() !== '');
+    if (allDone) return;
+    const key = g.tableNum.toUpperCase();
+    if (!tableMapMulti[key]) tableMapMulti[key] = [];
+    tableMapMulti[key].push({ type: 'first', data: g });
+  });
+
+  // 全卓を順番に表示（フロアごとに区切り）
+  const floors = ['V','A','B'];
+  floors.forEach(floor => {
+    const tables = floorData[floor] || [];
+    if (!tables.length) return;
+    html += `<div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:0.1em;padding:6px 0 4px;border-bottom:1px solid var(--accent-dim);margin-bottom:4px;margin-top:${floor==='V'?'0':'12px'};">${floor}フロア</div>`;
+    tables.forEach(t => {
+    const gs = tableMapMulti[t.toUpperCase()];
+    if (gs && gs.length) {
+      gs.forEach(item => {
+        if (item.type === 'guest') {
+          html += viewRow(item.data);
+        } else {
+          // 初回グループ
+          const g = item.data;
+          const count = parseInt(g.count) || 0;
+          const photos = (g.rows||[]).map(r => {
+            const seat = r.seat ? `<span style="color:#888;font-size:11px;">${r.seat}:</span>` : '';
+            const p = [r.photo1, r.photo2].filter(Boolean).join('/');
+            return p ? seat + `<span style="color:var(--text);">${p}</span>` : '';
+          }).filter(Boolean).join('<span style="color:#555;"> ・ </span>');
+          const displayT = (g.tableNum||'').replace(/^[Pp]/, 'V');
+          html += `<div class="view-row">
+            <div class="view-body">
+              <div class="view-name" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                <span class="view-num-inline">${displayT}卓</span>
+                <span style="color:#f0c040;font-size:13px;">初回</span>
+                <span style="font-weight:700;">${count}名</span>
+                ${photos ? `<span style="font-size:12px;">写指:${photos}</span>` : ''}
+              </div>
+            </div>
+          </div>`;
+        }
+      });
+    } else {
+      // 空席は小さめで表示
+      html += `<div class="view-row" style="opacity:0.3;padding:3px 0;">
+        <div class="view-body">
+          <div class="view-name" style="display:flex;align-items:center;gap:4px;">
+            <span style="font-size:10px;color:var(--text-dim);min-width:32px;">${t}</span>
+            <span style="font-size:9px;color:var(--text-dim);">空席</span>
           </div>
         </div>
-        <div class="history-edit" id="edit-${e.id}">
-          <div class="edit-section-title">メモ</div>
-          <input type="text" class="edit-memo-input" id="ememo-${e.id}" value="${e.memo||''}" placeholder="卓番・特記事項など" oninput="onEditMemo(${e.id}, this)" style="margin-bottom:8px;">
-          <div class="edit-section-title">入店種別</div>
-          <div class="edit-type-grid">
-            ${TYPES.map(t=>`<button class="edit-type-btn ${e.typePrice===t.price?'selected':''}" onclick="editSelectType(${e.id},${t.price},this)">${t.label}</button>`).join('')}
+      </div>`;
+      }
+    });
+  });
+
+  // 卓未定の来店中
+  const unassignedArrived = active.filter(g => !g.tableNum && g.arrived);
+  if (unassignedArrived.length) {
+    html += `<div class="view-section-label" style="margin-top:8px;">卓未定・来店中</div>`;
+    html += unassignedArrived.map(g => viewRow(g)).join('');
+  }
+
+  container.innerHTML = html || '<div class="empty-state"><div class="icon">👁</div><p>予約がありません</p></div>';
+}
+
+function viewRow(g) {
+  const noteStr = [g.help ? 'H: ' + g.help : '', g.note || ''].filter(Boolean).join(' ／ ');
+  const specialIcons = (g.specials || []).map(k => {
+    const s = SPECIALS.find(x => x.key === k);
+    return s ? `<span style="font-size:15px;" title="${s.label}">${s.icon}</span>` : '';
+  }).join('');
+  const aibanInfo = getAibanLinkInfo(g);
+  const aibanIcon = aibanInfo.linked
+    ? `<span title="${aibanInfo.label.replace(/"/g,'&quot;')}" onclick="event.stopPropagation();openAibanDetailModal(${g.id})" style="font-size:14px;color:${aibanInfo.color};cursor:pointer;">🔗</span>`
+    : '';
+
+  // PをVに統一表示
+  const displayTable = g.tableNum ? g.tableNum.replace(/^[Pp]/, 'V') : null;
+
+  return `
+    <div class="view-row" onclick="if(_leaveEditHoldFired){_leaveEditHoldFired=false;return;}openSpecialModal(${g.id})"
+      ontouchstart="startLeaveEditHold('guest',${g.id})" ontouchend="cancelLeaveEditHold()" ontouchmove="cancelLeaveEditHold()"
+      style="cursor:pointer;">
+      <div class="view-body">
+        <div class="view-name" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          ${specialIcons ? `<span>${specialIcons}</span>` : ''}
+          ${aibanIcon}
+          <span class="view-num-inline">${displayTable ? displayTable+'卓' : '未定'}</span>
+          <span style="color:#f0c040;font-size:13px;">${g.tanto || ''}</span>
+          <span style="font-weight:700;">${formatGuestDisplayName(g.name || '名前不明')}</span>
+          &nbsp;
+          <button onclick="event.stopPropagation();toggleLeft(${g.id})"
+            style="padding:3px 10px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text-dim);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font-main);">
+            退店
+          </button>
+          ${g.leave ? `<span style="font-size:12px;color:#e57373;font-weight:700;">⏰${g.leave}</span>` : ''}
+          ${g.budget ? `<span style="font-size:11px;color:var(--text-dim);">${g.budget}</span>` : ''}
+        </div>
+        ${noteStr ? `<div class="view-meta" style="color:#e74c3c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" onclick="event.stopPropagation();openNoteDetailModal(${g.id})">${noteStr}</div>` : ''}
+      </div>
+    </div>`;
+}
+
+// ヘルプ・備考の全文をポップアップで表示
+function openNoteDetailModal(id) {
+  const g = guests.find(x => x.id === id);
+  if (!g) return;
+  let modal = document.getElementById('noteDetailModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.id = 'noteDetailModal';
+    document.body.appendChild(modal);
+  }
+  const rows = [['ヘルプ', g.help], ['備考', g.note], ['アイバン', g.aiban]].filter(([,v]) => v);
+  modal.innerHTML = `
+    <div class="modal" style="max-width:340px;">
+      <div class="modal-header">
+        <span>${formatGuestDisplayName(g.name || '名前不明')}</span>
+        <button onclick="document.getElementById('noteDetailModal').classList.remove('show')" style="background:none;border:none;color:var(--text-dim);font-size:18px;cursor:pointer;">✕</button>
+      </div>
+      <div class="modal-body">
+        ${rows.map(([label, val]) => `
+          <div style="padding:8px 0;border-bottom:1px solid var(--border);">
+            <div style="font-size:11px;color:var(--text-dim);margin-bottom:3px;">${label}</div>
+            <div style="font-size:14px;color:var(--text);line-height:1.6;">${val}</div>
+          </div>`).join('') || '<p style="color:var(--text-dim);text-align:center;">内容がありません</p>'}
+      </div>
+    </div>`;
+  modal.classList.add('show');
+}
+
+
+// ===== 特記事項 =====
+const SPECIALS = [
+  { key: 'event',  icon: '👑', label: 'イベント主役' },
+  { key: 'nohelp', icon: '🚫', label: 'ヘルプなし' },
+  { key: 'stop',   icon: '🛑', label: '単価ストップ' },
+  { key: 'new',    icon: '🔰', label: '新規・飲直' },
+  { key: 'out',    icon: '🚶', label: '中抜け' },
+];
+
+function openSpecialModal(id) {
+  const g = guests.find(x => x.id === id);
+  if (!g) return;
+  let modal = document.getElementById('specialModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.id = 'specialModal';
+    document.body.appendChild(modal);
+  }
+  modal.innerHTML = `
+    <div class="modal" style="max-width:300px;">
+      <div class="modal-header">
+        <span>特記事項</span>
+        <button onclick="document.getElementById('specialModal').classList.remove('show')" style="background:none;border:none;color:var(--text-dim);font-size:18px;cursor:pointer;">✕</button>
+      </div>
+      <div class="modal-body">
+        ${SPECIALS.map(s => `
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
+            <span style="font-size:16px;">${s.icon} ${s.label}</span>
+            <button onclick="toggleSpecial(${id},'${s.key}')" style="padding:5px 14px;border-radius:4px;border:1px solid ${(g.specials||[]).includes(s.key) ? '#2ecc71' : 'var(--border)'};background:${(g.specials||[]).includes(s.key) ? '#2ecc71' : 'transparent'};color:${(g.specials||[]).includes(s.key) ? '#000' : 'var(--text-dim)'};font-weight:700;cursor:pointer;font-family:var(--font-main);">
+              ${(g.specials||[]).includes(s.key) ? 'ON' : 'OFF'}
+            </button>
           </div>
-          <div class="edit-section-title">注文小計</div>
-          <div class="edit-order-list">
-            ${e.orders.map((v,i)=>`
-              <div class="edit-order-item">
-                <span class="edit-order-num">${String(i+1).padStart(2,'0')}</span>
-                <input type="text" class="edit-input" id="einput-${e.id}-${i}" value="${v>0?v.toLocaleString('ja-JP'):''}" placeholder="¥0" inputmode="numeric" oninput="onEditOrder(this,${e.id},${i})">
-              </div>
-            `).join('')}
-          </div>
-          <div class="edit-result" id="eresult-${e.id}">
-            ${editResultHTML(e)}
-          </div>
-          <div class="edit-btn-row">
-            <button class="edit-del-btn" style="flex:1;" onclick="deleteEntry(${e.id})">削除</button>
+        `).join('')}
+      </div>
+    </div>`;
+  modal.classList.add('show');
+}
+
+function toggleSpecial(id, key) {
+  const g = guests.find(x => x.id === id);
+  if (!g) return;
+  if (!g.specials) g.specials = [];
+  if (g.specials.includes(key)) {
+    g.specials = g.specials.filter(k => k !== key);
+  } else {
+    g.specials.push(key);
+  }
+  saveToStorage();
+  openSpecialModal(id); // モーダル更新
+  renderView();
+  if (window.renderFloorStatus) window.renderFloorStatus();
+}
+
+// ===== LEFT (退店) =====
+let lastLeft = null; // 最後に退店したゲストのバックアップ
+
+function toggleLeft(id) {
+  const g = guests.find(x => x.id === id);
+  if (!g) return;
+  lastLeft = JSON.parse(JSON.stringify(g)); // バックアップ
+  g.left = true;
+  saveToStorage();
+  renderView();
+  if (window.renderFloorStatus) window.renderFloorStatus();
+}
+
+function undoLeft() {
+  if (!lastLeft) { showToast('元に戻すデータがありません'); return; }
+  const g = guests.find(x => x.id === lastLeft.id);
+  if (g) {
+    g.left = false;
+    lastLeft = null;
+    saveToStorage();
+    renderView();
+    showToast('元に戻しました');
+  }
+}
+
+// ===== ACTIONS =====
+function toggleArrived(id) {
+  const g = guests.find(x => x.id === id);
+  if (!g) return;
+  g.arrived = !g.arrived;
+  saveToStorage();
+  renderTables();
+  renderFloorStatus();
+  if (document.getElementById('panel-view').classList.contains('active')) renderView();
+  showToast(g.arrived ? `${g.name || ''} 来店確認 ✅` : `${g.name || ''} 来店取消`);
+}
+
+// ===== LONG PRESS DELETE =====
+let _holdTimer = null;
+function startHold(id) {
+  _holdTimer = setTimeout(() => { confirmDelete(id); }, 600);
+}
+// ===== 卓状況・全体タブの長押しで退店予定時間をクイック編集 =====
+let _leaveEditHoldTimer = null;
+let _leaveEditHoldFired = false;
+
+function startLeaveEditHold(type, idOrKey) {
+  _leaveEditHoldFired = false;
+  _leaveEditHoldTimer = setTimeout(() => {
+    _leaveEditHoldFired = true;
+    openLeaveTimeQuickEdit(type, idOrKey);
+  }, 600);
+}
+function cancelLeaveEditHold() {
+  if (_leaveEditHoldTimer) { clearTimeout(_leaveEditHoldTimer); _leaveEditHoldTimer = null; }
+}
+
+function openLeaveTimeQuickEdit(type, idOrKey) {
+  let guest = null;
+  if (type === 'guest') {
+    guest = guests.find(x => x.id === idOrKey);
+  } else if (type === 'table') {
+    const active = guests.filter(x => !x.left);
+    guest = active.find(x => x.tableNum && x.tableNum.toUpperCase().replace(/^P/, 'V') === idOrKey && x.arrived);
+  }
+  if (!guest) { showToast('編集対象の予約が見つかりませんでした'); return; }
+
+  let modal = document.getElementById('leaveTimeEditModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.id = 'leaveTimeEditModal';
+    document.body.appendChild(modal);
+  }
+  modal.innerHTML = `
+    <div class="modal" style="max-width:300px;">
+      <div class="modal-header">
+        <span>退店予定時間を編集</span>
+        <button onclick="document.getElementById('leaveTimeEditModal').classList.remove('show')" style="background:none;border:none;color:var(--text-dim);font-size:18px;cursor:pointer;">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">${guest.tanto||''} ${formatGuestDisplayName(guest.name)}</div>
+        <input class="form-input" id="quickLeaveInput" value="${guest.leave||''}" placeholder="例: 24時 / ラスト">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="document.getElementById('leaveTimeEditModal').classList.remove('show')">キャンセル</button>
+        <button class="btn btn-primary" onclick="saveQuickLeaveTime(${guest.id})">保存</button>
+      </div>
+    </div>`;
+  modal.classList.add('show');
+}
+
+function saveQuickLeaveTime(guestId) {
+  const g = guests.find(x => x.id === guestId);
+  if (!g) return;
+  g.leave = document.getElementById('quickLeaveInput').value.trim();
+  saveToStorage();
+  document.getElementById('leaveTimeEditModal').classList.remove('show');
+  renderTables();
+  renderFloorStatus();
+  if (document.getElementById('panel-view') && document.getElementById('panel-view').classList.contains('active')) renderView();
+  showToast('退店予定時間を更新しました');
+}
+
+function cancelHold() {
+  if (_holdTimer) { clearTimeout(_holdTimer); _holdTimer = null; }
+  if (_holdTimer2) { clearTimeout(_holdTimer2); _holdTimer2 = null; }
+}
+function confirmDelete(id) {
+  const g = guests.find(x => x.id === id);
+  if (!g) return;
+  const label = g.name || g.tanto || ('No.' + g.rowNum);
+
+  // カスタム削除ダイアログ
+  let overlay = document.getElementById('deleteOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'deleteOverlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999;display:flex;align-items:center;justify-content:center;padding:16px;';
+    document.body.appendChild(overlay);
+  }
+  overlay.innerHTML = `
+    <div style="background:#1a1a1a;border:1px solid #333;border-radius:10px;padding:24px;max-width:300px;width:100%;text-align:center;">
+      <div style="font-size:14px;color:#f0ece0;margin-bottom:8px;">削除しますか？</div>
+      <div style="font-size:16px;font-weight:700;color:#c9a84c;margin-bottom:20px;">「${label}」</div>
+      <div style="display:flex;gap:10px;">
+        <button onclick="document.getElementById('deleteOverlay').style.display='none'"
+          style="flex:1;padding:10px;background:transparent;border:1px solid #555;border-radius:6px;color:#888;font-size:13px;cursor:pointer;">キャンセル</button>
+        <button onclick="document.getElementById('deleteOverlay').style.display='none';deleteGuest(${id})"
+          style="flex:1;padding:10px;background:#c0392b;border:none;border-radius:6px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">削除</button>
+      </div>
+    </div>`;
+  overlay.style.display = 'flex';
+}
+
+function repackRowNums() {
+  // データがある行だけ詰め直す（空行は除外して削除）
+  guests = guests.filter(g => g.name || g.tanto || g.tableNum);
+  const sorted = guests.sort((a,b) => Number(a.rowNum||0) - Number(b.rowNum||0));
+  sorted.forEach((g, i) => { g.rowNum = String(i + 1); });
+}
+
+function toggleBottle(id) {
+  const g = guests.find(x => x.id === id);
+  if (!g) return;
+  g.bottle = ((g.bottle || 0) + 1) % 3;
+  saveToStorage();
+  renderTables();
+}
+
+function deleteGuest(id) {
+  guests = guests.filter(x => x.id !== id);
+  repackRowNums();
+  saveToStorage();
+  renderTables();
+  renderStaffStatus();
+  renderFloorStatus();
+  showToast('削除しました');
+}
+
+// ===== STATS =====
+function updateStats() {
+  const active = guests.filter(g => g.name || g.tanto || g.tableNum);
+  document.getElementById('statTotal').textContent = active.length;
+  document.getElementById('statArrived').textContent = active.filter(g => g.arrived).length;
+  updateTableStats();
+}
+
+function updateTableStats() {
+  const withData = guests.filter(g => g.name || g.tanto);
+  // 予定卓数 = 実際にデータが入っている件数（行番号に隙間があっても正確に数える）
+  const maxRow = withData.length;
+  // △の件数（来店済みは除外）
+  const deltaCount = withData.filter(g => g.name && g.name.includes('△') && !g.arrived).length;
+  const arrivedCount = withData.filter(g => g.arrived).length;
+  // 初回人数集計
+  const allRows = firstGroups.reduce((arr, g) => arr.concat(g.rows||[]), []);
+  const firstTotal = firstGroups.reduce((sum, g) => sum + (parseInt(g.count)||0), 0);
+  const firstCurrent = firstGroups.reduce((sum, g) => {
+    return sum + (g.rows||[]).reduce((s, r) => s + (r.nominaoshi && r.nominaoshi.trim() ? 0 : (parseInt(g.count)||0) / (g.rows||[1]).length), 0);
+  }, 0);
+  const firstCurrentInt = Math.round(firstCurrent);
+
+  const statsHtml = `<span style="font-size:14px;white-space:nowrap;">予定卓数 <span style="color:var(--accent);font-weight:700;">${maxRow}卓</span><span style="color:var(--text-dim);">（△<span style="color:#e74c3c;font-weight:700;">${deltaCount}</span>）</span>&nbsp;&nbsp;現状 <span style="color:#2ecc71;font-weight:700;">${arrivedCount}卓</span>&nbsp;&nbsp;初回 現在<span style="color:var(--accent);font-weight:700;">${firstCurrentInt}名</span>／<span style="color:var(--text-dim);font-weight:700;">${firstTotal}名</span></span>`;
+  // 固定バーに反映
+  const fixedEl = document.getElementById('fixedStats');
+  if (fixedEl) {
+    fixedEl.innerHTML = statsHtml;
+    fixedEl.style.display = 'block';
+    updateFixedTop(); setTimeout(updateFixedTop, 50);
+  }
+}
+
+// ===== STORAGE =====
+function saveToStorage() {
+  // 保存前に空行を除去
+  guests = guests.filter(g => g.name || g.tanto || g.tableNum);
+  repackRowNums();
+  try { localStorage.setItem('tableManager_guests', JSON.stringify(guests)); } catch(e) {}
+  // Firebase: 各ゲストを個別のパスに書き込む（全体を丸ごと上書きしないので、他端末の変更と衝突しにくい）
+  if (window.fbSaveGuest) {
+    guests.forEach(g => window.fbSaveGuest(g));
+  }
+  // 直近でFirebaseから受信していた一覧と比較し、ローカルから消えたものだけを個別に削除する
+  if (window.fbRemoveGuest && window._fbGuests) {
+    const currentIds = new Set(guests.map(g => g.id));
+    window._fbGuests.forEach(g => {
+      if (g && g.id != null && !currentIds.has(g.id)) window.fbRemoveGuest(g.id);
+    });
+  }
+}
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem('tableManager_guests');
+    if (raw) {
+      guests = JSON.parse(raw);
+      nextId = guests.reduce((m,g) => Math.max(m, g.id+1), 1);
+    }
+  } catch(e) {}
+}
+
+// ===== STAFF STATUS =====
+
+function loadStaff() {
+  try {
+    const raw = localStorage.getItem('tableManager_staff');
+    if (raw) staffList = JSON.parse(raw);
+  } catch(e) {}
+  try {
+    const rawAlias = localStorage.getItem('rj_staffAliases');
+    if (rawAlias) staffAliases = JSON.parse(rawAlias);
+  } catch(e) {}
+  try {
+    const rawDayStatus = localStorage.getItem('rj_staffDayStatus');
+    if (rawDayStatus) staffDayStatus = JSON.parse(rawDayStatus);
+  } catch(e) {}
+  // Firebaseスタッフ受信時に更新
+  window._fbStaffReady = function() {
+    if (window._fbStaff) {
+      staffList = window._fbStaff;
+      try { localStorage.setItem('tableManager_staff', JSON.stringify(staffList)); } catch(e) {}
+      renderStaffStatus();
+    }
+  };
+}
+
+function saveDayStatus(staffName) {
+  try { localStorage.setItem('rj_staffDayStatus', JSON.stringify(staffDayStatus)); } catch(e) {}
+  // 特定の1名分だけの変更ならピンポイントで書き込み、それ以外（全消去・復元など）は全体を保存する
+  if (staffName && window.fbSaveDayStatusFor) {
+    window.fbSaveDayStatusFor(staffName, staffDayStatus[staffName] || null);
+  } else if (window.fbSaveDayStatus) {
+    window.fbSaveDayStatus(staffDayStatus);
+  }
+}
+
+// ===== 端末アイデンティティ（本人/代理の判定基盤） =====
+// キャスト用ログイン端末：一度選んだ「あなたは誰か」を端末に記憶し、以後は自動で本人扱いにする
+// 内勤ログイン端末：常に代理入力候補。「代理入力モード」トグルで代理/無印を切り替える（起動毎にOFFへリセット）
+function getMyIdentity() {
+  try { return localStorage.getItem('rj_myIdentity') || ''; } catch(e) { return ''; }
+}
+function setMyIdentity(name) {
+  try { localStorage.setItem('rj_myIdentity', name); } catch(e) {}
+}
+
+// 今の入力が「本人」か「代理」かを判定する
+// host端末: 常に self / admin端末: 代理モードONならproxy、OFFならnull（集計対象外・テスト運用時のノイズを避ける）
+function getCurrentReportType() {
+  const role = localStorage.getItem('rj_role');
+  if (role === 'host') return 'self';
+  if (role === 'admin') return proxyMode ? 'proxy' : null;
+  return null;
+}
+
+function promptIdentityModal(onDone) {
+  let modal = document.getElementById('identityModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.id = 'identityModal';
+    document.body.appendChild(modal);
+  }
+  const options = staffList.map(name => `
+    <button onclick="setMyIdentity('${name.replace(/'/g,"\\'")}');document.getElementById('identityModal').classList.remove('show');renderIdentityIndicator();${onDone ? 'window._identityCallback && window._identityCallback();' : ''}"
+      style="display:block;width:100%;text-align:left;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-main);font-size:14px;margin-bottom:6px;cursor:pointer;">${name}</button>
+  `).join('');
+  window._identityCallback = onDone || null;
+  modal.innerHTML = `
+    <div class="modal" style="max-width:320px;max-height:70vh;display:flex;flex-direction:column;">
+      <div class="modal-header">
+        <span>あなたは誰ですか？</span>
+        <button onclick="document.getElementById('identityModal').classList.remove('show')" style="background:none;border:none;color:var(--text-dim);font-size:18px;cursor:pointer;">✕</button>
+      </div>
+      <div class="modal-body" style="overflow-y:auto;">
+        ${options || '<p style="color:var(--text-dim);text-align:center;">スタッフが未登録です</p>'}
+      </div>
+    </div>`;
+  modal.classList.add('show');
+}
+
+// キャスト用端末の予定報告タブに「あなた: 〇〇（変更）」を表示。内勤端末には代理入力モードのトグルを表示
+function renderIdentityIndicator() {
+  const el = document.getElementById('identityIndicator');
+  if (!el) return;
+  const role = localStorage.getItem('rj_role');
+  if (role === 'host') {
+    const me = getMyIdentity();
+    el.innerHTML = me
+      ? `<span style="color:var(--text-dim);">あなた: </span><span style="color:var(--accent);font-weight:700;">${me}</span> <button onclick="promptIdentityModal()" style="background:none;border:none;color:var(--text-dim);font-size:11px;text-decoration:underline;cursor:pointer;">変更</button>`
+      : `<button onclick="promptIdentityModal()" style="background:none;border:1px solid var(--accent-dim);border-radius:4px;color:var(--accent);font-size:11px;padding:4px 10px;cursor:pointer;font-family:var(--font-main);">あなたの名前を選択</button>`;
+  } else if (role === 'admin') {
+    el.innerHTML = `
+      <span style="color:var(--text-dim);">代理入力モード</span>
+      <button onclick="toggleProxyMode()" style="background:${proxyMode ? '#c0392b' : 'var(--surface2)'};border:1px solid ${proxyMode ? '#c0392b' : 'var(--border)'};border-radius:12px;color:${proxyMode ? '#fff' : 'var(--text-dim)'};font-size:11px;padding:3px 12px;cursor:pointer;font-family:var(--font-main);font-weight:700;">${proxyMode ? 'ON' : 'OFF'}</button>`;
+  } else {
+    el.innerHTML = '';
+  }
+}
+
+function toggleProxyMode() {
+  proxyMode = !proxyMode;
+  renderIdentityIndicator();
+  showToast(proxyMode ? '代理入力モードをONにしました' : '代理入力モードをOFFにしました');
+}
+
+function saveStaff() {
+  try { localStorage.setItem('tableManager_staff', JSON.stringify(staffList)); } catch(e) {}
+  console.log('saveStaff called, fbSaveStaff:', typeof window.fbSaveStaff, 'staffList:', staffList);
+  if (window.fbSaveStaff) {
+    window.fbSaveStaff(staffList);
+    console.log('fbSaveStaff called with:', staffList);
+  } else {
+    console.error('fbSaveStaff is not defined yet!');
+  }
+}
+
+function saveAliases(staffName) {
+  try { localStorage.setItem('rj_staffAliases', JSON.stringify(staffAliases)); } catch(e) {}
+  // 特定の1名分だけの変更ならピンポイントで書き込み、それ以外は全体を保存する
+  if (staffName && window.fbSaveAliasesFor) {
+    window.fbSaveAliasesFor(staffName, staffAliases[staffName] || []);
+  } else if (window.fbSaveAliases) {
+    window.fbSaveAliases(staffAliases);
+  }
+}
+
+// ===== 呼び名（エイリアス）編集 =====
+let _currentAliasStaff = null;
+
+function openAliasModal(staffName) {
+  _currentAliasStaff = staffName;
+  let modal = document.getElementById('aliasModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.id = 'aliasModal';
+    document.body.appendChild(modal);
+  }
+  renderAliasModalContent();
+  modal.classList.add('show');
+}
+
+function renderAliasModalContent() {
+  const modal = document.getElementById('aliasModal');
+  if (!modal || !_currentAliasStaff) return;
+  const name = _currentAliasStaff;
+  const aliases = staffAliases[name] || [];
+  const chips = aliases.length
+    ? aliases.map(a => `
+        <span style="display:inline-flex;align-items:center;gap:4px;background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:4px 6px 4px 12px;font-size:12px;margin:3px 4px 3px 0;">
+          ${a}
+          <button onclick="removeAlias('${a.replace(/'/g, "\\'")}')" style="background:none;border:none;color:var(--text-dim);font-size:14px;cursor:pointer;padding:0 4px;line-height:1;">✕</button>
+        </span>`).join('')
+    : '<div style="color:var(--text-dim);font-size:12px;padding:8px 0;">まだ呼び名が登録されていません</div>';
+
+  modal.innerHTML = `
+    <div class="modal" style="max-width:340px;">
+      <div class="modal-header">
+        <span>呼び名編集：${name}</span>
+        <button onclick="closeAliasModal()" style="background:none;border:none;color:var(--text-dim);font-size:18px;cursor:pointer;">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:11px;color:var(--text-dim);margin-bottom:10px;line-height:1.6;">ヘルプ欄などで使われる呼び方・ひらがな表記・ニックネームを登録しておくと、集計時に自動でこのキャストとしてカウントされます。</p>
+        <div style="display:flex;flex-wrap:wrap;margin-bottom:12px;">${chips}</div>
+        <div style="display:flex;gap:6px;">
+          <input id="aliasInput" class="form-input" placeholder="例：なる（ひらがな表記）" style="flex:1;"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();addAlias();}">
+          <button class="btn btn-primary" onclick="addAlias()" style="width:auto;padding:8px 14px;">追加</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function addAlias() {
+  if (!_currentAliasStaff) return;
+  const input = document.getElementById('aliasInput');
+  if (!input) return;
+  const val = input.value.trim();
+  if (!val) return;
+  if (!staffAliases[_currentAliasStaff]) staffAliases[_currentAliasStaff] = [];
+  if (!staffAliases[_currentAliasStaff].includes(val)) {
+    staffAliases[_currentAliasStaff].push(val);
+    saveAliases(_currentAliasStaff);
+  }
+  input.value = '';
+  renderAliasModalContent();
+  // 入力を続けやすいようフォーカスを戻す
+  setTimeout(() => { const el = document.getElementById('aliasInput'); if (el) el.focus(); }, 0);
+}
+
+function removeAlias(alias) {
+  if (!_currentAliasStaff || !staffAliases[_currentAliasStaff]) return;
+  staffAliases[_currentAliasStaff] = staffAliases[_currentAliasStaff].filter(a => a !== alias);
+  saveAliases(_currentAliasStaff);
+  renderAliasModalContent();
+}
+
+function closeAliasModal() {
+  const modal = document.getElementById('aliasModal');
+  if (modal) modal.classList.remove('show');
+  _currentAliasStaff = null;
+}
+
+// Firebase側から呼び名データが更新された時、モーダルが開いていれば表示も更新
+function refreshAliasModalIfOpen() {
+  const modal = document.getElementById('aliasModal');
+  if (modal && modal.classList.contains('show') && _currentAliasStaff) {
+    renderAliasModalContent();
+  }
+}
+
+// 予定未定・お休み・有休・半休のステータスを設定する統一関数
+// status: 'pending' | 'off' | 'paid_off' | 'half_off'
+function setStaffDayStatus(name, status) {
+  const reportType = getCurrentReportType();
+  staffDayStatus[name] = { status, reportType, timestamp: Date.now() };
+  saveDayStatus(name);
+  renderStaffStatus();
+  const labels = { pending: '予定未定', off: 'お休み', paid_off: '有休', half_off: '半休' };
+  showToast(`${name} を「${labels[status] || status}」として記録しました`);
+}
+
+// 後方互換：テキスト報告で「予定未定」が検出された時に呼ばれる
+function markReported(name) {
+  setStaffDayStatus(name, 'pending');
+}
+
+// 内勤端末でのクイックボタン用：対象キャストを選んでからステータスを適用する
+function promptQuickStatus(status) {
+  const role = localStorage.getItem('rj_role');
+  if (role === 'host') {
+    const me = getMyIdentity();
+    if (!me) {
+      promptIdentityModal(() => setStaffDayStatus(getMyIdentity(), status));
+      return;
+    }
+    setStaffDayStatus(me, status);
+    return;
+  }
+  // 内勤：対象キャストを選ぶ簡易ピッカー
+  let modal = document.getElementById('quickStatusModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.id = 'quickStatusModal';
+    document.body.appendChild(modal);
+  }
+  const labels = { pending: '予定未定', off: '本日お休み', paid_off: '有休', half_off: '半休' };
+  const options = staffList.map(name => `
+    <button onclick="document.getElementById('quickStatusModal').classList.remove('show');setStaffDayStatus('${name.replace(/'/g,"\\'")}','${status}')"
+      style="display:block;width:100%;text-align:left;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--font-main);font-size:14px;margin-bottom:6px;cursor:pointer;">${name}</button>
+  `).join('');
+  modal.innerHTML = `
+    <div class="modal" style="max-width:320px;max-height:70vh;display:flex;flex-direction:column;">
+      <div class="modal-header">
+        <span>「${labels[status]}」にする対象は？</span>
+        <button onclick="document.getElementById('quickStatusModal').classList.remove('show')" style="background:none;border:none;color:var(--text-dim);font-size:18px;cursor:pointer;">✕</button>
+      </div>
+      <div class="modal-body" style="overflow-y:auto;">
+        ${options || '<p style="color:var(--text-dim);text-align:center;">スタッフが未登録です</p>'}
+      </div>
+    </div>`;
+  modal.classList.add('show');
+}
+
+// ===== 本日分リセット（予定報告タブ） =====
+// 卓一覧データ・報告状況（緑/青ドット）・初回データ・場内メモをまとめて消去し、翌日の運用に備える
+function confirmResetReports() {
+  // 内勤（admin）のみ実行可能。念のためロールも直接チェック（ボタン非表示のバイパス対策）
+  if (localStorage.getItem('rj_role') !== 'admin') return;
+  let overlay = document.getElementById('deleteOverlay');
+  if (!overlay) { overlay = document.createElement('div'); overlay.id='deleteOverlay'; overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999;display:flex;align-items:center;justify-content:center;padding:16px;'; document.body.appendChild(overlay); }
+  overlay.innerHTML = `<div style="background:#1a1a1a;border:1px solid #333;border-radius:10px;padding:24px;max-width:300px;width:100%;text-align:center;">
+    <div style="font-size:14px;color:#f0ece0;margin-bottom:8px;">本日分を全てリセットしますか？</div>
+    <div style="font-size:11px;color:#888;margin-bottom:16px;line-height:1.6;">卓データ・報告状況・初回データ・場内メモが全て消去されます。<br>翌日の営業開始時にご利用ください。</div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="document.getElementById('deleteOverlay').style.display='none'" style="flex:1;padding:10px;background:transparent;border:1px solid #555;border-radius:6px;color:#888;font-size:13px;cursor:pointer;">キャンセル</button>
+      <button onclick="document.getElementById('deleteOverlay').style.display='none';doResetReports()" style="flex:1;padding:10px;background:#c0392b;border:none;border-radius:6px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">リセット</button>
+    </div>
+  </div>`;
+  overlay.style.display='flex';
+}
+
+function doResetReports() {
+  // ===== リセット前のバックアップを作成（誤操作の復元用） =====
+  const currentBaanai = (() => {
+    try { return localStorage.getItem('rj_baanai') || ''; } catch(e) { return ''; }
+  })();
+  const backup = {
+    guests: JSON.parse(JSON.stringify(guests)),
+    firstGroups: JSON.parse(JSON.stringify(firstGroups)),
+    staffDayStatus: JSON.parse(JSON.stringify(staffDayStatus)),
+    baanai: currentBaanai,
+    timestamp: Date.now()
+  };
+  try { localStorage.setItem('rj_resetBackup', JSON.stringify(backup)); } catch(e) {}
+  if (window.fbSaveBackup) window.fbSaveBackup(backup);
+  window._fbBackup = backup;
+
+  // ===== 月次集計ログに本日分を保存（リセットで消える前に数値だけ残す） =====
+  saveTodayToMonthlyLog();
+
+  // 卓データ
+  guests = [];
+  saveToStorage();
+  // 報告状況（予定未定・休み・有休・半休）
+  staffDayStatus = {};
+  saveDayStatus();
+  // 初回データ
+  firstGroups = [];
+  firstGid = 1;
+  firstRid = 1;
+  saveFirstData();
+  // 場内メモ
+  try { localStorage.setItem('rj_baanai', ''); } catch(e) {}
+  const baanaiInput = document.getElementById('baanaiInput');
+  if (baanaiInput) baanaiInput.value = '';
+  updateBaanaiBar('');
+
+  renderTables();
+  renderStaffStatus();
+  renderFirstTab();
+  renderFloorStatus();
+  if (document.getElementById('panel-view') && document.getElementById('panel-view').classList.contains('active')) renderView();
+  updateUndoButtonState();
+  showToast('本日分をリセットしました（復元ボタンから元に戻せます）');
+}
+
+// 今日の日付キー（YYYY-MM-DD、ローカル時刻基準）
+// 営業日の基準日付を取得する（深夜0時ではなく朝6時を区切りとする）
+// 深夜0時〜5時台にリセットしても、その営業を開始した日の実績として記録されるようにする
+function getTodayKey() {
+  const now = new Date();
+  const businessDate = new Date(now);
+  if (now.getHours() < 6) {
+    businessDate.setDate(businessDate.getDate() - 1);
+  }
+  const y = businessDate.getFullYear();
+  const m = String(businessDate.getMonth() + 1).padStart(2, '0');
+  const d = String(businessDate.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+// 本日の集計結果を月次ログとして保存する（リセット直前に呼ばれる）
+function saveTodayToMonthlyLog() {
+  const dateKey = getTodayKey();
+  const summary = computeDailySummary();
+  try {
+    const raw = localStorage.getItem('rj_monthlyLogs');
+    const logs = raw ? JSON.parse(raw) : {};
+    logs[dateKey] = summary;
+    localStorage.setItem('rj_monthlyLogs', JSON.stringify(logs));
+  } catch(e) {}
+  if (window.fbSaveMonthlyLog) window.fbSaveMonthlyLog(dateKey, summary);
+}
+
+// ===== リセットの復元 =====
+function updateUndoButtonState() {
+  const btn = document.getElementById('undoResetBtn');
+  if (!btn) return;
+  // adminロールでない場合は常に非表示
+  if (localStorage.getItem('rj_role') !== 'admin') { btn.style.display = 'none'; return; }
+  const hasBackup = !!(window._fbBackup) || !!(() => { try { return localStorage.getItem('rj_resetBackup'); } catch(e) { return null; } })();
+  btn.style.display = hasBackup ? 'inline-block' : 'none';
+  setTimeout(updateFixedTop, 50);
+}
+
+function getResetBackup() {
+  // Firebase側のバックアップを優先（別端末での復元にも対応）、無ければローカルを使う
+  if (window._fbBackup) return window._fbBackup;
+  try {
+    const raw = localStorage.getItem('rj_resetBackup');
+    return raw ? JSON.parse(raw) : null;
+  } catch(e) { return null; }
+}
+
+function confirmUndoReset() {
+  if (localStorage.getItem('rj_role') !== 'admin') return;
+  const backup = getResetBackup();
+  if (!backup) { showToast('復元できるデータがありません'); return; }
+  const dateStr = backup.timestamp ? new Date(backup.timestamp).toLocaleString('ja-JP') : '';
+  let overlay = document.getElementById('deleteOverlay');
+  if (!overlay) { overlay = document.createElement('div'); overlay.id='deleteOverlay'; overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999;display:flex;align-items:center;justify-content:center;padding:16px;'; document.body.appendChild(overlay); }
+  overlay.innerHTML = `<div style="background:#1a1a1a;border:1px solid #333;border-radius:10px;padding:24px;max-width:300px;width:100%;text-align:center;">
+    <div style="font-size:14px;color:#f0ece0;margin-bottom:8px;">直前のリセット前の状態に戻しますか？</div>
+    <div style="font-size:11px;color:#888;margin-bottom:16px;line-height:1.6;">${dateStr ? dateStr + ' 時点のデータに復元します。' : ''}<br>現在のデータは上書きされます。</div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="document.getElementById('deleteOverlay').style.display='none'" style="flex:1;padding:10px;background:transparent;border:1px solid #555;border-radius:6px;color:#888;font-size:13px;cursor:pointer;">キャンセル</button>
+      <button onclick="document.getElementById('deleteOverlay').style.display='none';doUndoReset()" style="flex:1;padding:10px;background:#2ecc71;border:none;border-radius:6px;color:#000;font-size:13px;font-weight:700;cursor:pointer;">復元する</button>
+    </div>
+  </div>`;
+  overlay.style.display='flex';
+}
+
+function doUndoReset() {
+  const backup = getResetBackup();
+  if (!backup) { showToast('復元できるデータがありません'); return; }
+
+  guests = Array.isArray(backup.guests) ? backup.guests : [];
+  nextId = guests.reduce((m,g) => Math.max(m, (g.id||0)+1), 1);
+  saveToStorage();
+
+  firstGroups = Array.isArray(backup.firstGroups) ? backup.firstGroups : [];
+  firstGid = firstGroups.reduce((m,g)=>Math.max(m,(g.id||0)+1), 1);
+  firstRid = 1;
+  firstGroups.forEach(g => {
+    (g.rows||[]).forEach(r => { firstRid = Math.max(firstRid, (r.id||0)+1); });
+  });
+  saveFirstData();
+
+  staffDayStatus = (backup.staffDayStatus && typeof backup.staffDayStatus === 'object') ? backup.staffDayStatus : {};
+  saveDayStatus();
+
+  try { localStorage.setItem('rj_baanai', backup.baanai || ''); } catch(e) {}
+  const baanaiInput = document.getElementById('baanaiInput');
+  if (baanaiInput) baanaiInput.value = backup.baanai || '';
+  updateBaanaiBar(backup.baanai || '');
+
+  renderTables();
+  renderStaffStatus();
+  renderFirstTab();
+  renderFloorStatus();
+  if (document.getElementById('panel-view') && document.getElementById('panel-view').classList.contains('active')) renderView();
+  showToast('リセット前の状態に復元しました');
+}
+
+// ===== 本日の集計 =====
+
+// お客様名を表示用に整形する（△を除去し、「様」を正しい位置に付ける）
+// 「ひな+枝」のような「+枝」表記は、本来の名前より後ろに来るよう「ひな様+枝」の形にする
+function formatGuestDisplayName(rawName) {
+  const name = (rawName || '').replace('△','').trim();
+  if (!name) return '';
+  const m = name.match(/^(.*?)\s*[+＋]\s*枝\s*$/);
+  if (m && m[1].trim()) {
+    return `${m[1].trim()}様+枝`;
+  }
+  return `${name}様`;
+}
+
+// ===== 時刻の解析・経過判定（来店時間・退店時間の自由入力から数字を拾う） =====
+// 「21:00」「22時」「22時ごろ」のような表記から時刻を抽出する。「同伴」「未定」等は解析できず null を返す
+function parseTimeText(text) {
+  if (!text) return null;
+  const m = String(text).match(/(\d{1,2})[:時](\d{0,2})/);
+  if (!m) return null;
+  const hour = parseInt(m[1]);
+  const minute = m[2] ? parseInt(m[2]) : 0;
+  if (isNaN(hour) || hour > 23 || minute > 59) return null;
+  return { hour, minute };
+}
+
+// 深夜営業を考慮し、17時を「営業日の始まり」とした通し分数に変換する
+// （深夜1時は22時より"後"として正しく比較できるようにする）
+function toShiftMinutes(hour, minute) {
+  let h = hour;
+  if (h < 17) h += 24;
+  return h * 60 + minute;
+}
+
+// 指定した時刻テキストが、現在時刻から見て「経過済み」かどうか判定する
+// thresholdMinutesBefore を指定すると「その分数前から経過扱い」にできる（例：退店10分前から警告）
+function isTimeOverdue(timeText, thresholdMinutesBefore = 0) {
+  const t = parseTimeText(timeText);
+  if (!t) return false;
+  const now = new Date();
+  const nowShift = toShiftMinutes(now.getHours(), now.getMinutes());
+  const targetShift = toShiftMinutes(t.hour, t.minute) - thresholdMinutesBefore;
+  return nowShift >= targetShift;
+}
+
+// カタカナをひらがなに変換する（呼び名の表記ゆれ吸収用）
+// 全角カタカナ(U+30A1-U+30F6)は対応するひらがな(U+3041-U+3096)に1文字ずつ変換される（文字数は変わらない）
+function toHiragana(str) {
+  return (str || '').replace(/[\u30a1-\u30f6]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0x60));
+}
+
+// テキストの先頭から、登録済みの呼び名（長い順）でどのスタッフかを判定する
+// 例："なるとあ" -> "なると"(成) を先にマッチ、残り"あ" -> "あい"は長さ不足で不一致 のように貪欲に処理
+function buildAliasIndex() {
+  // [{ text: "なると", norm: "なると", name: "成" }, ...] を文字列長の降順で並べる（本名自体もエイリアスとして含める）
+  // normはひらがな正規化済みテキスト。カタカナで入力されても同じ呼び名として拾えるようにする
+  const index = [];
+  staffList.forEach(name => {
+    index.push({ text: name, norm: toHiragana(name), name });
+    (staffAliases[name] || []).forEach(a => {
+      if (a) index.push({ text: a, norm: toHiragana(a), name });
+    });
+  });
+  index.sort((a, b) => b.text.length - a.text.length);
+  return index;
+}
+
+// ヘルプ欄などの自由入力テキストから、含まれるスタッフ名を貪欲マッチで抽出する
+function extractStaffNames(text, aliasIndex) {
+  const found = [];
+  let remaining = (text || '').replace(/[\/,、,・\s]+/g, ' ').trim();
+  if (!remaining) return found;
+  // まず区切り文字ベースで分割してから、各断片の全開始位置をチェックする
+  // （呼び名同士が文字を共有していても両方拾えるよう、消費せず1文字ずつずらして走査）
+  // 比較はひらがな正規化した文字列同士で行う（カタカナ表記の呼び名も拾えるように）
+  const chunks = remaining.split(' ').filter(Boolean);
+  chunks.forEach(chunk => {
+    const normChunk = toHiragana(chunk);
+    for (let pos = 0; pos < chunk.length; pos++) {
+      const match = aliasIndex.find(entry => normChunk.startsWith(entry.norm, pos));
+      if (match) found.push(match.name);
+    }
+  });
+  return found;
+}
+
+function computeDailySummary() {
+  const aliasIndex = buildAliasIndex();
+  const photoCount = {};
+  const okuriCount = {};
+  const nomiCount = {};
+  const helpCount = {};
+  const shinkiCount = {};
+  const rpCount = {};
+
+  function bump(map, key) {
+    if (!key) return;
+    map[key] = (map[key] || 0) + 1;
+  }
+
+  function matchStaff(rawText) {
+    if (!rawText) return null;
+    const text = rawText.trim();
+    if (!text) return null;
+    const normText = toHiragana(text);
+    // 完全一致優先（ひらがな正規化して比較）
+    const exact = staffList.find(s => toHiragana(s) === normText) ||
+      Object.keys(staffAliases).find(name => (staffAliases[name] || []).some(a => toHiragana(a) === normText));
+    if (exact) return exact;
+    // 部分一致
+    const partial = staffList.find(s => normText.includes(toHiragana(s)) || toHiragana(s).includes(normText));
+    if (partial) return partial;
+    const aliasPartial = aliasIndex.find(entry => normText.includes(entry.norm) || entry.norm.includes(normText));
+    return aliasPartial ? aliasPartial.name : text; // どれにも該当しなければ入力値そのまま
+  }
+
+  // ----- 初回タブ集計 -----
+  (firstGroups || []).forEach(g => {
+    (g.rows || []).forEach(r => {
+      if (r.photo1) bump(photoCount, matchStaff(r.photo1));
+      if (r.photo2) bump(photoCount, matchStaff(r.photo2));
+      if (r.okuri) {
+        const okuriStaff = matchStaff(r.okuri);
+        bump(okuriCount, okuriStaff);
+        const nomi = (r.nominaoshi || '').trim();
+        if (nomi && nomi !== 'なし') {
+          bump(nomiCount, okuriStaff);
+        }
+      }
+    });
+  });
+
+  // ----- 予定報告集計（guestsから） -----
+  const selfCount = {};
+  const proxyCount = {};
+  guests.forEach(g => {
+    // ヘルプ指名（呼び名リストで貪欲マッチ）
+    if (g.help) {
+      extractStaffNames(g.help, aliasIndex).forEach(name => bump(helpCount, name));
+    }
+    // 新規・初回RP判定（お客様名に含まれる文字列で判定）※来店確認済みの卓のみカウント
+    const name = g.name || '';
+    const tanto = matchStaff(g.tanto);
+    if (g.arrived) {
+      if (name.includes('初回RP')) {
+        bump(shinkiCount, tanto);
+        bump(rpCount, tanto);
+      } else if (name.includes('新規')) {
+        bump(shinkiCount, tanto);
+      }
+    }
+    // 本人／代理の集計（記録されているものだけカウント。未記録はノイズを避けるためスキップ）
+    if (g.reportType === 'self') bump(selfCount, tanto);
+    else if (g.reportType === 'proxy') bump(proxyCount, tanto);
+  });
+
+  // ----- 休み・有休・半休・予定未定の集計（staffDayStatusから） -----
+  const offCount = {};
+  const paidOffCount = {};
+  const halfOffCount = {};
+  const pendingCount = {};
+  Object.keys(staffDayStatus).forEach(name => {
+    const entry = staffDayStatus[name];
+    if (!entry) return;
+    if (entry.status === 'off') bump(offCount, name);
+    else if (entry.status === 'paid_off') bump(paidOffCount, name);
+    else if (entry.status === 'half_off') bump(halfOffCount, name);
+    else if (entry.status === 'pending') bump(pendingCount, name);
+    if (entry.reportType === 'self') bump(selfCount, name);
+    else if (entry.reportType === 'proxy') bump(proxyCount, name);
+  });
+
+  return { photoCount, okuriCount, nomiCount, helpCount, shinkiCount, rpCount, selfCount, proxyCount, offCount, paidOffCount, halfOffCount, pendingCount };
+}
+
+// 月次ログを合算する（当月かつliveなら本日のcomputeDailySummary()も加算）
+function aggregateMonthlyLogs(monthKey) {
+  let logs = {};
+  try {
+    const raw = localStorage.getItem('rj_monthlyLogs');
+    if (raw) logs = JSON.parse(raw);
+  } catch(e) {}
+  if (window._fbMonthlyLogs) logs = window._fbMonthlyLogs;
+
+  const keys = ['photoCount','okuriCount','nomiCount','helpCount','shinkiCount','rpCount','selfCount','proxyCount','offCount','paidOffCount','halfOffCount','pendingCount'];
+  const merged = {};
+  keys.forEach(k => merged[k] = {});
+
+  function addInto(summary) {
+    keys.forEach(k => {
+      const src = summary[k] || {};
+      Object.keys(src).forEach(name => {
+        merged[k][name] = (merged[k][name] || 0) + src[name];
+      });
+    });
+  }
+
+  Object.keys(logs).forEach(dateKey => {
+    if (dateKey.slice(0, 7) === monthKey) addInto(logs[dateKey] || {});
+  });
+
+  // 当月かつ今日がまだリセットされていない場合、本日分のライブ集計も加算する
+  const todayKey = getTodayKey();
+  if (monthKey === todayKey.slice(0, 7) && !(logs[todayKey])) {
+    addInto(computeDailySummary());
+  }
+
+  return merged;
+}
+
+// 保存済みログから利用可能な月一覧（降順）を取得
+function getAvailableMonths() {
+  let logs = {};
+  try {
+    const raw = localStorage.getItem('rj_monthlyLogs');
+    if (raw) logs = JSON.parse(raw);
+  } catch(e) {}
+  if (window._fbMonthlyLogs) logs = window._fbMonthlyLogs;
+  const months = new Set(Object.keys(logs).map(d => d.slice(0, 7)));
+  months.add(getTodayKey().slice(0, 7)); // 当月は常に選べるようにする
+  return [...months].sort().reverse();
+}
+
+let _summaryTab = 'today'; // 'today' | 'month'
+let _summaryMonthKey = null;
+
+function openSummaryModal() {
+  if (localStorage.getItem('rj_role') !== 'admin') return;
+  _summaryTab = 'today';
+  _summaryMonthKey = getTodayKey().slice(0, 7);
+  let modal = document.getElementById('summaryModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.id = 'summaryModal';
+    document.body.appendChild(modal);
+  }
+  renderSummaryModalContent();
+  modal.classList.add('show');
+}
+
+function switchSummaryTab(tab) {
+  _summaryTab = tab;
+  renderSummaryModalContent();
+}
+
+function changeSummaryMonth(monthKey) {
+  _summaryMonthKey = monthKey;
+  renderSummaryModalContent();
+}
+
+function buildSummaryTable(summary) {
+  const allNames = new Set([
+    ...staffList,
+    ...Object.keys(summary.photoCount),
+    ...Object.keys(summary.okuriCount),
+    ...Object.keys(summary.nomiCount),
+    ...Object.keys(summary.helpCount),
+    ...Object.keys(summary.shinkiCount),
+    ...Object.keys(summary.rpCount),
+    ...Object.keys(summary.selfCount || {}),
+    ...Object.keys(summary.proxyCount || {}),
+  ]);
+  const orderedNames = [
+    ...staffList.filter(n => allNames.has(n)),
+    ...[...allNames].filter(n => !staffList.includes(n)).sort()
+  ];
+
+  const rows = orderedNames.map(name => {
+    const photo = summary.photoCount[name] || 0;
+    const okuri = summary.okuriCount[name] || 0;
+    const nomi = summary.nomiCount[name] || 0;
+    const help = summary.helpCount[name] || 0;
+    const shinki = summary.shinkiCount[name] || 0;
+    const rp = summary.rpCount[name] || 0;
+    const self = (summary.selfCount || {})[name] || 0;
+    const proxy = (summary.proxyCount || {})[name] || 0;
+    const off = ((summary.offCount || {})[name] || 0) + ((summary.paidOffCount || {})[name] || 0);
+    const half = (summary.halfOffCount || {})[name] || 0;
+    return `<tr>
+      <td style="padding:6px 8px 6px 4px;border-bottom:1px solid var(--border);font-weight:700;color:var(--accent);white-space:nowrap;">${name}</td>
+      <td style="padding:6px 4px;border-bottom:1px solid var(--border);text-align:center;">${photo}</td>
+      <td style="padding:6px 4px;border-bottom:1px solid var(--border);text-align:center;">${okuri}</td>
+      <td style="padding:6px 4px;border-bottom:1px solid var(--border);text-align:center;">${nomi}</td>
+      <td style="padding:6px 4px;border-bottom:1px solid var(--border);text-align:center;">${help}</td>
+      <td style="padding:6px 4px;border-bottom:1px solid var(--border);text-align:center;">${shinki}</td>
+      <td style="padding:6px 4px;border-bottom:1px solid var(--border);text-align:center;">${rp}</td>
+      <td style="padding:6px 4px;border-bottom:1px solid var(--border);text-align:center;color:#2ecc71;">${self}</td>
+      <td style="padding:6px 4px;border-bottom:1px solid var(--border);text-align:center;color:#e67e22;">${proxy}</td>
+      <td style="padding:6px 4px;border-bottom:1px solid var(--border);text-align:center;color:#e74c3c;">${off}</td>
+      <td style="padding:6px 4px;border-bottom:1px solid var(--border);text-align:center;color:#e67e22;">${half}</td>
+    </tr>`;
+  }).join('');
+
+  return `
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:620px;">
+        <thead>
+          <tr style="color:var(--accent);">
+            <th style="padding:6px 8px 6px 4px;text-align:left;border-bottom:1px solid var(--accent-dim);white-space:nowrap;">キャスト</th>
+            <th style="padding:6px 4px;border-bottom:1px solid var(--accent-dim);white-space:nowrap;">写真指名</th>
+            <th style="padding:6px 4px;border-bottom:1px solid var(--accent-dim);white-space:nowrap;">送り</th>
+            <th style="padding:6px 4px;border-bottom:1px solid var(--accent-dim);white-space:nowrap;">飲直</th>
+            <th style="padding:6px 4px;border-bottom:1px solid var(--accent-dim);white-space:nowrap;">ヘルプ指名</th>
+            <th style="padding:6px 4px;border-bottom:1px solid var(--accent-dim);white-space:nowrap;">新規</th>
+            <th style="padding:6px 4px;border-bottom:1px solid var(--accent-dim);white-space:nowrap;">初回RP</th>
+            <th style="padding:6px 4px;border-bottom:1px solid var(--accent-dim);white-space:nowrap;">本人</th>
+            <th style="padding:6px 4px;border-bottom:1px solid var(--accent-dim);white-space:nowrap;">代理</th>
+            <th style="padding:6px 4px;border-bottom:1px solid var(--accent-dim);white-space:nowrap;">休/有休</th>
+            <th style="padding:6px 4px;border-bottom:1px solid var(--accent-dim);white-space:nowrap;">半休</th>
+          </tr>
+        </thead>
+        <tbody>${rows || '<tr><td colspan="11" style="padding:24px;text-align:center;color:var(--text-dim);">データがありません</td></tr>'}</tbody>
+      </table>
+    </div>`;
+}
+
+function renderSummaryModalContent() {
+  const modal = document.getElementById('summaryModal');
+  if (!modal) return;
+
+  const tabBtn = (key, label) => `<button onclick="switchSummaryTab('${key}')" style="flex:1;padding:8px;border:none;border-bottom:2px solid ${_summaryTab===key?'var(--accent)':'transparent'};background:none;color:${_summaryTab===key?'var(--accent)':'var(--text-dim)'};font-family:var(--font-main);font-size:12px;font-weight:700;cursor:pointer;">${label}</button>`;
+
+  let bodyHtml, titleSuffix;
+  if (_summaryTab === 'today') {
+    bodyHtml = buildSummaryTable(computeDailySummary());
+    titleSuffix = '（本日）';
+  } else {
+    const months = getAvailableMonths();
+    const monthOptions = months.map(m => `<option value="${m}" ${m===_summaryMonthKey?'selected':''}>${m.replace('-','年')}月</option>`).join('');
+    const summary = aggregateMonthlyLogs(_summaryMonthKey);
+    bodyHtml = `
+      <div style="margin-bottom:10px;">
+        <select onchange="changeSummaryMonth(this.value)" style="background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:var(--font-main);font-size:13px;padding:6px 8px;outline:none;">
+          ${monthOptions}
+        </select>
+      </div>
+      ${buildSummaryTable(summary)}`;
+    titleSuffix = '（月間）';
+  }
+
+  modal.innerHTML = `
+    <div class="modal" style="max-width:640px;max-height:85vh;display:flex;flex-direction:column;">
+      <div class="modal-header">
+        <span>📊 集計${titleSuffix}</span>
+        <button onclick="document.getElementById('summaryModal').classList.remove('show')" style="background:none;border:none;color:var(--text-dim);font-size:18px;cursor:pointer;">✕</button>
+      </div>
+      <div style="display:flex;border-bottom:1px solid var(--border);">
+        ${tabBtn('today', '今日')}
+        ${tabBtn('month', '月間')}
+      </div>
+      <div class="modal-body" style="overflow:auto;flex:1;padding:12px;">
+        ${bodyHtml}
+        <p style="font-size:10px;color:var(--text-dim);margin-top:12px;line-height:1.6;">※ヘルプ指名の集計精度は「⚙ 呼び名」（報告状況のキャスト名タップ）で登録した呼び名の充実度に左右されます。表記ゆれに気づいたら随時追加してください。<br>※月間集計は「本日分リセット」を押した時点のデータが記録される仕組みです。リセットを忘れた日は月間集計に反映されません。</p>
+      </div>
+    </div>`;
+}
+
+// Firebase側から月次ログが更新された時、モーダルが開いていれば再描画
+function refreshSummaryModalIfOpen() {
+  const modal = document.getElementById('summaryModal');
+  if (modal && modal.classList.contains('show')) {
+    renderSummaryModalContent();
+  }
+}
+
+function renderStaffStatus() {
+  const container = document.getElementById('staffStatusList');
+  if (!container) return;
+  if (!staffList.length) {
+    container.innerHTML = '<div style="color:var(--text-dim);font-size:10px;">⚙ 編集からスタッフを登録</div>';
+    return;
+  }
+  // 報告済み担当名を収集（部分一致）
+  const reportedTantos = guests.map(g => g.tanto).filter(Boolean);
+  container.innerHTML = staffList.map(name => {
+    const done = reportedTantos.some(tanto => tanto.includes(name) || name.includes(tanto));
+    const dayStatus = staffDayStatus[name] ? staffDayStatus[name].status : null;
+    // 優先順位: 報告済み(緑) > 休み/有休(赤) > 半休(オレンジ) > 予定未定(青) > 未報告(グレー)
+    let color, textColor;
+    if (done) {
+      color = textColor = '#2ecc71';
+    } else if (dayStatus === 'off' || dayStatus === 'paid_off') {
+      color = textColor = '#e74c3c';
+    } else if (dayStatus === 'half_off') {
+      color = textColor = '#e67e22';
+    } else if (dayStatus === 'pending') {
+      color = textColor = '#3498db';
+    } else {
+      color = 'var(--border)';
+      textColor = 'var(--text-dim)';
+    }
+    const nameEsc = name.replace(/'/g, "\\'");
+    return `<div onclick="openAliasModal('${nameEsc}')" style="padding:4px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:5px;cursor:pointer;">
+      <span style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0;display:inline-block;"></span>
+      <span style="color:${textColor};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${name}</span>
+    </div>`;
+  }).join('');
+}
+
+// ===== MANAGE MODAL (編集・削除一覧) =====
+function openManageModal() {
+  let modal = document.getElementById('manageModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.id = 'manageModal';
+    document.body.appendChild(modal);
+  }
+
+  const rows = guests.filter(g => g.name || g.tanto).map(g => {
+    const aibanInfo = getAibanLinkInfo(g);
+    const aibanMark = aibanInfo.linked ? `<span title="${aibanInfo.label.replace(/"/g,'&quot;')}" style="color:${aibanInfo.color};margin-right:4px;">🔗</span>` : '';
+    return `
+    <div style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--border);">
+      <span style="color:var(--accent);font-weight:700;min-width:36px;font-size:13px;">${g.rowNum ? 'No.'+g.rowNum : '未'}</span>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:700;">${aibanMark}${g.name || '−'}</div>
+        <div style="font-size:11px;color:var(--text-dim);">担当: ${g.tanto || '−'} ／ 来店: ${g.arrive || '−'}</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="closeManageModal();openEditModal(${g.id})">編集</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteGuest(${g.id});openManageModal()">削除</button>
+    </div>
+  `;
+  }).join('');
+
+  modal.innerHTML = `
+    <div class="modal" style="max-height:80vh;display:flex;flex-direction:column;">
+      <div class="modal-header">
+        <span>予約の編集・削除</span>
+        <button onclick="closeManageModal()" style="background:none;border:none;color:var(--text-dim);font-size:18px;cursor:pointer;">✕</button>
+      </div>
+      <div class="modal-body" style="overflow-y:auto;flex:1;">
+        ${guests.filter(g => g.name || g.tanto).length ? rows : '<p style="color:var(--text-dim);text-align:center;padding:20px;">予約がありません</p>'}
+      </div>
+    </div>`;
+  modal.classList.add('show');
+}
+
+function closeManageModal() {
+  document.getElementById('manageModal')?.classList.remove('show');
+}
+
+function openEditModal(id) {
+  const g = guests.find(x => x.id === id);
+  if (!g) return;
+  const aibanSplit = splitAibanText(g.aiban || '');
+  let modal = document.getElementById('editModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.id = 'editModal';
+    document.body.appendChild(modal);
+  }
+  modal.innerHTML = `
+    <div class="modal" style="max-height:85vh;display:flex;flex-direction:column;">
+      <div class="modal-header">
+        <span>予約を編集</span>
+        <button onclick="document.getElementById('editModal').classList.remove('show')" style="background:none;border:none;color:var(--text-dim);font-size:18px;cursor:pointer;">✕</button>
+      </div>
+      <div class="modal-body" style="overflow-y:auto;flex:1;">
+        <div class="form-row-compact"><label class="form-label-compact">No.（行番号）</label><input class="form-input-compact" id="e-rownum" type="number" min="1" max="30" value="${g.rowNum || ''}"></div>
+        <div class="form-row-compact"><label class="form-label-compact">卓番</label><input class="form-input-compact" id="e-table" value="${g.tableNum || ''}"></div>
+        <div class="form-row-compact"><label class="form-label-compact">お客様名</label><input class="form-input-compact" id="e-name" value="${g.name || ''}"></div>
+        <div class="form-row-compact"><label class="form-label-compact">来店時間</label><input class="form-input-compact" id="e-arrive" value="${g.arrive || ''}"></div>
+        <div class="form-row-compact"><label class="form-label-compact">退店時間</label><input class="form-input-compact" id="e-leave" value="${g.leave || ''}"></div>
+        <div class="form-row-compact"><label class="form-label-compact">担当者</label><input class="form-input-compact" id="e-tanto" value="${g.tanto || ''}"></div>
+        <div class="form-row-compact"><label class="form-label-compact">予算</label><input class="form-input-compact" id="e-budget" value="${g.budget || ''}"></div>
+        <div class="form-row-compact"><label class="form-label-compact">ヘルプ</label><input class="form-input-compact" id="e-help" value="${g.help || ''}"></div>
+        <div class="form-row-compact"><label class="form-label-compact">備考</label><input class="form-input-compact" id="e-note" value="${g.note || ''}"></div>
+        <div class="form-row-compact">
+          <label class="form-label-compact">アイバン（担当名 / お客様名）</label>
+          <div style="display:flex;gap:6px;">
+            <input class="aiban-input" id="e-aiban-tanto" placeholder="担当名" value="${aibanSplit.tanto}">
+            <input class="aiban-input" id="e-aiban-name" placeholder="お客様名" value="${aibanSplit.name}">
           </div>
         </div>
       </div>
-    `).join('');
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="document.getElementById('editModal').classList.remove('show')">キャンセル</button>
+        <button class="btn btn-primary" onclick="saveEdit(${id})">保存</button>
+      </div>
+    </div>`;
+  modal.classList.add('show');
+}
+
+function saveEdit(id) {
+  const g = guests.find(x => x.id === id);
+  if (!g) return;
+  g.rowNum = document.getElementById('e-rownum').value || null;
+  g.tableNum = document.getElementById('e-table').value;
+  g.name = document.getElementById('e-name').value;
+  g.arrive = document.getElementById('e-arrive').value;
+  g.leave = document.getElementById('e-leave').value;
+  g.tanto = document.getElementById('e-tanto').value;
+  g.budget = document.getElementById('e-budget').value;
+  g.help = document.getElementById('e-help').value;
+  g.note = document.getElementById('e-note').value;
+  {
+    const aibanTanto = document.getElementById('e-aiban-tanto').value.trim();
+    const aibanName = document.getElementById('e-aiban-name').value.trim();
+    g.aiban = [aibanTanto, aibanName].filter(Boolean).join(' ');
+  }
+  saveToStorage();
+  document.getElementById('editModal').classList.remove('show');
+  renderTables();
+  renderFloorStatus();
+  if (document.getElementById('panel-view') && document.getElementById('panel-view').classList.contains('active')) renderView();
+  showToast('保存しました');
+}
+
+function openStaffSettings() {
+  let modal = document.getElementById('staffModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.id = 'staffModal';
+    document.body.appendChild(modal);
+  }
+  modal.innerHTML = `
+    <div class="modal">
+      <div class="modal-header">
+        <span>在籍スタッフ登録</span>
+        <button onclick="document.getElementById('staffModal').classList.remove('show')" style="background:none;border:none;color:var(--text-dim);font-size:18px;cursor:pointer;">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:11px;color:var(--text-dim);margin-bottom:10px;">1行に1名ずつ入力してください</p>
+        <textarea id="staffInput" style="width:100%;min-height:200px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:var(--font-main);font-size:13px;padding:10px;outline:none;">${staffList.join('\n')}</textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="document.getElementById('staffModal').classList.remove('show')">キャンセル</button>
+        <button class="btn btn-primary" onclick="saveStaffFromModal()">保存</button>
+      </div>
+    </div>`;
+  modal.classList.add('show');
+}
+
+function saveStaffFromModal() {
+  const raw = document.getElementById('staffInput').value;
+  staffList = raw.split(/\n|\\n/).map(s => s.trim()).filter(Boolean);
+  saveStaff();
+  document.getElementById('staffModal').classList.remove('show');
+  renderStaffStatus();
+  showToast('スタッフリストを保存しました');
+}
+
+// ===== FIXED BARS =====
+// ヘッダー・タブの高さぶん下にfixedStats/tantoStats/baanaiBarを重ねて配置し、
+// 表示中のバーの高さぶんだけ本文をfixedSpacerで押し下げる
+function updateFixedTop() {
+  const header = document.querySelector('header');
+  const tabs = document.querySelector('.tabs');
+  const fixedEl = document.getElementById('fixedStats');
+  const tantoEl = document.getElementById('tantoStats');
+  const baanaiEl = document.getElementById('baanaiBar');
+  const spacer = document.getElementById('fixedSpacer');
+
+  let top = 0;
+
+  if (header) {
+    header.style.top = top + 'px';
+    top += header.offsetHeight;
+  }
+  if (tabs) {
+    tabs.style.top = top + 'px';
+    top += tabs.offsetHeight;
+  }
+  if (fixedEl && fixedEl.style.display !== 'none') {
+    fixedEl.style.top = top + 'px';
+    top += fixedEl.offsetHeight;
+  }
+  if (tantoEl && tantoEl.style.display !== 'none') {
+    tantoEl.style.top = top + 'px';
+    top += tantoEl.offsetHeight;
+  }
+  if (baanaiEl && baanaiEl.style.display !== 'none') {
+    baanaiEl.style.top = top + 'px';
+    top += baanaiEl.offsetHeight;
   }
 
-  function editResultHTML(e) {
-    return `
-      <div class="edit-result-row"><span class="edit-result-label">お支払い額</span><span class="edit-result-val accent">${fmt(e.roundedTotal)}</span></div>
-      <div class="edit-result-row"><span class="edit-result-label">担当小計</span><span class="edit-result-val danger">${fmt(e.tanto)}</span></div>
-    `;
-  }
+  // header〜baanaiBarまで全て固定表示になったぶん、本文をpadding-topで押し下げる
+  document.body.style.paddingTop = top + 'px';
+  // spacerはもう使わないが、古い呼び出しが残っていても実害が無いよう0にしておく
+  if (spacer) spacer.style.height = '0px';
+}
 
-  function toggleEdit(id) {
-    const edit = document.getElementById('edit-'+id);
-    const arrow = document.getElementById('arrow-'+id);
-    const isOpen = edit.classList.contains('open');
-    edit.classList.toggle('open', !isOpen);
-    arrow.classList.toggle('open', !isOpen);
-  }
+// 画面サイズが変わった時（回転など）も再計算
+window.addEventListener('resize', () => setTimeout(updateFixedTop, 50));
 
-  function editSelectType(id, price, btn) {
-    const entry = history.find(e=>e.id===id);
-    if (!entry) return;
-    entry.typePrice = price;
-    entry.typeLabel = TYPE_LABELS[price];
-    btn.closest('.edit-type-grid').querySelectorAll('.edit-type-btn').forEach(b=>b.classList.remove('selected'));
-    btn.classList.add('selected');
-    editCalc(id);
-  }
-
-  function editCalc(id) {
-    const entry = history.find(e=>e.id===id);
-    if (!entry) return;
-    let orderSum = 0;
-    for (let i=0;i<5;i++) {
-      const v = parseInt((document.getElementById(`einput-${id}-${i}`).value||'').replace(/,/g,''))||0;
-      entry.orders[i]=v; orderSum+=v;
-    }
-    entry.orderSum = orderSum;
-    entry.roundedTotal = roundPayment(entry.typePrice + orderSum*TAX);
-    entry.tanto = (TANTO_MAP[entry.typePrice]||0) + orderSum;
-    // 追加注文可能額を再計算
-    let addable = 0;
-    if (entry.budget && entry.roundedTotal <= entry.budget) {
-      for (let x=0;x<=5000000;x+=STEP) {
-        if (roundPayment(entry.typePrice+(orderSum+x)*TAX) <= entry.budget) addable=x; else break;
-      }
-    }
-    entry.addable = addable;
-    document.getElementById('eresult-'+id).innerHTML = editResultHTML(entry);
-    // ヘッダーもリアルタイム更新
-    const hinfo = document.querySelector('#hitem-'+id+' .history-info');
-    if (hinfo) {
-      hinfo.innerHTML = `
-        <div class="history-type"><span class="history-type-label">${entry.typeLabel}</span>${entry.memo ? ' <span class="history-memo-text">・ '+entry.memo+'</span>' : ''}</div>
-        <div class="history-pay">お支払い ${fmt(entry.roundedTotal)}</div>
-        <div class="history-tanto">担当小計 ${fmt(entry.tanto)}</div>
-      `;
-    }
-    const hright = document.querySelector('#hitem-'+id+' .history-right');
-    if (hright) {
-      const arrow = hright.querySelector('.history-arrow');
-      const arrowHTML = arrow ? arrow.outerHTML : '';
-      hright.innerHTML = budgetHTML(entry) + arrowHTML;
-    }
-    saveHistory();
-    renderSummary();
-  }
-
-  function renderSummary() {
-    const totalPay = history.reduce((s,e)=>s+e.roundedTotal,0);
-    const totalTanto = history.reduce((s,e)=>s+e.tanto,0);
-    document.getElementById('sumCount').textContent = history.length;
-    document.getElementById('sumPay').textContent = fmt(totalPay);
-    document.getElementById('sumTanto').textContent = fmt(totalTanto);
-  }
-
-  function saveEdit(id) {
-    saveHistory();
-    renderHistory();
-    // 保存後も編集欄を開いたままにする
-    const edit = document.getElementById('edit-'+id);
-    const arrow = document.getElementById('arrow-'+id);
-    if (edit) { edit.classList.add('open'); arrow.classList.add('open'); }
-  }
-
-  function deleteEntry(id) {
-    undoStack = JSON.parse(JSON.stringify(history));
-    history = history.filter(e=>e.id!==id);
-    saveHistory();
-    renderHistory();
-  }
-  // 起動時に履歴を復元
-  loadHistory();
+// ===== TOAST =====
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
 </script>
 </body>
 </html>

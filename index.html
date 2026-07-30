@@ -39,7 +39,6 @@
 
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px 18px; margin-bottom: 16px; }
   .card-title { font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; font-weight: 700; }
-  .card-sub { font-size: 0.68rem; color: var(--muted); margin-top: -8px; margin-bottom: 12px; }
 
   .type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .type-btn { background: var(--surface2); border: 1.5px solid var(--border); border-radius: 10px; color: var(--text); padding: 10px 8px; cursor: pointer; text-align: center; transition: all 0.18s; font-family: 'Noto Sans JP', sans-serif; }
@@ -60,6 +59,12 @@
   }
   input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
   input[type="number"]:focus, input[type="text"]:focus { border-color: var(--accent); }
+
+  .order-list { display: flex; flex-direction: column; gap: 10px; }
+  .order-item { display: flex; align-items: center; gap: 8px; }
+  .order-num { font-size: 0.7rem; color: var(--accent); font-weight: 900; font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.05em; min-width: 22px; }
+  .order-input { flex: 1; min-width: 0; }
+  .taxxed-display { font-size: 0.68rem; color: var(--accent2); text-align: right; white-space: nowrap; min-width: 80px; }
 
   .total-card { background: linear-gradient(135deg, rgba(232,184,109,0.12), rgba(201,123,62,0.08)), #13131c; border: 1.5px solid var(--accent); }
   .total-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
@@ -89,6 +94,7 @@
 
   .tax-note { text-align: center; font-size: 0.68rem; color: var(--muted); margin-top: -10px; margin-bottom: 14px; letter-spacing: 0.06em; }
 
+  /* 会計確定ボタン */
   .confirm-btn {
     width: 100%; background: linear-gradient(135deg, rgba(232,184,109,0.2), rgba(201,123,62,0.15));
     border: 1.5px solid var(--accent); border-radius: 10px; color: var(--accent);
@@ -100,11 +106,13 @@
   .reset-btn { width: 100%; background: transparent; border: 1.5px solid var(--border); border-radius: 10px; color: var(--muted); padding: 12px; font-size: 0.8rem; font-family: 'Noto Sans JP', sans-serif; letter-spacing: 0.1em; cursor: pointer; transition: all 0.2s; }
   .reset-btn:active { background: rgba(255,255,255,0.04); }
 
+  /* 日次集計 */
   .daily-section { margin-top: 28px; }
   .daily-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
   .daily-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; color: var(--accent); letter-spacing: 0.1em; }
   .daily-clear { font-size: 0.65rem; color: var(--muted); background: transparent; border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; }
 
+  /* 集計サマリー */
   .summary-card {
     background: linear-gradient(135deg, rgba(232,184,109,0.1), rgba(201,123,62,0.06));
     border: 1.5px solid var(--accent); border-radius: 14px; padding: 16px 18px; margin-bottom: 12px;
@@ -114,7 +122,13 @@
   .summary-label { font-size: 0.58rem; color: var(--muted); letter-spacing: 0.1em; margin-bottom: 4px; }
   .summary-val { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; color: var(--accent); letter-spacing: 0.04em; line-height: 1; }
   .summary-val.danger { color: var(--danger); }
+  .summary-divider { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
+  .summary-total-row { display: flex; justify-content: space-between; align-items: baseline; }
+  .summary-total-label { font-size: 0.68rem; color: var(--muted); }
+  .summary-total-val { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; color: var(--accent); letter-spacing: 0.05em; }
+  .summary-total-val.danger { color: var(--danger); }
 
+  /* 履歴リスト */
   .history-list { display: flex; flex-direction: column; gap: 8px; }
   .history-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
   .history-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; cursor: pointer; }
@@ -131,12 +145,19 @@
   .history-arrow { font-size: 0.7rem; color: var(--muted); transition: transform 0.2s; margin-top: 4px; }
   .history-arrow.open { transform: rotate(180deg); }
 
+  /* 履歴展開（編集） */
   .history-edit { padding: 0 14px 14px; border-top: 1px solid var(--border); display: none; }
   .history-edit.open { display: block; }
   .edit-section-title { font-size: 0.58rem; letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase; margin: 10px 0 6px; }
   .edit-type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 8px; }
   .edit-type-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 7px; color: var(--text); padding: 6px 4px; cursor: pointer; text-align: center; font-family: 'Noto Sans JP', sans-serif; font-size: 0.72rem; font-weight: 700; }
   .edit-type-btn.selected { background: rgba(232,184,109,0.15); border-color: var(--accent); color: var(--accent); }
+  .edit-order-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+  .edit-order-item { display: flex; align-items: center; gap: 6px; }
+  .edit-order-num { font-size: 0.62rem; color: var(--accent); font-family: 'Bebas Neue', sans-serif; min-width: 18px; }
+  .edit-input { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 0.85rem; font-family: 'Noto Sans JP', sans-serif; padding: 6px 10px; outline: none; -moz-appearance: textfield; -webkit-appearance: none; }
+  .edit-input:focus { border-color: var(--accent); }
+  .edit-input::-webkit-inner-spin-button { -webkit-appearance: none; }
   .edit-result { background: var(--surface2); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; }
   .edit-result-row { display: flex; justify-content: space-between; font-size: 0.68rem; margin-bottom: 3px; }
   .edit-result-label { color: var(--muted); }
@@ -144,10 +165,12 @@
   .edit-result-val.accent { color: var(--accent); }
   .edit-result-val.danger { color: var(--danger); }
   .edit-btn-row { display: flex; gap: 6px; }
+  .edit-save-btn { flex: 1; background: rgba(232,184,109,0.15); border: 1px solid var(--accent); border-radius: 8px; color: var(--accent); padding: 8px; font-size: 0.75rem; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; font-weight: 700; }
   .edit-del-btn { background: rgba(224,90,90,0.1); border: 1px solid rgba(224,90,90,0.3); border-radius: 8px; color: var(--danger); padding: 8px 12px; font-size: 0.75rem; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; }
 
   .no-history { text-align: center; color: var(--muted); font-size: 0.75rem; padding: 20px; }
 
+  /* メモ欄 */
   .memo-input {
     flex: 1; background: var(--surface2); border: 1.5px solid var(--border);
     border-radius: 8px; color: var(--text); font-size: 0.85rem;
@@ -156,15 +179,11 @@
   }
   .memo-input:focus { border-color: var(--accent); }
   .memo-input::placeholder { color: #555566; }
-  .item-search-input {
-    border: 2px solid var(--accent) !important;
-    background: rgba(232,184,109,0.08) !important;
-    font-size: 0.95rem !important;
-    padding: 12px 14px !important;
-    box-shadow: 0 0 0 3px rgba(232,184,109,0.12);
+
+  .history-memo {
+    font-size: 0.65rem; color: var(--accent2); margin-top: 2px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
-  .item-search-input::placeholder { color: rgba(232,184,109,0.65); font-weight: 700; }
-  .item-search-input:focus { box-shadow: 0 0 0 4px rgba(232,184,109,0.2); }
 
   .edit-memo-input {
     width: 100%; background: var(--surface2); border: 1px solid var(--border);
@@ -174,101 +193,6 @@
   }
   .edit-memo-input:focus { border-color: var(--accent); }
   .edit-memo-input::placeholder { color: #555566; }
-
-  /* ===== メニュー検索・注文行 ===== */
-  .search-wrap { position: relative; }
-  .suggestion-list {
-    position: absolute; top: calc(100% + 4px); left: 0; right: 0;
-    background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
-    max-height: 240px; overflow-y: auto; z-index: 30;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-  }
-  .suggestion-item { padding: 10px 12px; font-size: 0.8rem; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.04); }
-  .suggestion-item:last-child { border-bottom: none; }
-  .suggestion-item:active { background: rgba(232,184,109,0.12); }
-  .suggestion-empty { padding: 10px 12px; font-size: 0.72rem; color: var(--muted); }
-  .add-custom-btn {
-    width: 100%; text-align: left; background: rgba(232,184,109,0.06); border: none;
-    border-top: 1px dashed var(--border); color: var(--accent); padding: 10px 12px;
-    font-size: 0.74rem; cursor: pointer; font-family: 'Noto Sans JP', sans-serif;
-  }
-
-  .order-rows-list { display: flex; flex-direction: column; gap: 8px; }
-  .menu-row-header {
-    display: grid; grid-template-columns: 1fr 28px 28px 32px 74px 18px; gap: 6px;
-    padding: 0 10px; margin-bottom: -2px;
-  }
-  .menu-row-header span { font-size: 0.52rem; line-height: 1.15; color: var(--muted); letter-spacing: 0.01em; text-align: center; }
-  .menu-row-header span:first-child { text-align: left; }
-  .menu-row {
-    display: grid; grid-template-columns: 1fr 28px 28px 32px 74px 18px;
-    gap: 6px; align-items: center;
-    background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 10px;
-  }
-  .menu-row-name { font-size: 0.8rem; font-weight: 700; }
-  .menu-row-price { font-size: 0.62rem; color: var(--muted); margin-top: 2px; }
-  .menu-row-qtybtn {
-    background: rgba(232,184,109,0.14); border: 1px solid var(--accent); border-radius: 7px;
-    color: var(--accent); font-size: 0.9rem; font-weight: 900; padding: 4px 0; cursor: pointer; text-align: center;
-    font-family: 'Noto Sans JP', sans-serif; width: 100%; aspect-ratio: 1 / 1;
-  }
-  .menu-row-totalqty { text-align: center; font-family: 'Bebas Neue', sans-serif; font-size: 1.15rem; color: var(--text); }
-  .menu-row-subtotal { text-align: right; font-size: 0.82rem; font-weight: 700; color: var(--accent); white-space: nowrap; }
-  .menu-row-remove { background: transparent; border: none; color: var(--muted); font-size: 1.05rem; cursor: pointer; padding: 4px; }
-  .sauce-input { margin-top: 6px; }
-  .sauce-note { font-size: 0.65rem; color: var(--accent2); margin-top: 6px; margin-bottom: 4px; }
-  .sauce-options { display: flex; flex-wrap: wrap; gap: 6px; }
-  .sauce-opt-btn {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
-    color: var(--text); font-size: 0.72rem; padding: 7px 12px; cursor: pointer;
-    font-family: 'Noto Sans JP', sans-serif;
-  }
-  .sauce-opt-btn.selected { background: rgba(232,184,109,0.18); border-color: var(--accent); color: var(--accent); font-weight: 700; }
-  .sauce-tag-btn {
-    display: block; width: 100%; text-align: left; margin-top: 6px;
-    background: var(--surface); border: 1px dashed var(--border); border-radius: 8px;
-    color: var(--accent2); font-size: 0.68rem; padding: 6px 10px; cursor: pointer;
-    font-family: 'Noto Sans JP', sans-serif;
-  }
-  .sauce-tag-btn.has-sauce { border-style: solid; border-color: var(--accent); color: var(--accent); }
-  .sauce-extra-note { font-size: 0.6rem; color: var(--danger); margin-top: 3px; }
-  .menu-row-price-line { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
-  .fo-badge-col { display: flex; align-items: center; justify-content: center; }
-  .fo-badge {
-    display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.05;
-    background: rgba(232,184,109,0.18); border: 1px solid var(--accent);
-    color: var(--accent); font-size: 0.52rem; padding: 4px 0; border-radius: 7px;
-    font-weight: 700; letter-spacing: 0.01em; width: 100%; aspect-ratio: 1 / 1;
-  }
-  .fo-badge-star { font-size: 0.65rem; }
-  .fo-lock-btn {
-    display: block; width: 100%; background: rgba(232,184,109,0.08); border: 1px dashed var(--accent);
-    border-radius: 8px; color: var(--accent); font-size: 0.72rem; padding: 9px; margin-bottom: 10px;
-    cursor: pointer; font-family: 'Noto Sans JP', sans-serif; text-align: center;
-  }
-  .fo-lock-btn.locked { opacity: 0.55; pointer-events: none; border-style: solid; }
-  .fo-lock-btn-compact {
-    display: inline-block; width: auto; flex-shrink: 0; background: rgba(232,184,109,0.08);
-    border: 1px dashed var(--accent); border-radius: 8px; color: var(--accent);
-    font-size: 0.68rem; padding: 8px 10px; margin: 0; cursor: pointer;
-    font-family: 'Noto Sans JP', sans-serif; white-space: nowrap;
-  }
-  .fo-lock-btn-compact.locked { opacity: 0.55; pointer-events: none; border-style: solid; }
-
-  /* ===== モーダル ===== */
-  .modal-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.62);
-    display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal-box { background: var(--surface); border: 1.5px solid var(--accent); border-radius: 16px; padding: 20px; width: 100%; max-width: 340px; }
-  .modal-title { font-size: 1rem; font-weight: 700; color: var(--accent); margin-bottom: 2px; }
-  .modal-sub { font-size: 0.75rem; color: var(--muted); margin-bottom: 16px; }
-  .modal-row { margin-bottom: 14px; }
-  .modal-row label { font-size: 0.72rem; color: var(--muted); display: block; margin-bottom: 5px; }
-  .modal-btn-row { display: flex; gap: 8px; margin-top: 4px; }
-  .modal-btn-cancel { flex: 1; background: transparent; border: 1px solid var(--border); border-radius: 8px; color: var(--muted); padding: 11px; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; font-size: 0.85rem; }
-  .modal-btn-confirm { flex: 1; background: rgba(232,184,109,0.18); border: 1px solid var(--accent); border-radius: 8px; color: var(--accent); padding: 11px; font-weight: 700; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; font-size: 0.85rem; }
 </style>
 </head>
 <body>
@@ -312,22 +236,20 @@
 </div>
 
 <div class="card">
-  <div class="card-title">③ 現在の注文</div>
-  <div class="card-sub">商品名を入力して追加。既に追加済みの商品は行の「＋」から数量を追加できます。</div>
-  <div class="input-row" style="margin-bottom:10px;">
-    <label style="white-space:nowrap;">🌟 F.O.担当</label>
-    <input type="text" id="firstOrderCastInput" class="memo-input" placeholder="担当キャスト名（卓管理アプリ連携後は自動入力予定）" oninput="onFirstOrderCastInput(this)">
-    <button type="button" id="foLockBtn" class="fo-lock-btn-compact" onclick="lockFirstOrder()">✅ 確定</button>
-  </div>
-  <div class="search-wrap">
-    <input type="text" id="itemSearchInput" class="memo-input item-search-input" placeholder="🔍 商品名を入力（例: 氷結）" oninput="onItemSearchInput(this)" autocomplete="off">
-    <div class="suggestion-list" id="itemSuggestions" style="display:none;"></div>
-  </div>
-  <div class="order-rows-list" id="orderRowsList" style="margin-top:10px;">
-    <div class="no-history" style="padding:14px;">まだ商品が追加されていません</div>
+  <div class="card-title">③ 現在の注文（小計）</div>
+  <div class="order-list">
+    <div class="order-item"><span class="order-num">01</span><input type="text" class="order-input" id="o1" placeholder="¥0" inputmode="numeric" oninput="onOrder(this,1)"><input type="hidden" id="ov1"><span class="taxxed-display" id="t1"></span></div>
+    <div class="order-item"><span class="order-num">02</span><input type="text" class="order-input" id="o2" placeholder="¥0" inputmode="numeric" oninput="onOrder(this,2)"><input type="hidden" id="ov2"><span class="taxxed-display" id="t2"></span></div>
+    <div class="order-item"><span class="order-num">03</span><input type="text" class="order-input" id="o3" placeholder="¥0" inputmode="numeric" oninput="onOrder(this,3)"><input type="hidden" id="ov3"><span class="taxxed-display" id="t3"></span></div>
+    <div class="order-item"><span class="order-num">04</span><input type="text" class="order-input" id="o4" placeholder="¥0" inputmode="numeric" oninput="onOrder(this,4)"><input type="hidden" id="ov4"><span class="taxxed-display" id="t4"></span></div>
+    <div class="order-item"><span class="order-num">05</span><input type="text" class="order-input" id="o5" placeholder="¥0" inputmode="numeric" oninput="onOrder(this,5)"><input type="hidden" id="ov5"><span class="taxxed-display" id="t5"></span></div>
+    <div class="order-item"><span class="order-num">06</span><input type="text" class="order-input" id="o6" placeholder="¥0" inputmode="numeric" oninput="onOrder(this,6)"><input type="hidden" id="ov6"><span class="taxxed-display" id="t6"></span></div>
+    <div class="order-item"><span class="order-num">07</span><input type="text" class="order-input" id="o7" placeholder="¥0" inputmode="numeric" oninput="onOrder(this,7)"><input type="hidden" id="ov7"><span class="taxxed-display" id="t7"></span></div>
+    <div class="order-item"><span class="order-num">08</span><input type="text" class="order-input" id="o8" placeholder="¥0" inputmode="numeric" oninput="onOrder(this,8)"><input type="hidden" id="ov8"><span class="taxxed-display" id="t8"></span></div>
+    <div class="order-item"><span class="order-num">09</span><input type="text" class="order-input" id="o9" placeholder="¥0" inputmode="numeric" oninput="onOrder(this,9)"><input type="hidden" id="ov9"><span class="taxxed-display" id="t9"></span></div>
+    <div class="order-item"><span class="order-num">10</span><input type="text" class="order-input" id="o10" placeholder="¥0" inputmode="numeric" oninput="onOrder(this,10)"><input type="hidden" id="ov10"><span class="taxxed-display" id="t10"></span></div>
   </div>
 </div>
-
 
 <div class="card total-card">
   <div class="card-title">④ 現在の合計</div>
@@ -368,6 +290,7 @@
 <button class="confirm-btn" onclick="confirmBilling()">✓ 会計確定して次のお客様へ</button>
 <button class="reset-btn" onclick="resetAll()">↺ 入力をリセット</button>
 
+<!-- 日次集計 -->
 <div class="daily-section">
   <div class="daily-header">
     <div class="daily-title">日次集計</div>
@@ -399,50 +322,6 @@
   </div>
 </div>
 
-<!-- 数量入力モーダル -->
-<div class="modal-overlay" id="qtyModal">
-  <div class="modal-box">
-    <div class="modal-title" id="qtyModalName">商品名</div>
-    <div class="modal-sub" id="qtyModalUnitPrice">単価 —</div>
-    <div class="modal-row" id="qtyPriceRow" style="display:none;">
-      <label>単価（円）</label>
-      <input type="text" id="qtyPriceInput" inputmode="numeric" placeholder="例: 3000">
-    </div>
-    <div class="modal-row">
-      <label>注文数</label>
-      <input type="number" id="qtyInput" inputmode="numeric" min="1" placeholder="例: 2">
-    </div>
-    <div class="modal-btn-row">
-      <button class="modal-btn-cancel" onclick="closeQtyDialog()">キャンセル</button>
-      <button class="modal-btn-confirm" onclick="confirmQtyDialog()">注文</button>
-    </div>
-  </div>
-</div>
-
-<!-- 商品削除確認モーダル -->
-<div class="modal-overlay" id="removeConfirmModal">
-  <div class="modal-box">
-    <div class="modal-title">この商品をキャンセルしますか？</div>
-    <div class="modal-sub" id="removeConfirmName">—</div>
-    <div class="modal-btn-row">
-      <button class="modal-btn-cancel" onclick="closeRemoveConfirm()">戻る</button>
-      <button class="modal-btn-confirm" style="background:rgba(224,90,90,0.18);border-color:var(--danger);color:var(--danger);" onclick="confirmRemoveRow()">キャンセルする</button>
-    </div>
-  </div>
-</div>
-
-<!-- ソース選択モーダル -->
-<div class="modal-overlay" id="sauceModal">
-  <div class="modal-box">
-    <div class="modal-title" id="sauceModalName">商品名</div>
-    <div class="modal-sub" id="sauceModalSub">—</div>
-    <div class="sauce-options" id="sauceModalOptions"></div>
-    <div class="modal-btn-row" style="margin-top:16px;">
-      <button class="modal-btn-confirm" style="flex:1;" onclick="closeSauceDialog()">閉じる</button>
-    </div>
-  </div>
-</div>
-
 <script>
   const TAX = 1.507;
   const STEP = 500;
@@ -454,122 +333,11 @@
     { price:31126, label:'VIP通常' }, { price:35647, label:'VIP特殊' }
   ];
 
-  // 確定済みメニュー(税別価格)
-  const MENU_ITEMS = [
-    { name:'1.メキシカンナチョチップス サルサ＆チーズ', price:3000 },
-    { name:'2.トロたく', price:3500 },
-    { name:'3.おつまみきゅうり', price:3000 },
-    { name:'4.合鴨のスモーク', price:4000 },
-    { name:'5.ひと口チーズ揚げ', price:3500 },
-    { name:'6.サラミと生ハム', price:3500 },
-    { name:'7.特製ビンチョス', price:4000 },
-    { name:'8.5種の粗挽きウィンナー', price:4000 },
-    { name:'9.カプレーゼ', price:3500 },
-    { name:'10.スペイン風オムレツ', price:4000 },
-    { name:'11.クアトロフォルマッジ', price:5000 },
-    { name:'12.ツナマヨコーン', price:4500 },
-    { name:'13.ベーコンとポテトのモントレー', price:5000 },
-    { name:'14.マルゲリータ', price:5000 },
-    { name:'15.ベーコントマトパスタ', price:4500 },
-    { name:'16.トリュフカルボナーラ', price:5000 },
-    { name:'17.ジェノベーゼパスタ', price:5000 },
-    { name:"18.R's オムライス", price:5000 },
-    { name:"19.R's チャーハン", price:5000 },
-    { name:'20.フライドBOX', price:5500 },
-    { name:'21.タコとイカの唐揚げ', price:4500 },
-    { name:'22.ホソポテ', price:3500 },
-    { name:'23.ホソポテ大盛り', price:4500 },
-    { name:'24.贅沢肉寿司', price:6000 },
-    { name:"25.R's TKG", price:6000 },
-    { name:'26.サーモン親子丼', price:6000 },
-    { name:'27.たこわさ', price:2000 },
-    { name:'28.しじみの味噌汁', price:1500 },
-    { name:'29.塩辛', price:1500 },
-    { name:'30.梅水晶', price:2000 },
-    { name:'31.スナック盛り', price:2000 },
-    { name:'32.たまごスープ', price:1500 },
-    { name:'33.塩昆布キャベツ', price:2000 },
-    { name:'34.馬肉のユッケ', price:4000 },
-    { name:'35.アワビのバターソテー(1個)', price:5000 },
-    { name:'36.アワビのバターソテー(2個)', price:9000 },
-    { name:'37.シータイガーのグリル', price:9000 },
-    { name:'38.チョコレートアイス', price:2500 },
-    { name:'39.アイス＆チュロス', price:3500 },
-    { name:'40.バニラアイス', price:2500 },
-    { name:"41.R's フレンチトースト", price:4000 },
-    { name:"42.R's パンナコッタ", price:3500 },
-    { name:'淡麗グリーンラベル', price:1500 },
-    { name:'アサヒスーパードライ', price:1500 },
-    { name:'すらっと 各種', price:1500 },
-    { name:'氷結無糖 レモン', price:1500 },
-    { name:'氷結無糖 グレープフルーツ', price:1500 },
-    { name:'茉莉花(ジャスミン茶割・JJ)缶', price:1500 },
-    { name:'ハイボール', price:1500 },
-    { name:'スミノフアイス', price:1500 },
-    { name:'スカイブルー', price:1500 },
-    { name:'カクテル 各種', price:2000 },
-    { name:'鏡月グリーン', price:10000 },
-    { name:'ジャパン', price:10000 },
-    { name:'柚子小町', price:10000 },
-    { name:'鍛高譚', price:10000 },
-    { name:'白岳しろ', price:15000 },
-    { name:'れんと', price:15000 },
-    { name:'吉四六', price:15000 },
-    { name:'黒霧島', price:15000 },
-    { name:'黒丸', price:20000 },
-    { name:'吉兆宝山', price:25000 },
-    { name:'富乃宝山', price:30000 },
-    { name:'テキーラボール 1SET(5shot)', price:10000 },
-    { name:'テキーラローズ 1SET(6shot)', price:10000 },
-    { name:'イエガー 1SET(6shot)', price:10000 },
-    { name:'クライナー 1SET(5shot)', price:15000 },
-    { name:'コカボム 1SET(5shot)', price:15000 },
-    { name:'テキーラ1800 アネホ 1SET(6shot)', price:22000 },
-    { name:'ハブ酒 1SET(6shot)', price:22000 },
-    { name:'コカボムタワー(10shot)', price:35000 },
-    { name:'テキーラ観覧車(12shot)', price:50000 },
-    { name:'シンデレラ', price:30000 },
-    { name:'テキーラ 1Shot', price:4000 },
-    { name:'コカボム 1Shot', price:3000 },
-    { name:'ルベレー・ロゼ', price:50000 },
-    { name:'ルベレー・ファントム', price:70000 },
-    { name:'ルイ・ロデレール コレクション246', price:80000 },
-    { name:'ルベレー・ゴールド', price:100000 },
-    { name:'ロジャー・グラート ゴールド', price:150000 },
-    { name:'ロジャー・グラート プラチナ', price:300000 },
-    { name:'ロジャー・グラート ブラック', price:500000 },
-    { name:'天使のアスティ', price:40000 },
-    { name:'ボッテガ・スタッズシャンパン', price:180000 },
-    { name:'ベルエポック', price:200000 },
-    { name:'クリュッグ', price:250000 },
-    { name:'クリュッグ・ロゼ', price:400000 },
-    { name:'アルマンド・ブリニャック ブリュット・ゴールド', price:400000 },
-    { name:'アルマンド・ブリニャック ドゥミセック', price:650000 },
-    { name:'アルマンド・ブリニャック ブリュット・ロゼ', price:700000 },
-    { name:'アルマンド・ブリニャック グリーン・マスターズ', price:850000 },
-    { name:'アルマンド・ブリニャック ブラン・ド・ブラン', price:1150000 },
-    { name:'ポルミエ ポミヨン', price:40000 },
-    { name:'1688 グランロゼ', price:80000 },
-    { name:'1688 グランブラン', price:120000 },
-  ];
-
-  // ソース選択が必要な商品
-  const SAUCE_ITEMS = ['20.フライドBOX', '21.タコとイカの唐揚げ', '22.ホソポテ', '23.ホソポテ大盛り'];
-  const SAUCE_OPTIONS = { A:'明太マヨ', B:'ケチャップ', C:'チーズソース', D:'BBQ', E:'ジェノバマヨ' };
-  const SAUCE_LIMITS = { '20.フライドBOX':2, '21.タコとイカの唐揚げ':1, '22.ホソポテ':1, '23.ホソポテ大盛り':2 };
-  const SAUCE_EXTRA_PRICE = 500;
-
   let startPrice = 0;
-  let orderRows = []; // 現在の注文: {id, name, price, qty, subtotal, sauce, sauceList, isCustom, isFirstOrder}
-  let firstOrderCast = '';
-  let firstOrderLocked = false;
   let history = [];
-  let undoStack = null;
-  let pendingQtyCtx = null; // {ctxType:'current'|'history', ctxId, name, price, isCustom}
-  let uidCounter = 1;
+  let undoStack = null; // 直前の履歴状態を保持
 
-  function newId() { return Date.now() + '_' + (uidCounter++); }
-
+  // ローカルストレージから履歴を読み込む
   function loadHistory() {
     try {
       const saved = localStorage.getItem('kaikei_history');
@@ -577,13 +345,14 @@
     } catch(e) { history = []; }
     renderHistory();
   }
+
+  // ローカルストレージに履歴を保存
   function saveHistory() {
     try { localStorage.setItem('kaikei_history', JSON.stringify(history)); } catch(e) {}
   }
 
   function fmt(n) { return '¥' + Math.round(n).toLocaleString('ja-JP'); }
   function roundPayment(t) { const r = t % 1000; return r >= 500 ? Math.ceil(t/1000)*1000 : Math.floor(t/1000)*1000; }
-  function escapeStr(s) { return String(s).replace(/'/g, "\\'"); }
 
   function onBudget(el) {
     const raw = el.value.replace(/,/g,'');
@@ -593,274 +362,12 @@
     calc();
   }
 
-  function onFirstOrderCastInput(el) {
-    firstOrderCast = el.value;
-  }
-
-  function lockFirstOrder() {
-    firstOrderLocked = true;
-    const btn = document.getElementById('foLockBtn');
-    btn.textContent = '✅ 確定済み';
-    btn.classList.add('locked');
-  }
-
-  function lockFirstOrderHistory(id) {
-    const entry = history.find(e => e.id === id);
-    if (!entry) return;
-    entry.firstOrderLocked = true;
-    saveHistory();
-    const btn = document.getElementById('folock-' + id);
-    if (btn) { btn.textContent = '✅ ファーストオーダー確定済み'; btn.classList.add('locked'); }
-  }
-
-  function isFOLocked(ctxType, ctxId) {
-    if (ctxType === 'current') return firstOrderLocked;
-    const entry = history.find(e => e.id === ctxId);
-    return entry ? !!entry.firstOrderLocked : true;
-  }
-
-  function selectType(btn) {
-    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    startPrice = parseInt(btn.dataset.price);
+  function onOrder(el, idx) {
+    const raw = el.value.replace(/,/g,'');
+    const n = parseInt(raw) || 0;
+    el.value = n > 0 ? n.toLocaleString('ja-JP') : (raw===''?'':raw);
+    document.getElementById('ov'+idx).value = n || 0;
     calc();
-  }
-
-  /* ===== メニュー検索(現在の注文) ===== */
-  function onItemSearchInput(el) {
-    const q = el.value.trim();
-    const box = document.getElementById('itemSuggestions');
-    if (!q) { box.style.display='none'; box.innerHTML=''; return; }
-    const matches = MENU_ITEMS.filter(m => m.name.includes(q)).slice(0, 8);
-    let html = matches.map(m =>
-      `<div class="suggestion-item" onclick="pickSuggestion('${escapeStr(m.name)}',${m.price})">${m.name}<span style="float:right;color:var(--muted);font-size:0.7rem;">${fmt(m.price)}</span></div>`
-    ).join('');
-    if (matches.length === 0) {
-      html = `<div class="suggestion-empty">一致する商品がありません</div><div class="add-custom-btn" onclick="pickCustom('${escapeStr(q)}')">「${q}」を新規商品として追加</div>`;
-    } else {
-      html += `<div class="add-custom-btn" onclick="pickCustom('${escapeStr(q)}')">リストにない商品として追加</div>`;
-    }
-    box.innerHTML = html;
-    box.style.display = 'block';
-  }
-  function pickSuggestion(name, price) {
-    document.getElementById('itemSearchInput').value = '';
-    document.getElementById('itemSuggestions').style.display = 'none';
-    openQtyDialogForNew('current', null, name, price, false);
-  }
-  function pickCustom(name) {
-    document.getElementById('itemSearchInput').value = '';
-    document.getElementById('itemSuggestions').style.display = 'none';
-    openQtyDialogForNew('current', null, name, 0, true);
-  }
-
-  /* ===== メニュー検索(履歴編集) ===== */
-  function onHistoryItemSearchInput(entryId, el) {
-    const q = el.value.trim();
-    const box = document.getElementById('esuggest-'+entryId);
-    if (!q) { box.style.display='none'; box.innerHTML=''; return; }
-    const matches = MENU_ITEMS.filter(m => m.name.includes(q)).slice(0, 8);
-    let html = matches.map(m =>
-      `<div class="suggestion-item" onclick="pickHistorySuggestion(${entryId},'${escapeStr(m.name)}',${m.price})">${m.name}<span style="float:right;color:var(--muted);font-size:0.7rem;">${fmt(m.price)}</span></div>`
-    ).join('');
-    if (matches.length === 0) {
-      html = `<div class="suggestion-empty">一致する商品がありません</div><div class="add-custom-btn" onclick="pickHistoryCustom(${entryId},'${escapeStr(q)}')">「${q}」を新規商品として追加</div>`;
-    } else {
-      html += `<div class="add-custom-btn" onclick="pickHistoryCustom(${entryId},'${escapeStr(q)}')">リストにない商品として追加</div>`;
-    }
-    box.innerHTML = html;
-    box.style.display = 'block';
-  }
-  function pickHistorySuggestion(entryId, name, price) {
-    document.getElementById('esearch-'+entryId).value = '';
-    document.getElementById('esuggest-'+entryId).style.display = 'none';
-    openQtyDialogForNew('history', entryId, name, price, false);
-  }
-  function pickHistoryCustom(entryId, name) {
-    document.getElementById('esearch-'+entryId).value = '';
-    document.getElementById('esuggest-'+entryId).style.display = 'none';
-    openQtyDialogForNew('history', entryId, name, 0, true);
-  }
-
-  /* ===== 行データ操作 ===== */
-  function getRowsArray(ctxType, ctxId) {
-    if (ctxType === 'current') return orderRows;
-    const entry = history.find(e => e.id === ctxId);
-    if (!entry) return [];
-    if (!entry.orders) entry.orders = [];
-    return entry.orders;
-  }
-
-  function openQtyDialogForRow(ctxType, ctxId, rowId) {
-    const rows = getRowsArray(ctxType, ctxId);
-    const row = rows.find(r => r.id === rowId);
-    if (!row) return;
-    pendingQtyCtx = { ctxType, ctxId, name: row.name, price: row.price, isCustom: row.isCustom };
-    showQtyModal(row.name, row.isCustom, row.price);
-  }
-  function openQtyDialogForNew(ctxType, ctxId, name, price, isCustom) {
-    pendingQtyCtx = { ctxType, ctxId, name, price, isCustom };
-    showQtyModal(name, isCustom, price);
-  }
-  function showQtyModal(name, isCustom, price) {
-    document.getElementById('qtyModalName').textContent = name;
-    document.getElementById('qtyPriceRow').style.display = isCustom ? 'block' : 'none';
-    document.getElementById('qtyModalUnitPrice').textContent = isCustom ? '単価を入力してください' : ('単価 ' + fmt(price));
-    document.getElementById('qtyPriceInput').value = '';
-    document.getElementById('qtyInput').value = '';
-    document.getElementById('qtyModal').classList.add('open');
-    setTimeout(() => document.getElementById('qtyInput').focus(), 50);
-  }
-  function closeQtyDialog() {
-    document.getElementById('qtyModal').classList.remove('open');
-    pendingQtyCtx = null;
-  }
-  function confirmQtyDialog() {
-    if (!pendingQtyCtx) return;
-    const ctx = pendingQtyCtx;
-    let price = ctx.price;
-    if (ctx.isCustom) {
-      const p = parseInt((document.getElementById('qtyPriceInput').value || '').replace(/,/g,'')) || 0;
-      if (p <= 0) { alert('単価を入力してください'); return; }
-      price = p;
-    }
-    const qty = parseInt(document.getElementById('qtyInput').value) || 0;
-    if (qty <= 0) { alert('数量を入力してください'); return; }
-    const rows = getRowsArray(ctx.ctxType, ctx.ctxId);
-    let row = rows.find(r => r.name === ctx.name);
-    if (!row) {
-      row = { id: newId(), name: ctx.name, price: price, qty: 0, subtotal: 0, sauce: '', sauceList: [], isCustom: !!ctx.isCustom, isFirstOrder: !isFOLocked(ctx.ctxType, ctx.ctxId) };
-      rows.push(row);
-    }
-    row.qty += qty;
-    row.subtotal = row.qty * row.price + sauceExtraCost(row);
-    closeQtyDialog();
-    updateAfterChange(ctx.ctxType, ctx.ctxId);
-  }
-
-  let pendingRemoveCtx = null;
-  function askRemoveRow(ctxType, ctxId, rowId, name) {
-    pendingRemoveCtx = { ctxType, ctxId, rowId };
-    document.getElementById('removeConfirmName').textContent = name;
-    document.getElementById('removeConfirmModal').classList.add('open');
-  }
-  function closeRemoveConfirm() {
-    document.getElementById('removeConfirmModal').classList.remove('open');
-    pendingRemoveCtx = null;
-  }
-  function confirmRemoveRow() {
-    if (!pendingRemoveCtx) return;
-    const { ctxType, ctxId, rowId } = pendingRemoveCtx;
-    const rows = getRowsArray(ctxType, ctxId);
-    const idx = rows.findIndex(r => r.id === rowId);
-    if (idx > -1) rows.splice(idx, 1);
-    closeRemoveConfirm();
-    updateAfterChange(ctxType, ctxId);
-  }
-
-  function sauceExtraCost(row) {
-    if (!SAUCE_ITEMS.includes(row.name)) return 0;
-    const limit = SAUCE_LIMITS[row.name] || 0;
-    const selected = (row.sauceList||[]).length;
-    return Math.max(0, selected - limit) * SAUCE_EXTRA_PRICE;
-  }
-
-  let sauceModalCtx = null; // {ctxType, ctxId, rowId}
-
-  function openSauceDialog(ctxType, ctxId, rowId) {
-    const rows = getRowsArray(ctxType, ctxId);
-    const row = rows.find(r => r.id === rowId);
-    if (!row) return;
-    sauceModalCtx = { ctxType, ctxId, rowId };
-    document.getElementById('sauceModalName').textContent = row.name;
-    const limit = SAUCE_LIMITS[row.name] || 0;
-    document.getElementById('sauceModalSub').textContent = limit + '個まで無料（それ以上は1個につき+' + fmt(SAUCE_EXTRA_PRICE) + '）';
-    renderSauceModalOptions(row);
-    document.getElementById('sauceModal').classList.add('open');
-  }
-
-  function renderSauceModalOptions(row) {
-    const box = document.getElementById('sauceModalOptions');
-    box.innerHTML = Object.keys(SAUCE_OPTIONS).map(code => {
-      const selected = (row.sauceList||[]).includes(code);
-      return `<button class="sauce-opt-btn ${selected?'selected':''}" onclick="toggleSauceInModal('${code}')">${code}:${SAUCE_OPTIONS[code]}</button>`;
-    }).join('');
-  }
-
-  function toggleSauceInModal(code) {
-    if (!sauceModalCtx) return;
-    const rows = getRowsArray(sauceModalCtx.ctxType, sauceModalCtx.ctxId);
-    const row = rows.find(r => r.id === sauceModalCtx.rowId);
-    if (!row) return;
-    if (!row.sauceList) row.sauceList = [];
-    const idx = row.sauceList.indexOf(code);
-    if (idx > -1) {
-      row.sauceList.splice(idx, 1);
-    } else {
-      row.sauceList.push(code);
-    }
-    row.sauce = row.sauceList.map(c => c + ':' + SAUCE_OPTIONS[c]).join(', ');
-    row.subtotal = row.qty * row.price + sauceExtraCost(row);
-    renderSauceModalOptions(row);
-  }
-
-  function closeSauceDialog() {
-    document.getElementById('sauceModal').classList.remove('open');
-    const ctx = sauceModalCtx;
-    sauceModalCtx = null;
-    if (ctx) updateAfterChange(ctx.ctxType, ctx.ctxId);
-  }
-
-  function rowHTML(row, ctxType, ctxId) {
-    const sauceNeeded = SAUCE_ITEMS.includes(row.name);
-    const ctxIdArg = (ctxId === null || ctxId === undefined) ? 'null' : ctxId;
-    return `
-      <div class="menu-row">
-        <div>
-          <div class="menu-row-name">${row.name}</div>
-          <div class="menu-row-price-line">
-            <span class="menu-row-price">単価:${fmt(row.price)}</span>
-          </div>
-          ${sauceNeeded ? (() => {
-            const list = row.sauceList || [];
-            const extra = sauceExtraCost(row);
-            const label = list.length ? ('🥣 ソース: ' + list.join('/')) : '🥣 ソースを選択';
-            return `<button class="sauce-tag-btn ${list.length?'has-sauce':''}" onclick="openSauceDialog('${ctxType}',${ctxIdArg},'${row.id}')">${label}</button>${extra>0?`<div class="sauce-extra-note">ソース追加料 +${fmt(extra)}</div>`:''}`;
-          })() : ''}
-        </div>
-        <div class="fo-badge-col">${row.isFirstOrder ? '<span class="fo-badge">🌟<br>F.O.</span>' : ''}</div>
-        <button class="menu-row-qtybtn" onclick="openQtyDialogForRow('${ctxType}',${ctxIdArg},'${row.id}')">＋</button>
-        <div class="menu-row-totalqty">${row.qty}</div>
-        <div class="menu-row-subtotal">${fmt(row.subtotal)}</div>
-        <button class="menu-row-remove" onclick="askRemoveRow('${ctxType}',${ctxIdArg},'${row.id}','${escapeStr(row.name)}')">×</button>
-      </div>`;
-  }
-
-  function menuRowHeaderHTML() {
-    return `<div class="menu-row-header"><span>品名 / 単価</span><span></span><span>新規注文数</span><span>合計数</span><span>合計額</span><span></span></div>`;
-  }
-
-  function renderOrderRows() {
-    const list = document.getElementById('orderRowsList');
-    if (orderRows.length === 0) {
-      list.innerHTML = '<div class="no-history" style="padding:14px;">まだ商品が追加されていません</div>';
-      return;
-    }
-    list.innerHTML = menuRowHeaderHTML() + orderRows.map(r => rowHTML(r, 'current', null)).join('');
-  }
-
-  function updateAfterChange(ctxType, ctxId) {
-    if (ctxType === 'current') {
-      renderOrderRows();
-      calc();
-    } else {
-      const entry = history.find(e => e.id === ctxId);
-      if (!entry) return;
-      recalcEntry(entry);
-      saveHistory();
-      refreshHistoryEntryUI(entry);
-      renderSummary();
-    }
   }
 
   function budgetHTML(e) {
@@ -878,18 +385,28 @@
     saveHistory();
   }
 
-  function onEditFirstOrderCast(id, el) {
-    const entry = history.find(e=>e.id===id);
-    if (!entry) return;
-    entry.firstOrderCast = el.value.trim();
-    saveHistory();
+  function onEditOrder(el, id, idx) {
+    const raw = el.value.replace(/,/g,'');
+    const n = parseInt(raw) || 0;
+    el.value = n > 0 ? n.toLocaleString('ja-JP') : (raw===''?'':raw);
+    editCalc(id);
+  }
+
+  function selectType(btn) {
+    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    startPrice = parseInt(btn.dataset.price);
+    calc();
   }
 
   function calc() {
     const budget = parseInt(document.getElementById('budget').value) || 0;
     let orderSum = 0;
-    orderRows.forEach(r => orderSum += r.subtotal);
-
+    for (let i=1;i<=10;i++) {
+      const v = parseInt(document.getElementById('ov'+i).value) || 0;
+      orderSum += v;
+      document.getElementById('t'+i).textContent = v > 0 ? '税込'+fmt(v*TAX) : '';
+    }
     document.getElementById('dispStart').textContent = startPrice ? fmt(startPrice) : '—';
     document.getElementById('dispOrder').textContent = fmt(orderSum);
 
@@ -956,7 +473,12 @@
 
   function confirmBilling() {
     if (!startPrice) { alert('入店種別を選択してください'); return; }
-    const orderSum = orderRows.reduce((s,r)=>s+r.subtotal, 0);
+    let orderSum = 0;
+    const orders = [];
+    for (let i=1;i<=10;i++) {
+      const v = parseInt(document.getElementById('ov'+i).value)||0;
+      orderSum += v; orders.push(v);
+    }
     const total = startPrice + orderSum*TAX;
     const roundedTotal = roundPayment(total);
     const tanto = (TANTO_MAP[startPrice]||0) + orderSum;
@@ -973,15 +495,13 @@
       id: Date.now(),
       typePrice: startPrice,
       typeLabel: TYPE_LABELS[startPrice],
-      orders: JSON.parse(JSON.stringify(orderRows)),
+      orders,
       orderSum,
       roundedTotal,
       tanto,
       budget,
       addable,
       memo,
-      firstOrderCast,
-      firstOrderLocked: true,
     };
     history.push(entry);
     saveHistory();
@@ -996,16 +516,11 @@
     document.getElementById('budgetDisp').value='';
     document.getElementById('tantoRow').style.display='none';
     document.getElementById('memoInput').value='';
-    orderRows = [];
-    firstOrderCast = '';
-    firstOrderLocked = false;
-    document.getElementById('firstOrderCastInput').value = '';
-    const foBtn = document.getElementById('foLockBtn');
-    foBtn.textContent = '✅ 確定';
-    foBtn.classList.remove('locked');
-    renderOrderRows();
-    document.getElementById('itemSearchInput').value='';
-    document.getElementById('itemSuggestions').style.display='none';
+    for(let i=1;i<=10;i++){
+      document.getElementById('o'+i).value='';
+      document.getElementById('ov'+i).value='';
+      document.getElementById('t'+i).textContent='';
+    }
     calc();
   }
 
@@ -1023,51 +538,19 @@
     history=[]; saveHistory(); renderHistory();
   }
 
-  function recalcEntry(entry) {
-    entry.orderSum = (entry.orders||[]).reduce((s,r)=>s+r.subtotal, 0);
-    entry.roundedTotal = roundPayment(entry.typePrice + entry.orderSum*TAX);
-    entry.tanto = (TANTO_MAP[entry.typePrice]||0) + entry.orderSum;
-    let addable = 0;
-    if (entry.budget && entry.roundedTotal <= entry.budget) {
-      for (let x=0;x<=5000000;x+=STEP) {
-        if (roundPayment(entry.typePrice+(entry.orderSum+x)*TAX) <= entry.budget) addable=x; else break;
-      }
-    }
-    entry.addable = addable;
-  }
-
-  function refreshHistoryEntryUI(entry) {
-    const rowsBox = document.getElementById('erows-'+entry.id);
-    if (rowsBox) {
-      rowsBox.innerHTML = (entry.orders||[]).length
-        ? menuRowHeaderHTML() + entry.orders.map(r=>rowHTML(r,'history',entry.id)).join('')
-        : '<div class="no-history" style="padding:10px;">商品未登録</div>';
-    }
-    const resultBox = document.getElementById('eresult-'+entry.id);
-    if (resultBox) resultBox.innerHTML = editResultHTML(entry);
-    const hinfo = document.querySelector('#hitem-'+entry.id+' .history-info');
-    if (hinfo) {
-      hinfo.innerHTML = `
-        <div class="history-type"><span class="history-type-label">${entry.typeLabel}</span>${entry.memo ? ' <span class="history-memo-text">・ '+entry.memo+'</span>' : ''}</div>
-        <div class="history-pay">お支払い ${fmt(entry.roundedTotal)}</div>
-        <div class="history-tanto">担当小計 ${fmt(entry.tanto)}</div>
-      `;
-    }
-    const hright = document.querySelector('#hitem-'+entry.id+' .history-right');
-    if (hright) {
-      const arrow = hright.querySelector('.history-arrow');
-      const arrowHTML = arrow ? arrow.outerHTML : '';
-      hright.innerHTML = budgetHTML(entry) + arrowHTML;
-    }
-  }
-
   function renderHistory() {
     const undoBtn = document.getElementById('undoBtn');
     if (undoBtn) undoBtn.style.display = undoStack ? 'inline-block' : 'none';
-    renderSummary();
+    // 集計更新
+    const count = history.length;
+    const totalPay = history.reduce((s,e)=>s+e.roundedTotal,0);
+    const totalTanto = history.reduce((s,e)=>s+e.tanto,0);
+    document.getElementById('sumCount').textContent = count;
+    document.getElementById('sumPay').textContent = fmt(totalPay);
+    document.getElementById('sumTanto').textContent = fmt(totalTanto);
 
     const list = document.getElementById('historyList');
-    if (history.length===0) { list.innerHTML='<div class="no-history">まだ会計履歴がありません</div>'; return; }
+    if (count===0) { list.innerHTML='<div class="no-history">まだ会計履歴がありません</div>'; return; }
 
     list.innerHTML = history.map((e,idx) => `
       <div class="history-item" id="hitem-${e.id}">
@@ -1086,22 +569,20 @@
         <div class="history-edit" id="edit-${e.id}">
           <div class="edit-section-title">メモ</div>
           <input type="text" class="edit-memo-input" id="ememo-${e.id}" value="${e.memo||''}" placeholder="卓番・特記事項など" oninput="onEditMemo(${e.id}, this)" style="margin-bottom:8px;">
-          <div class="edit-section-title">🌟 ファーストオーダー対応</div>
-          <input type="text" class="edit-memo-input" id="efo-${e.id}" value="${e.firstOrderCast||''}" placeholder="担当キャスト名（卓管理アプリ連携後は自動入力予定）" oninput="onEditFirstOrderCast(${e.id}, this)" style="margin-bottom:8px;">
-          <button type="button" id="folock-${e.id}" class="fo-lock-btn ${e.firstOrderLocked?'locked':''}" onclick="lockFirstOrderHistory(${e.id})">${e.firstOrderLocked ? '✅ ファーストオーダー確定済み' : '✅ ファーストオーダーを確定する（複数商品OK）'}</button>
           <div class="edit-section-title">入店種別</div>
           <div class="edit-type-grid">
             ${TYPES.map(t=>`<button class="edit-type-btn ${e.typePrice===t.price?'selected':''}" onclick="editSelectType(${e.id},${t.price},this)">${t.label}</button>`).join('')}
           </div>
-          <div class="edit-section-title">注文内容</div>
-          <div class="search-wrap">
-            <input type="text" id="esearch-${e.id}" class="memo-input" placeholder="商品名を入力" oninput="onHistoryItemSearchInput(${e.id}, this)" autocomplete="off">
-            <div class="suggestion-list" id="esuggest-${e.id}" style="display:none;"></div>
+          <div class="edit-section-title">注文小計</div>
+          <div class="edit-order-list">
+            ${e.orders.map((v,i)=>`
+              <div class="edit-order-item">
+                <span class="edit-order-num">${String(i+1).padStart(2,'0')}</span>
+                <input type="text" class="edit-input" id="einput-${e.id}-${i}" value="${v>0?v.toLocaleString('ja-JP'):''}" placeholder="¥0" inputmode="numeric" oninput="onEditOrder(this,${e.id},${i})">
+              </div>
+            `).join('')}
           </div>
-          <div class="order-rows-list" id="erows-${e.id}" style="margin-top:8px;">
-            ${(e.orders||[]).length ? menuRowHeaderHTML() + e.orders.map(r=>rowHTML(r,'history',e.id)).join('') : '<div class="no-history" style="padding:10px;">商品未登録</div>'}
-          </div>
-          <div class="edit-result" id="eresult-${e.id}" style="margin-top:10px;">
+          <div class="edit-result" id="eresult-${e.id}">
             ${editResultHTML(e)}
           </div>
           <div class="edit-btn-row">
@@ -1134,9 +615,45 @@
     entry.typeLabel = TYPE_LABELS[price];
     btn.closest('.edit-type-grid').querySelectorAll('.edit-type-btn').forEach(b=>b.classList.remove('selected'));
     btn.classList.add('selected');
-    recalcEntry(entry);
+    editCalc(id);
+  }
+
+  function editCalc(id) {
+    const entry = history.find(e=>e.id===id);
+    if (!entry) return;
+    let orderSum = 0;
+    for (let i=0;i<10;i++) {
+      const v = parseInt((document.getElementById(`einput-${id}-${i}`).value||'').replace(/,/g,''))||0;
+      entry.orders[i]=v; orderSum+=v;
+    }
+    entry.orderSum = orderSum;
+    entry.roundedTotal = roundPayment(entry.typePrice + orderSum*TAX);
+    entry.tanto = (TANTO_MAP[entry.typePrice]||0) + orderSum;
+    // 追加注文可能額を再計算
+    let addable = 0;
+    if (entry.budget && entry.roundedTotal <= entry.budget) {
+      for (let x=0;x<=5000000;x+=STEP) {
+        if (roundPayment(entry.typePrice+(orderSum+x)*TAX) <= entry.budget) addable=x; else break;
+      }
+    }
+    entry.addable = addable;
+    document.getElementById('eresult-'+id).innerHTML = editResultHTML(entry);
+    // ヘッダーもリアルタイム更新
+    const hinfo = document.querySelector('#hitem-'+id+' .history-info');
+    if (hinfo) {
+      hinfo.innerHTML = `
+        <div class="history-type"><span class="history-type-label">${entry.typeLabel}</span>${entry.memo ? ' <span class="history-memo-text">・ '+entry.memo+'</span>' : ''}</div>
+        <div class="history-pay">お支払い ${fmt(entry.roundedTotal)}</div>
+        <div class="history-tanto">担当小計 ${fmt(entry.tanto)}</div>
+      `;
+    }
+    const hright = document.querySelector('#hitem-'+id+' .history-right');
+    if (hright) {
+      const arrow = hright.querySelector('.history-arrow');
+      const arrowHTML = arrow ? arrow.outerHTML : '';
+      hright.innerHTML = budgetHTML(entry) + arrowHTML;
+    }
     saveHistory();
-    refreshHistoryEntryUI(entry);
     renderSummary();
   }
 
@@ -1148,16 +665,23 @@
     document.getElementById('sumTanto').textContent = fmt(totalTanto);
   }
 
+  function saveEdit(id) {
+    saveHistory();
+    renderHistory();
+    // 保存後も編集欄を開いたままにする
+    const edit = document.getElementById('edit-'+id);
+    const arrow = document.getElementById('arrow-'+id);
+    if (edit) { edit.classList.add('open'); arrow.classList.add('open'); }
+  }
+
   function deleteEntry(id) {
     undoStack = JSON.parse(JSON.stringify(history));
     history = history.filter(e=>e.id!==id);
     saveHistory();
     renderHistory();
   }
-
   // 起動時に履歴を復元
   loadHistory();
-  renderOrderRows();
 </script>
 </body>
 </html>
